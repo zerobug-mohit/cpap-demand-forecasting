@@ -48,13 +48,13 @@ const ROWS: RowDef[] = [
   },
   {
     key: 'normBedsPer1000',
-    label: 'Normative SNCU beds / 1,000 births',
-    hint: 'FBNC-consistent build-out rule (12 beds per 3,000 deliveries = 4 per 1,000).',
+    label: 'Normative SNCU beds / 1,000 inst. births',
+    hint: 'FBNC-consistent build-out rule (12 beds per 3,000 deliveries = 4 per 1,000). Applied to institutional births (live births × NFHS-6 delivery rate), not all births.',
     unit: 'beds/1k',
     min: 1,
     max: 8,
     step: 0.5,
-    refs: [{ key: 'fbnc2025', page: 'p. 28' }, { key: 'inap2014', page: 'p. 57' }],
+    refs: [{ key: 'fbnc2025', page: 'p. 28' }, { key: 'inap2014', page: 'p. 57' }, { key: 'nfhs6', page: 'inst. delivery' }],
   },
 ]
 

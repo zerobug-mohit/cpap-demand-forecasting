@@ -52,10 +52,11 @@ export default function LensExplainer({ totals, norms }: { totals: Totals; norms
               </div>
               <div className="lens-q">“What should a fully built-out network have?”</div>
               <p className="lens-desc">
-                Ignores what exists and sizes the network from <strong>births</strong> using the government
-                build-out rule, then applies the same norm. It is the target / ceiling for full coverage.
+                Ignores what exists and sizes the network from <strong>institutional births</strong> (live births ×
+                institutional-delivery rate) using the government build-out rule, then applies the same norm. It is the
+                target / ceiling for full coverage of facility deliveries.
               </p>
-              <div className="lens-flow">births → norm beds → × CPAP-per-bed = <strong>{fmt(totals.normCpap)} devices</strong></div>
+              <div className="lens-flow">births → × delivery rate → norm beds → × CPAP-per-bed = <strong>{fmt(totals.normCpap)} devices</strong></div>
               <p className="lens-blind">⚠ Blind spot: an ideal — can run ahead of what’s deliverable today.</p>
             </div>
           </div>

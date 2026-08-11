@@ -22,7 +22,7 @@ export default function InsightCard({ totals }: { totals: Totals }) {
       <div className="callout" style={{ marginTop: 14 }}>
         <strong>Read with care.</strong> Per-state SNCU beds are unpublished, so beds are derived from unit counts ×
         average beds — the single biggest lever (try the slider). The normative lens is a ceiling (the norm is
-        applied to all births). Installed CPAP counts are not public, so the actual procurement gap needs a facility
+        applied to institutional births — live births × NFHS-6 delivery rate). Installed CPAP counts are not public, so the actual procurement gap needs a facility
         device survey (Madhya Pradesh first).
       </div>
     </div>

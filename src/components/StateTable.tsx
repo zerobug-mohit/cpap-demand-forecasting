@@ -60,7 +60,7 @@ export default function StateTable({ rows, totals, showExt }: Props) {
     <div>
       <p className="card-note">
         Click a column to sort · 36 states / UTs. The guidelines-based lens applies the norm to today's SNCU beds;
-        normative applies it to the beds a fully built-out network would have.
+        normative applies it to the beds a fully built-out network would have (sized from institutional births = live births × NFHS-6 delivery rate).
         {showExt ? ' Add-on shows the NBSU/Transport extension, already included in the CPAP columns.' : ''}{' '}
         Gap = normative − guidelines-based CPAP.
       </p>

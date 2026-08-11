@@ -49,3 +49,6 @@ export const STATES2: State2[] = STATES.map((s) => {
   const d = M2[s.state]
   return { state: s.state, ut: s.ut, births: s.births, idr: d.idr / 100, lbw: d.lbw, nmr: d.nmr }
 })
+
+/** state -> institutional-delivery rate (fraction 0..1), NFHS-6 (Manipur NFHS-5). Single source for both methods. */
+export const IDR_BY_STATE: Record<string, number> = Object.fromEntries(STATES2.map((s) => [s.state, s.idr]))

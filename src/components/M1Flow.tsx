@@ -38,9 +38,14 @@ export default function M1Flow({ norms, totals, lens }: { norms: Norms; totals: 
     )
   }
 
+  const effIDR = totals.births > 0 ? totals.instBirths / totals.births : 0
+  const pct = (x: number) => `${Math.round(x * 100)}%`
+
   return (
     <div className="flow">
       <Node tone="grey" title="Live births" val={fmt(totals.births)} sub="population × SRS crude birth rate" />
+      <Op>× institutional-delivery rate (~{pct(effIDR)}, NFHS-6)</Op>
+      <Node tone="grey" title="Institutional births" val={fmt(totals.instBirths)} sub="live births × institutional-delivery rate" />
       <Op>÷ 1,000 × normative beds / 1,000 <FactorPill target="m1-normBedsPer1000">{norms.normBedsPer1000}</FactorPill></Op>
       <Node tone="teal" title="Normative SNCU beds" val={fmt(totals.normBeds)} sub="fully built-out network" />
       <Op>× CPAP-per-bed norm <FactorPill target="m1-cpapPerBed">{cpapNorm}</FactorPill></Op>

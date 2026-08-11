@@ -58,6 +58,7 @@ export const DEFAULT_NORMS: Norms = {
 export type Lens = 'asis' | 'normative'
 
 export interface ComputedRow extends StateRow {
+  instBirths: number // live births × institutional-delivery rate
   asisBeds: number
   asisSncuCpap: number
   normBeds: number
@@ -77,6 +78,7 @@ export interface Totals {
   nbsu: number
   nbcc: number
   births: number
+  instBirths: number
   asisBeds: number
   asisSncuCpap: number
   normBeds: number
@@ -94,10 +96,12 @@ export interface Totals {
 const extCpap = (count: number, pct: number, f: FacilityExt) =>
   Math.round(count * pct * f.bedsPerFacility * f.cpapPerBed)
 
-export function computeRow(s: StateRow, n: Norms): ComputedRow {
+export function computeRow(s: StateRow, n: Norms, idr = 1): ComputedRow {
+  const instBirths = Math.round(s.births * idr)
   const asisBeds = Math.round(s.sncu * n.avgSncuBeds)
   const asisSncuCpap = Math.round(asisBeds * n.cpapPerBed)
-  const normBeds = Math.round((s.births / 1000) * n.normBedsPer1000)
+  // Normative build-out sizes beds from INSTITUTIONAL births (births × IDR), not all live births.
+  const normBeds = Math.round((instBirths / 1000) * n.normBedsPer1000)
   const normSncuCpap = Math.round(normBeds * n.cpapPerBed)
 
   const ov = n.overrides[s.state] ?? {}
@@ -113,6 +117,7 @@ export function computeRow(s: StateRow, n: Norms): ComputedRow {
 
   return {
     ...s,
+    instBirths,
     asisBeds,
     asisSncuCpap,
     normBeds,
@@ -128,8 +133,8 @@ export function computeRow(s: StateRow, n: Norms): ComputedRow {
   }
 }
 
-export function computeAll(states: StateRow[], n: Norms): { rows: ComputedRow[]; totals: Totals } {
-  const rows = states.map((s) => computeRow(s, n))
+export function computeAll(states: StateRow[], n: Norms, idrByState?: Record<string, number>): { rows: ComputedRow[]; totals: Totals } {
+  const rows = states.map((s) => computeRow(s, n, idrByState?.[s.state] ?? 1))
   const sum = (f: (r: ComputedRow) => number) => rows.reduce((a, r) => a + f(r), 0)
   const asisCpap = sum((r) => r.asisCpap)
   const normCpap = sum((r) => r.normCpap)
@@ -138,6 +143,7 @@ export function computeAll(states: StateRow[], n: Norms): { rows: ComputedRow[];
     nbsu: sum((r) => r.nbsu),
     nbcc: sum((r) => r.nbcc),
     births: sum((r) => r.births),
+    instBirths: sum((r) => r.instBirths),
     asisBeds: sum((r) => r.asisBeds),
     asisSncuCpap: sum((r) => r.asisSncuCpap),
     normBeds: sum((r) => r.normBeds),

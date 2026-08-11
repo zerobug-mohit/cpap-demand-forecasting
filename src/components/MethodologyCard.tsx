@@ -7,6 +7,7 @@ const SRC_LIST: { key: SourceKey; page?: string; what: string }[] = [
   { key: 'inap2014', page: 'p. 57', what: 'facility establishment norms' },
   { key: 'mohfwAR', page: 'p. 62', what: 'state-wise facility units (as on Oct 2024)' },
   { key: 'srs2024', page: 'Statement 14', what: 'crude birth rate → live births' },
+  { key: 'nfhs6', page: 'inst. delivery', what: 'institutional-delivery rate → institutional births (normative)' },
   { key: 'ncpProj', page: 'p. 50', what: 'projected population' },
   { key: 'nhmSncu2013', page: 'p. 6', what: 'average beds per SNCU (~16)' },
   { key: 'sncuOnline', what: 'facility beds / installed CPAP (login-only)' },
@@ -22,7 +23,8 @@ export default function MethodologyCard() {
       <p style={{ fontSize: '0.86rem', marginTop: 0 }}>
         <strong>Guidelines-based:</strong> SNCU beds (units × avg beds) × CPAP-per-bed norm.
         <br />
-        <strong>Normative:</strong> (live births ÷ 1,000 × norm beds) × CPAP-per-bed norm.
+        <strong>Normative:</strong> (institutional births ÷ 1,000 × norm beds) × CPAP-per-bed norm, where
+        institutional births = live births × institutional-delivery rate (NFHS-6).
         <br />
         Summed across 36 states/UTs to a national total. NBSU &amp; NBCC carry no CPAP under FBNC.
       </p>

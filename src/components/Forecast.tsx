@@ -118,7 +118,7 @@ export default function Forecast({ m1, m2 }: Props) {
           <p className="card-note">
             Three trajectories, each from today's estimate: <strong style={{ color: EX }}>Guidelines-based</strong> grows with the SNCU
             network; <strong style={{ color: EP }}>Epidemiological</strong> with births × institutional delivery (× RDS);{' '}
-            <strong style={{ color: NO }}>Normative</strong> with births only. The gaps show how procurement need diverges.
+            <strong style={{ color: NO }}>Normative</strong> with institutional births (delivery rate held at current level). The gaps show how procurement need diverges.
           </p>
           <div className="chart-box" style={{ height: 380 }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -187,7 +187,7 @@ export default function Forecast({ m1, m2 }: Props) {
           <ul className="src-list" style={{ paddingLeft: 18 }}>
             <li><strong>Guidelines-based estimation</strong> rises with the SNCU network (~6.6%/yr, fitted to the 2014–2024 published series) — the deliverable capacity if build-out continues at its historical pace.</li>
             <li><strong>Epidemiological</strong> tracks clinical need: births are projected to fall while institutional delivery rises, so it stays broadly flat.</li>
-            <li><strong>Normative</strong> follows births only, so it declines gently as the birth cohort shrinks.</li>
+            <li><strong>Normative</strong> is sized from institutional births (live births × delivery rate, held at the current level), so it declines gently as the birth cohort shrinks.</li>
             <li>Where the guidelines-based line rises toward Epidemiological, the infrastructure gap narrows; the distance to Normative is the full build-out headroom.</li>
           </ul>
         </div>
