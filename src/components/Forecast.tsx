@@ -4,7 +4,7 @@ import type { Norms } from '../engine/method1'
 import type { M2Norms } from '../engine/method2'
 import { computeForecast } from '../engine/forecast'
 import type { YearPoint } from '../engine/forecast'
-import { GROWTH } from '../data/forecastData'
+import { GROWTH, SNCU_HISTORY } from '../data/forecastData'
 import { STATES } from '../data/states'
 import { fmt, fmtPct } from '../utils/format'
 import SourceNote from './SourceNote'
@@ -66,8 +66,24 @@ export default function Forecast({ m1, m2 }: Props) {
         <div className="field">
           <label><span>SNCU network growth / yr</span><span className="range-val">{fmtPct(sncuRate, 1)}</span></label>
           <div className="range-row"><input type="range" min={0} max={0.15} step={0.005} value={sncuRate} onChange={(e) => setSncuRate(parseFloat(e.target.value))} /></div>
-          <span className="hint">Drives the Current-network line. National history: 565 (2015) → 1,056 (2024) ≈ 7.2%/yr; per-state historical unavailable, so one national rate is used.</span>
-          <SourceNote refs={[{ key: 'mohfwAR', page: 'p. 62' }]} note="SNCU counts (2015 & 2024)" />
+          <span className="hint">
+            Drives the Current-network line. Fitted (log-linear) to the published SNCU series below — <strong>≈ 6.6%/yr, R²≈0.95</strong>.
+            The older 7.2% mixed a 2015 <em>functional</em> count with a 2024 <em>set-up</em> count and over-stated growth. Per-state
+            historical counts aren't reliably published, so one national rate is applied to every state.
+          </span>
+          <table className="data" style={{ marginTop: 8, fontSize: '0.78rem' }}>
+            <thead><tr><th>Year</th><th style={{ textAlign: 'right' }}>SNCUs (set-up)</th></tr></thead>
+            <tbody>
+              {SNCU_HISTORY.map((h) => (
+                <tr key={h.label}><td>{h.label}</td><td style={{ textAlign: 'right' }}>{fmt(h.count)}</td></tr>
+              ))}
+            </tbody>
+          </table>
+          <SourceNote refs={SNCU_HISTORY.map((h) => ({ key: h.sourceKey, page: h.page }))} note="published SNCU counts · established/set-up basis" />
+          <span className="hint" style={{ marginTop: 6 }}>
+            The 2024 <em>functional</em> count is 979 (vs 1,056 set-up) — ~7% of established units not currently functional, so growth is
+            unlikely to accelerate. Range if you prefer a more conservative view: ~5.9–6.6%/yr.
+          </span>
         </div>
 
         <div className="field">
@@ -169,7 +185,7 @@ export default function Forecast({ m1, m2 }: Props) {
         <div className="card">
           <h2>How to read it</h2>
           <ul className="src-list" style={{ paddingLeft: 18 }}>
-            <li><strong>Current network</strong> rises with the SNCU network (~7%/yr) — the deliverable capacity if build-out continues at its historical pace.</li>
+            <li><strong>Current network</strong> rises with the SNCU network (~6.6%/yr, fitted to the 2014–2024 published series) — the deliverable capacity if build-out continues at its historical pace.</li>
             <li><strong>Epidemiological</strong> tracks clinical need: births are projected to fall while institutional delivery rises, so it stays broadly flat.</li>
             <li><strong>Normative</strong> follows births only, so it declines gently as the birth cohort shrinks.</li>
             <li>Where the current-network line rises toward Epidemiological, the infrastructure gap narrows; the distance to Normative is the full build-out headroom.</li>

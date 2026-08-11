@@ -22,6 +22,14 @@ export const SOURCES = {
     label: 'MoHFW/DoHFW Annual Report 2024-25 (p. 62)',
     url: 'https://www.mohfw-dohfw.gov.in/static/uploads/2025/09/45b06af4508a53a059c74efc930d955e.pdf',
   },
+  mohfwAR1819: {
+    label: 'MoHFW Annual Report 2018-19, Ch. 4 Child Health (794 SNCUs set up)',
+    url: 'https://mohfw.gov.in/sites/default/files/04%20ChapterAN2018-19.pdf',
+  },
+  inapCard2020: {
+    label: 'India Newborn Action Plan — Progress Card 2020 (894 SNCUs established)',
+    url: 'https://nhm.gov.in/images/pdf/programmes/INAP-progress_card_2020.pdf',
+  },
   sncuOnline: {
     label: 'SNCU-online portal (MoHFW)',
     url: 'https://sncuindiaonline.org',

@@ -1,13 +1,28 @@
 // Growth inputs for the forecast, derived from sourced series (see notes).
-// SNCU CAGR: national 565 (2015) -> 1,056 (2024) = 7.2%/yr (per-state historical unavailable -> national fallback).
+// SNCU CAGR: fitted log-linear over a CONSISTENT "established/set-up" national series —
+//   548 (INAP 2014) · 794 (MoHFW AR 2018-19) · 894 (INAP card 2020) · 1,056 (MoHFW AR 2024-25, Oct-24).
+//   Log-linear fit = 6.6%/yr (R²≈0.95); the old 565→1,056 = 7.2% mixed a *functional* 2015 count with a
+//   *set-up* 2024 count and over-stated growth. Base SNCU counts (states.ts) are the same Oct-24 set-up basis,
+//   so 6.6% is internally consistent. Per-state historical counts are not reliably published -> national fallback.
+//   (Caveat: the 2024 *functional* count is 979 vs 1,056 set-up, i.e. ~7% of established units not currently
+//    functional — one reason not to assume accelerating growth.)
 // IDR CAGR: NFHS-5 (2019-21) -> NFHS-6 (2023-24), per state (~3.5-yr), floored at 0.
 // Births CAGR: NCP Population Projections 2011-2036 (reconstructed births, 2021-25 -> 2031-35, 10-yr);
 //   NE states use the NCP combined-NE figure; Goa & small UTs fall back to national.
+import type { SourceKey } from './sources'
 import type { GrowthData } from '../engine/forecast'
 
+/** Published national SNCU counts (established/set-up basis) that the SNCU CAGR is fitted to. */
+export const SNCU_HISTORY: { label: string; count: number; sourceKey: SourceKey; page: string }[] = [
+  { label: '2014', count: 548, sourceKey: 'inap2014', page: 'FBNC — 548 established' },
+  { label: '2018-19', count: 794, sourceKey: 'mohfwAR1819', page: 'Ch. 4 — 794 set up' },
+  { label: '2020', count: 894, sourceKey: 'inapCard2020', page: '894 established' },
+  { label: '2024', count: 1056, sourceKey: 'mohfwAR', page: 'p. 62 — 1,056 set up' },
+]
+
 export const GROWTH: GrowthData = {
-  sncuCagr: {},                 // no per-state historical -> all use nationalSncuCagr
-  nationalSncuCagr: 0.072,
+  sncuCagr: {},                 // no reliable per-state historical -> all use nationalSncuCagr
+  nationalSncuCagr: 0.066,
   idrCagr: {
     "Andhra Pradesh": 0.0056,
     "Arunachal Pradesh": 0.0329,
