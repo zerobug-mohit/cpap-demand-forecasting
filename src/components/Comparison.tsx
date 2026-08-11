@@ -21,7 +21,7 @@ function TriBar({ existing, td, normative }: { existing: number; td: number; nor
   const pct = (v: number) => `${(v / max) * 100}%`
   const seg = (a: number, b: number) => ({ left: pct(Math.min(a, b)), width: pct(Math.abs(b - a)) })
   const marks: { v: number; label: string; color: string }[] = [
-    { v: existing, label: 'Current network', color: 'var(--c-primary)' },
+    { v: existing, label: 'Guidelines-based', color: 'var(--c-primary)' },
     { v: td, label: 'Clinical need', color: 'var(--c-accent)' },
     { v: normative, label: 'Normative', color: 'var(--c-primary-dark)' },
   ]
@@ -46,7 +46,7 @@ function TriBar({ existing, td, normative }: { existing: number; td: number; nor
         })}
       </div>
       <div className="legend-row" style={{ marginTop: 62 }}>
-        <span><span className="legend-dot" style={{ background: 'var(--c-primary)' }} />Current network</span>
+        <span><span className="legend-dot" style={{ background: 'var(--c-primary)' }} />Guidelines-based</span>
         <span><span className="legend-dot" style={{ background: 'var(--c-accent)' }} />Gap to clinical need</span>
         <span><span className="legend-dot" style={{ background: 'var(--c-primary-dark)', opacity: 0.55 }} />Normative ceiling</span>
       </div>
@@ -97,8 +97,8 @@ export default function Comparison({ m1, m2 }: Props) {
             ? <>A full FBNC-normative build-out (<strong>{fmt(active.normative)}</strong>) would <strong>exceed</strong> clinical need by {fmtPct(buildVsNeed - 1)} — the norm-based target runs ahead of epidemiological need.</>
             : <>Even a full FBNC build-out (<strong>{fmt(active.normative)}</strong>) would <strong>fall short</strong> of clinical need by {fmtPct(1 - buildVsNeed)}.</>}{' '}
           {sel
-            ? <>This state's current network is <strong>{CLS_LABEL[cls!].toLowerCase()}</strong> against clinical need (ratio {coverage.toFixed(2)}×).</>
-            : <><strong>{underserved}</strong> of {rows.length} states are under-served (current-network requirement below two-thirds of need).</>}
+            ? <>This state's guidelines-based estimate is <strong>{CLS_LABEL[cls!].toLowerCase()}</strong> against clinical need (ratio {coverage.toFixed(2)}×).</>
+            : <><strong>{underserved}</strong> of {rows.length} states are under-served (guidelines-based requirement below two-thirds of need).</>}
         </div>
       </div>
 
@@ -115,7 +115,7 @@ export default function Comparison({ m1, m2 }: Props) {
             <div className="explorer-controls">
               <span className="muted" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Infrastructure lens</span>
               <div className="series-toggle">
-                <button className={lens === 'existing' ? 'on asis' : ''} onClick={() => setLens('existing')}>Current network</button>
+                <button className={lens === 'existing' ? 'on asis' : ''} onClick={() => setLens('existing')}>Guidelines-based</button>
                 <button className={lens === 'normative' ? 'on norm' : ''} onClick={() => setLens('normative')}>Normative</button>
               </div>
             </div>
@@ -134,9 +134,9 @@ export default function Comparison({ m1, m2 }: Props) {
       <div className="card">
         <h2>How to read the divergence</h2>
         <ul className="src-list" style={{ paddingLeft: 18 }}>
-          <li><strong>Current network ≈ clinical need:</strong> the network is broadly right-sized — high confidence.</li>
-          <li><strong>Current network &lt; clinical need</strong> (most states): an infrastructure/access gap; the normative lens shows the build-out to close it.</li>
-          <li><strong>Current network &gt; clinical need:</strong> provision runs ahead of modelled need — a utilisation/right-sizing question.</li>
+          <li><strong>Guidelines-based ≈ clinical need:</strong> the network is broadly right-sized — high confidence.</li>
+          <li><strong>Guidelines-based &lt; clinical need</strong> (most states): an infrastructure/access gap; the normative lens shows the build-out to close it.</li>
+          <li><strong>Guidelines-based &gt; clinical need:</strong> provision runs ahead of modelled need — a utilisation/right-sizing question.</li>
           <li>Both methods share the same births and are anchored to public (NHM) facilities; they differ only in what drives the requirement — infrastructure norms vs clinical epidemiology.</li>
         </ul>
       </div>

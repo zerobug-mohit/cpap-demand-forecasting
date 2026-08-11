@@ -34,7 +34,7 @@ export default function CmpMap({ rows, lens }: { rows: CmpRow[]; lens: BuLens })
   const path = useMemo(() => geoPath(geoMercator().fitSize([W, H], geo)), [geo])
 
   const buOf = (r: CmpRow) => (lens === 'existing' ? r.buExisting : r.buNormative)
-  const lensLabel = lens === 'existing' ? 'current network' : 'normative'
+  const lensLabel = lens === 'existing' ? 'guidelines-based' : 'normative'
   const valueOf = (r: CmpRow): number => {
     if (metricKey === 'td') return r.td
     if (metricKey === 'coverage') return r.td > 0 ? buOf(r) / r.td : NaN
@@ -88,7 +88,7 @@ export default function CmpMap({ rows, lens }: { rows: CmpRow[]; lens: BuLens })
             <div className="mt-rows">
               <div><span>Clinical need</span><b>{fmt(hover.row.td)}</b></div>
               <div><span>{lensLabel} (selected)</span><b>{fmt(hover.bu)}</b></div>
-              <div><span>Current network</span><b>{fmt(hover.row.buExisting)}</b></div>
+              <div><span>Guidelines-based</span><b>{fmt(hover.row.buExisting)}</b></div>
               <div><span>Normative</span><b>{fmt(hover.row.buNormative)}</b></div>
             </div>
           </div>

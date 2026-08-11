@@ -50,7 +50,7 @@ export default function DataExplorer({ rows, totals, showExt }: Props) {
           )}
           {view === 'visual' && (
             <div className="series-toggle">
-              <button className={series.asis ? 'on asis' : ''} onClick={() => toggleSeries('asis')}>Existing</button>
+              <button className={series.asis ? 'on asis' : ''} onClick={() => toggleSeries('asis')}>Guidelines-based</button>
               <button className={series.norm ? 'on norm' : ''} onClick={() => toggleSeries('norm')}>Normative</button>
               <button className={series.gap ? 'on gap' : ''} onClick={() => toggleSeries('gap')}>Gap</button>
             </div>

@@ -14,7 +14,7 @@ export default function LensToggle({ lens, onChange }: Props) {
         className={lens === 'asis' ? 'active' : ''}
         onClick={() => onChange('asis')}
       >
-        Current network
+        Guidelines-based
       </button>
       <button
         role="tab"

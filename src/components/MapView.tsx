@@ -108,7 +108,7 @@ export default function MapView({ rows, metric }: Props) {
               <div><span>SNCUs</span><b>{fmt(hover.row.sncu)}</b></div>
               <div><span>NBSUs</span><b>{fmt(hover.row.nbsu)}</b></div>
               <div><span>Live births</span><b>{fmt(hover.row.births)}</b></div>
-              <div><span>CPAP · current</span><b>{fmt(hover.row.asisCpap)}</b></div>
+              <div><span>CPAP · guidelines</span><b>{fmt(hover.row.asisCpap)}</b></div>
               <div><span>CPAP · norm.</span><b>{fmt(hover.row.normCpap)}</b></div>
               <div><span>Gap</span><b className="mt-gap">{fmt(hover.row.cpapGap)}</b></div>
             </div>

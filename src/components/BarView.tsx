@@ -40,7 +40,7 @@ export default function BarView({ rows, series }: Props) {
   return (
     <div>
       <p className="card-note">
-        Top 15 states by the leading series. Compare the current network against the full build-out
+        Top 15 states by the leading series. Compare the guidelines-based estimation against the full build-out
         (normative) and, optionally, the gap between them.
       </p>
       <div className="chart-box" style={{ height: 470 }}>
@@ -50,14 +50,14 @@ export default function BarView({ rows, series }: Props) {
             <XAxis type="number" tick={AxisTick} tickFormatter={(v) => fmt(v)} />
             <YAxis type="category" dataKey="state" width={120} tick={AxisTick} interval={0} />
             <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(14,126,146,0.07)' }} />
-            {series.asis && <Bar dataKey="asisCpap" name="Current network" fill={ASIS} radius={[0, 2, 2, 0]} />}
+            {series.asis && <Bar dataKey="asisCpap" name="Guidelines-based" fill={ASIS} radius={[0, 2, 2, 0]} />}
             {series.norm && <Bar dataKey="normCpap" name="Normative" fill={NORM} radius={[0, 2, 2, 0]} />}
             {series.gap && <Bar dataKey="cpapGap" name="Gap" fill={GAP} radius={[0, 2, 2, 0]} />}
           </BarChart>
         </ResponsiveContainer>
       </div>
       <div className="legend-row">
-        {series.asis && <span><span className="legend-dot" style={{ background: ASIS }} />Current network</span>}
+        {series.asis && <span><span className="legend-dot" style={{ background: ASIS }} />Guidelines-based</span>}
         {series.norm && <span><span className="legend-dot" style={{ background: NORM }} />Normative</span>}
         {series.gap && <span><span className="legend-dot" style={{ background: GAP }} />Gap</span>}
       </div>

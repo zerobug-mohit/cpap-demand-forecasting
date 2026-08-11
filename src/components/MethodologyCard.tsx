@@ -20,7 +20,7 @@ export default function MethodologyCard() {
 
       <div className="section-label">The calculation</div>
       <p style={{ fontSize: '0.86rem', marginTop: 0 }}>
-        <strong>Current network:</strong> SNCU beds (units × avg beds) × CPAP-per-bed norm.
+        <strong>Guidelines-based:</strong> SNCU beds (units × avg beds) × CPAP-per-bed norm.
         <br />
         <strong>Normative:</strong> (live births ÷ 1,000 × norm beds) × CPAP-per-bed norm.
         <br />

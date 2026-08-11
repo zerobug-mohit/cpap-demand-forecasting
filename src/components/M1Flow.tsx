@@ -30,9 +30,9 @@ export default function M1Flow({ norms, totals, lens }: { norms: Norms; totals: 
       <div className="flow">
         <Node tone="grey" title="SNCUs (units)" val={fmt(totals.sncu)} sub="operational SNCUs incl. NICUs (Oct 2024)" />
         <Op>× avg beds per SNCU <FactorPill target="m1-avgSncuBeds">{norms.avgSncuBeds}</FactorPill></Op>
-        <Node tone="grey" title="SNCU beds — current network" val={fmt(totals.asisBeds)} />
+        <Node tone="grey" title="SNCU beds (today's network)" val={fmt(totals.asisBeds)} />
         <Op>× CPAP-per-bed norm <FactorPill target="m1-cpapPerBed">{cpapNorm}</FactorPill></Op>
-        <Node tone="out" title="CPAP required — current network" val={fmt(totals.asisCpap)} sub="summed to national total" />
+        <Node tone="out" title="CPAP required — guidelines-based" val={fmt(totals.asisCpap)} sub="summed to national total" />
         {addonNote}
       </div>
     )

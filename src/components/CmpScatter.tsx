@@ -9,7 +9,7 @@ const AxisTick = { fontSize: 11, fill: '#52616d', fontFamily: '"Trebuchet MS", "
 
 export default function CmpScatter({ rows, lens }: { rows: CmpRow[]; lens: BuLens }) {
   const buOf = (r: CmpRow) => (lens === 'existing' ? r.buExisting : r.buNormative)
-  const lensLabel = lens === 'existing' ? 'current network' : 'normative'
+  const lensLabel = lens === 'existing' ? 'guidelines-based' : 'normative'
   const pts = rows
     .filter((r) => r.td > 0 && buOf(r) > 0)
     .map((r) => ({ state: r.state, x: r.td, y: buOf(r), z: r.births, cls: classify(buOf(r), r.td) }))

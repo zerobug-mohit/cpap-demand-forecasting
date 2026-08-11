@@ -22,7 +22,7 @@ const BASE_COLS: Col[] = [
   { key: 'state', label: 'State / UT', render: (r) => r.state, foot: () => 'India total' },
   { key: 'sncu', label: 'SNCUs', render: (r) => fmt(r.sncu), foot: (t) => fmt(t.sncu) },
   { key: 'asisBeds', label: 'SNCU beds', render: (r) => fmt(r.asisBeds), foot: (t) => fmt(t.asisBeds) },
-  { key: 'asisCpap', label: 'CPAP · current', render: (r) => fmt(r.asisCpap), foot: (t) => fmt(t.asisCpap), cls: 'cell-strong' },
+  { key: 'asisCpap', label: 'CPAP · guidelines', render: (r) => fmt(r.asisCpap), foot: (t) => fmt(t.asisCpap), cls: 'cell-strong' },
   { key: 'births', label: 'Live births', render: (r) => fmt(r.births), foot: (t) => fmt(t.births) },
   { key: 'normBeds', label: 'Norm. beds', render: (r) => fmt(r.normBeds), foot: (t) => fmt(t.normBeds) },
   { key: 'normCpap', label: 'CPAP · norm.', render: (r) => fmt(r.normCpap), foot: (t) => fmt(t.normCpap), cls: 'cell-strong' },
@@ -59,10 +59,10 @@ export default function StateTable({ rows, totals, showExt }: Props) {
   return (
     <div>
       <p className="card-note">
-        Click a column to sort · 36 states / UTs. The current-network lens applies the norm to today's SNCU beds;
+        Click a column to sort · 36 states / UTs. The guidelines-based lens applies the norm to today's SNCU beds;
         normative applies it to the beds a fully built-out network would have.
         {showExt ? ' Add-on shows the NBSU/Transport extension, already included in the CPAP columns.' : ''}{' '}
-        Gap = normative − current-network CPAP.
+        Gap = normative − guidelines-based CPAP.
       </p>
       <div className="table-scroll">
         <table className="data">

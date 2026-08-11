@@ -14,8 +14,8 @@ export default function LensExplainer({ totals, norms }: { totals: Totals; norms
           <h2>Two ways to read the requirement</h2>
           {!open && (
             <span className="lens-summary">
-              Current network <strong>{fmt(totals.asisCpap)}</strong> vs normative <strong>{fmt(totals.normCpap)}</strong> ·{' '}
-              {fmtPct(totals.coverage)} coverage — what “current network” and “normative” mean
+              Guidelines-based <strong>{fmt(totals.asisCpap)}</strong> vs normative <strong>{fmt(totals.normCpap)}</strong> ·{' '}
+              {fmtPct(totals.coverage)} coverage — what “guidelines-based” and “normative” mean
             </span>
           )}
         </div>
@@ -33,7 +33,7 @@ export default function LensExplainer({ totals, norms }: { totals: Totals; norms
             <div className="lens-box asis">
               <div className="lens-name">
                 <span className="lens-dot" style={{ background: 'var(--c-asis)' }} />
-                Current network
+                Guidelines-based estimation
               </div>
               <div className="lens-q">“What does the network we already have imply?”</div>
               <p className="lens-desc">
@@ -61,7 +61,7 @@ export default function LensExplainer({ totals, norms }: { totals: Totals; norms
           </div>
 
           <div className="lens-gap-note">
-            <strong>Why both:</strong> the gap between them is the finding. The current network sits at about{' '}
+            <strong>Why both:</strong> the gap between them is the finding. The guidelines-based estimate sits at about{' '}
             <strong>{fmtPct(totals.coverage)}</strong> of the normative ceiling — a build-out shortfall of roughly{' '}
             <strong>{fmt(totals.cpapGap)} devices</strong>.
           </div>
@@ -70,7 +70,7 @@ export default function LensExplainer({ totals, norms }: { totals: Totals; norms
           <div className="flex-between" style={{ marginBottom: 8 }}>
             <div className="section-label" style={{ margin: 0 }}>The calculation cascade</div>
             <div className="series-toggle">
-              <button className={diag === 'asis' ? 'on asis' : ''} onClick={() => setDiag('asis')}>Current network</button>
+              <button className={diag === 'asis' ? 'on asis' : ''} onClick={() => setDiag('asis')}>Guidelines-based</button>
               <button className={diag === 'normative' ? 'on norm' : ''} onClick={() => setDiag('normative')}>Normative</button>
             </div>
           </div>
