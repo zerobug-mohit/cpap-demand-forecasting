@@ -1,0 +1,12 @@
+node_modules
+dist
+dist-ssr
+*.local
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+
+# TypeScript build artifacts (emitted by `tsc -b`; not source)
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts

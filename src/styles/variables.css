@@ -1,0 +1,62 @@
+/* Design tokens — inspired by the NFHS-Atlas "data atlas" language:
+   light blue-gray canvas, navy brand + teal accent, Trebuchet MS, 7px radius, layered soft shadows. */
+:root {
+  /* neutral base */
+  --c-bg: #e9eef1;
+  --c-surface: #ffffff;
+  --c-surface-alt: #f0f4f7;
+  --c-surface-3: #e4ebef;
+  --c-text: #17212b;
+  --c-text-muted: #52616d;
+  --c-text-faint: #86909a;
+
+  /* primary = teal accent · primary-dark = navy brand */
+  --c-primary: #0e7e92;
+  --c-primary-bright: #16a6be;
+  --c-primary-dark: #123a5e;
+  --c-primary-light: #e0f0f4;
+
+  /* secondary accent (burnt orange) */
+  --c-accent: #c2562b;
+  --c-accent-dark: #9c3f1b;
+  --c-accent-light: #f7e4db;
+
+  /* input state colours (norms) */
+  --c-req: #c2562b;
+  --c-opt: #c2912a;      /* preset default (amber) */
+  --c-entered: #0e7c7b;  /* user-edited (green-teal) */
+
+  /* status */
+  --c-best: #e4f1ee;
+  --c-best-line: #0e7c7b;
+  --c-warn: #9a6f12;
+  --c-warn-soft: #f6ecd6;
+  --c-danger: #c2562b;
+  --c-danger-bg: #f7e4db;
+
+  /* borders */
+  --c-border: #d6dee3;
+  --c-border-strong: #c2cbd1;
+  --c-border-strongest: #a6b1b9;
+
+  /* lens colours (systematic across app) */
+  --c-asis: #0e7e92;   /* teal = existing network */
+  --c-norm: #123a5e;   /* navy = full build-out   */
+
+  /* chart series */
+  --chart-1: #0e7e92;
+  --chart-2: #123a5e;
+  --chart-3: #c2912a;
+  --chart-4: #c2562b;
+
+  /* shape & spacing */
+  --radius: 7px;
+  --radius-sm: 6px;
+  --gap: 16px;
+  --maxw: 1240px;
+  --shadow: 0 1px 2px rgba(18, 58, 94, 0.06), 0 4px 14px rgba(18, 58, 94, 0.07);
+  --shadow-md: 0 6px 30px rgba(18, 58, 94, 0.15);
+
+  /* typography — Trebuchet MS everywhere */
+  --font: "Trebuchet MS", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
