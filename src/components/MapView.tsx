@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from 'react'
 import { geoMercator, geoPath } from 'd3-geo'
 import type { ComputedRow } from '../engine/method1'
 import type { Metric } from '../engine/metrics'
+import { fmtMetric } from '../engine/metrics2'
 import { fmt } from '../utils/format'
 import statesGeo from '../data/india_states.json'
 
@@ -102,12 +103,13 @@ export default function MapView({ rows, metric }: Props) {
             </div>
             <div className="mt-primary">
               <span>{metric.label}</span>
-              <strong>{fmt(metric.get(hover.row))}</strong>
+              <strong>{fmtMetric(metric.kind, metric.get(hover.row))}</strong>
             </div>
             <div className="mt-rows">
               <div><span>SNCUs</span><b>{fmt(hover.row.sncu)}</b></div>
               <div><span>NBSUs</span><b>{fmt(hover.row.nbsu)}</b></div>
               <div><span>Live births</span><b>{fmt(hover.row.births)}</b></div>
+              <div><span>Inst. births</span><b>{fmt(hover.row.instBirths)}</b></div>
               <div><span>CPAP · guidelines</span><b>{fmt(hover.row.asisCpap)}</b></div>
               <div><span>CPAP · norm.</span><b>{fmt(hover.row.normCpap)}</b></div>
               <div><span>Gap</span><b className="mt-gap">{fmt(hover.row.cpapGap)}</b></div>
@@ -117,9 +119,9 @@ export default function MapView({ rows, metric }: Props) {
       </div>
 
       <div className="map-legend">
-        <span className="muted">{fmt(min)}</span>
+        <span className="muted">{fmtMetric(metric.kind, min)}</span>
         <span className="legend-bar" />
-        <span className="muted">{fmt(max)}</span>
+        <span className="muted">{fmtMetric(metric.kind, max)}</span>
         <span className="legend-metric">{metric.label}</span>
       </div>
     </div>
