@@ -20,11 +20,25 @@ function TriBar({ existing, td, normative }: { existing: number; td: number; nor
   const max = Math.max(existing, td, normative, 1)
   const pct = (v: number) => `${(v / max) * 100}%`
   const seg = (a: number, b: number) => ({ left: pct(Math.min(a, b)), width: pct(Math.abs(b - a)) })
-  const marks: { v: number; label: string; color: string }[] = [
-    { v: existing, label: 'Guidelines-based', color: 'var(--c-primary)' },
-    { v: td, label: 'Clinical need', color: 'var(--c-accent)' },
-    { v: normative, label: 'Normative', color: 'var(--c-primary-dark)' },
-  ]
+  const TIER_H = 32 // px each staggered label drops by
+  const MIN_GAP = 18 // % of width below which two labels would collide → stagger
+  const marks = [
+    { key: 'existing', v: existing, label: 'Guidelines-based', color: 'var(--c-primary)' },
+    { key: 'td', v: td, label: 'Clinical need', color: 'var(--c-accent)' },
+    { key: 'normative', v: normative, label: 'Normative', color: 'var(--c-primary-dark)' },
+  ].map((m) => ({ ...m, p: (m.v / max) * 100 }))
+
+  // Assign each label a vertical tier so near-identical positions don't overlap.
+  const tierLast: number[] = []
+  const tier: Record<string, number> = {}
+  for (const m of [...marks].sort((a, b) => a.p - b.p)) {
+    let t = 0
+    while (tierLast[t] !== undefined && m.p - tierLast[t] < MIN_GAP) t++
+    tierLast[t] = m.p
+    tier[m.key] = t
+  }
+  const maxTier = Math.max(0, ...Object.values(tier))
+
   return (
     <div className="tri-wrap">
       <div className="tri-track">
@@ -32,12 +46,13 @@ function TriBar({ existing, td, normative }: { existing: number; td: number; nor
         <div className="tri-seg gap" style={seg(existing, td)} />
         <div className="tri-seg head" style={seg(td, normative)} />
         {marks.map((m) => {
-          const p = (m.v / max) * 100
-          const align = p > 88 ? 'right' : p < 12 ? 'left' : 'center'
+          const align = m.p > 88 ? 'right' : m.p < 12 ? 'left' : 'center'
+          const t = tier[m.key]
+          const lineH = 42 + t * TIER_H
           return (
-            <div key={m.label} className={`tri-mark ${align}`} style={{ left: pct(m.v) }}>
-              <div className="tri-mark-line" style={{ background: m.color }} />
-              <div className="tri-mark-label">
+            <div key={m.key} className={`tri-mark ${align}`} style={{ left: pct(m.v), height: lineH }}>
+              <div className="tri-mark-line" style={{ background: m.color, height: lineH }} />
+              <div className="tri-mark-label" style={{ top: 44 + t * TIER_H }}>
                 <span style={{ color: m.color }}>{m.label}</span>
                 <b>{fmt(m.v)}</b>
               </div>
@@ -45,7 +60,7 @@ function TriBar({ existing, td, normative }: { existing: number; td: number; nor
           )
         })}
       </div>
-      <div className="legend-row" style={{ marginTop: 62 }}>
+      <div className="legend-row" style={{ marginTop: 62 + maxTier * TIER_H }}>
         <span><span className="legend-dot" style={{ background: 'var(--c-primary)' }} />Guidelines-based</span>
         <span><span className="legend-dot" style={{ background: 'var(--c-accent)' }} />Gap to clinical need</span>
         <span><span className="legend-dot" style={{ background: 'var(--c-primary-dark)', opacity: 0.55 }} />Normative ceiling</span>
