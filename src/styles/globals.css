@@ -87,7 +87,9 @@ a { color: var(--c-primary); }
 }
 .placeholder .ph-needs strong { color: var(--c-warn); }
 
-.layout-grid { display: grid; grid-template-columns: 320px 1fr; gap: var(--gap); align-items: start; }
+.layout-grid { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: var(--gap); align-items: start; }
+/* let grid children shrink below their content width so wide tables scroll instead of overflowing the page */
+.layout-grid > * { min-width: 0; }
 @media (max-width: 940px) { .layout-grid { grid-template-columns: 1fr; } }
 .sticky-col {
   position: sticky;
