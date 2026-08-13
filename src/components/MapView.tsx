@@ -46,9 +46,9 @@ export default function MapView({ rows, metric }: Props) {
   const path = useMemo(() => geoPath(geoMercator().fitSize([W, H], geo)), [geo])
 
   const byState = new Map(rows.map((r) => [r.state, r]))
-  const values = rows.map((r) => metric.get(r))
-  const min = Math.min(...values)
-  const max = Math.max(...values)
+  const finite = rows.map((r) => metric.get(r)).filter((v) => isFinite(v))
+  const min = finite.length ? Math.min(...finite) : 0
+  const max = finite.length ? Math.max(...finite) : 1
   const norm = (v: number) => (max === min ? 0.5 : Math.sqrt((v - min) / (max - min)))
 
   const onMove = (row: ComputedRow) => (e: React.MouseEvent) => {
@@ -77,7 +77,7 @@ export default function MapView({ rows, metric }: Props) {
               <path
                 key={name}
                 d={path(f) || undefined}
-                fill={scaleColor(norm(v))}
+                fill={isFinite(v) ? scaleColor(norm(v)) : '#e9eef2'}
                 stroke={active ? '#0a2740' : '#ffffff'}
                 strokeWidth={active ? 1.4 : 0.5}
                 className="state-path"
@@ -113,6 +113,7 @@ export default function MapView({ rows, metric }: Props) {
               <div><span>CPAP · guidelines</span><b>{fmt(hover.row.asisCpap)}</b></div>
               <div><span>CPAP · norm.</span><b>{fmt(hover.row.normCpap)}</b></div>
               <div><span>Gap</span><b className="mt-gap">{fmt(hover.row.cpapGap)}</b></div>
+              <div><span>Installed (actual)</span><b>{hover.row.installed != null ? fmt(hover.row.installed) : 'NA'}</b></div>
             </div>
           </div>
         )}

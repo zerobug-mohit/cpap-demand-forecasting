@@ -16,8 +16,10 @@ interface Props {
 
 type View = 'scatter' | 'map' | 'table'
 
-function TriBar({ existing, td, normative }: { existing: number; td: number; normative: number }) {
-  const max = Math.max(existing, td, normative, 1)
+const INSTALLED_COLOR = '#2e8b57' // actual reported devices
+
+function TriBar({ existing, td, normative, installed }: { existing: number; td: number; normative: number; installed?: number }) {
+  const max = Math.max(existing, td, normative, installed ?? 0, 1)
   const pct = (v: number) => `${(v / max) * 100}%`
   const seg = (a: number, b: number) => ({ left: pct(Math.min(a, b)), width: pct(Math.abs(b - a)) })
   const TIER_H = 32 // px each staggered label drops by
@@ -26,6 +28,7 @@ function TriBar({ existing, td, normative }: { existing: number; td: number; nor
     { key: 'existing', v: existing, label: 'Guidelines-based', color: 'var(--c-primary)' },
     { key: 'td', v: td, label: 'Clinical need', color: 'var(--c-accent)' },
     { key: 'normative', v: normative, label: 'Normative', color: 'var(--c-primary-dark)' },
+    ...(installed != null ? [{ key: 'installed', v: installed, label: 'Installed (actual)', color: INSTALLED_COLOR }] : []),
   ].map((m) => ({ ...m, p: (m.v / max) * 100 }))
 
   // Assign each label a vertical tier so near-identical positions don't overlap.
@@ -64,6 +67,7 @@ function TriBar({ existing, td, normative }: { existing: number; td: number; nor
         <span><span className="legend-dot" style={{ background: 'var(--c-primary)' }} />Guidelines-based</span>
         <span><span className="legend-dot" style={{ background: 'var(--c-accent)' }} />Gap to clinical need</span>
         <span><span className="legend-dot" style={{ background: 'var(--c-primary-dark)', opacity: 0.55 }} />Normative ceiling</span>
+        {installed != null && <span><span className="legend-dot" style={{ background: INSTALLED_COLOR }} />Installed (actual)</span>}
       </div>
     </div>
   )
@@ -101,7 +105,7 @@ export default function Comparison({ m1, m2 }: Props) {
           Two independent estimates bracket the planning decision — what exists, what clinical need implies, and what a
           full norm-based build-out would reach.
         </p>
-        <TriBar existing={active.existing} td={active.td} normative={active.normative} />
+        <TriBar existing={active.existing} td={active.td} normative={active.normative} installed={sel?.installed} />
         <div className="lens-gap-note" style={{ marginTop: 26 }}>
           {sel
             ? <><strong>{scope}</strong>'s current SNCU network implies <strong>{fmt(active.existing)}</strong> devices — about </>
@@ -114,6 +118,11 @@ export default function Comparison({ m1, m2 }: Props) {
           {sel
             ? <>This state's guidelines-based estimate is <strong>{CLS_LABEL[cls!].toLowerCase()}</strong> against clinical need (ratio {coverage.toFixed(2)}×).</>
             : <><strong>{underserved}</strong> of {rows.length} states are under-served (guidelines-based requirement below two-thirds of need).</>}
+          {sel?.installed != null && (
+            <> <br /><strong style={{ color: INSTALLED_COLOR }}>Actual devices reported: {fmt(sel.installed)}</strong> — {' '}
+            {active.td > 0 ? `${fmtPct(sel.installed / active.td)} of clinical need` : '—'} and {' '}
+            {active.existing > 0 ? `${(sel.installed / active.existing).toFixed(2)}× the guidelines-based estimate` : '—'}.</>
+          )}
         </div>
       </div>
 

@@ -3,7 +3,7 @@ import type { CmpRow } from '../engine/compare'
 import { classify, CLS_LABEL, CLS_COLOR } from '../engine/compare'
 import { fmt } from '../utils/format'
 
-type SortKey = 'state' | 'td' | 'buExisting' | 'buNormative' | 'coverage' | 'unmet'
+type SortKey = 'state' | 'td' | 'buExisting' | 'buNormative' | 'installed' | 'coverage' | 'unmet'
 
 const coverage = (r: CmpRow) => (r.td > 0 ? r.buExisting / r.td : 0)
 const unmet = (r: CmpRow) => Math.max(0, r.td - r.buExisting)
@@ -13,7 +13,7 @@ export default function CmpTable({ rows }: { rows: CmpRow[] }) {
   const [asc, setAsc] = useState(false)
 
   const val = (r: CmpRow, k: SortKey): number =>
-    k === 'coverage' ? coverage(r) : k === 'unmet' ? unmet(r) : (r[k as 'td' | 'buExisting' | 'buNormative'] as number)
+    k === 'coverage' ? coverage(r) : k === 'unmet' ? unmet(r) : k === 'installed' ? (r.installed ?? -1) : (r[k as 'td' | 'buExisting' | 'buNormative'] as number)
 
   const sorted = [...rows].sort((a, b) => {
     const cmp = sortKey === 'state' ? a.state.localeCompare(b.state) : val(a, sortKey) - val(b, sortKey)
@@ -28,6 +28,7 @@ export default function CmpTable({ rows }: { rows: CmpRow[] }) {
     { key: 'td', label: 'Clinical need' },
     { key: 'buExisting', label: 'Guidelines-based' },
     { key: 'buNormative', label: 'Normative' },
+    { key: 'installed', label: 'Installed · actual' },
     { key: 'coverage', label: 'Coverage (guidelines/need)' },
     { key: 'unmet', label: 'Unmet need' },
   ]
@@ -59,6 +60,7 @@ export default function CmpTable({ rows }: { rows: CmpRow[] }) {
                   <td>{fmt(r.td)}</td>
                   <td>{fmt(r.buExisting)}</td>
                   <td>{fmt(r.buNormative)}</td>
+                  <td className="cell-strong">{r.installed != null ? fmt(r.installed) : '—'}</td>
                   <td>{r.td > 0 ? `${Math.round(coverage(r) * 100)}%` : 'NA'}</td>
                   <td className="cell-gap">{fmt(unmet(r))}</td>
                   <td style={{ color: CLS_COLOR[cls], fontWeight: 700, textAlign: 'left' }}>{CLS_LABEL[cls]}</td>
@@ -72,6 +74,7 @@ export default function CmpTable({ rows }: { rows: CmpRow[] }) {
               <td>{fmt(tot.td)}</td>
               <td>{fmt(tot.e)}</td>
               <td>{fmt(tot.n)}</td>
+              <td>—</td>
               <td>{tot.td > 0 ? `${Math.round((tot.e / tot.td) * 100)}%` : 'NA'}</td>
               <td className="cell-gap">{fmt(Math.max(0, tot.td - tot.e))}</td>
               <td></td>

@@ -8,7 +8,7 @@ interface Props {
   showExt: boolean
 }
 
-type SortKey = 'state' | 'sncu' | 'asisBeds' | 'asisCpap' | 'births' | 'normBeds' | 'normCpap' | 'extraCpap' | 'cpapGap'
+type SortKey = 'state' | 'sncu' | 'asisBeds' | 'asisCpap' | 'births' | 'normBeds' | 'normCpap' | 'extraCpap' | 'cpapGap' | 'installed'
 
 interface Col {
   key: SortKey
@@ -37,14 +37,23 @@ const EXT_COL: Col = {
   cls: 'cell-ext',
 }
 
+const INSTALLED_COL: Col = {
+  key: 'installed',
+  label: 'Installed · actual',
+  render: (r) => (r.installed != null ? fmt(r.installed) : '—'),
+  foot: () => '—',
+  cls: 'cell-strong',
+}
+
 export default function StateTable({ rows, totals, showExt }: Props) {
   const [sortKey, setSortKey] = useState<SortKey>('normCpap')
   const [asc, setAsc] = useState(false)
 
-  const cols = showExt ? [...BASE_COLS.slice(0, 7), EXT_COL, BASE_COLS[7]] : BASE_COLS
+  const cols = [...(showExt ? [...BASE_COLS.slice(0, 7), EXT_COL, BASE_COLS[7]] : BASE_COLS), INSTALLED_COL]
 
+  const val = (r: ComputedRow) => (sortKey === 'installed' ? (r.installed ?? -1) : (r[sortKey] as number))
   const sorted = [...rows].sort((a, b) => {
-    const cmp = sortKey === 'state' ? a.state.localeCompare(b.state) : (a[sortKey] as number) - (b[sortKey] as number)
+    const cmp = sortKey === 'state' ? a.state.localeCompare(b.state) : val(a) - val(b)
     return asc ? cmp : -cmp
   })
 
@@ -62,7 +71,9 @@ export default function StateTable({ rows, totals, showExt }: Props) {
         Click a column to sort · 36 states / UTs. The guidelines-based lens applies the norm to today's SNCU beds;
         normative applies it to the beds a fully built-out network would have (sized from institutional births = live births × NFHS-6 delivery rate).
         {showExt ? ' Add-on shows the NBSU/Transport extension, already included in the CPAP columns.' : ''}{' '}
-        Gap = normative − guidelines-based CPAP.
+        Gap = normative − guidelines-based CPAP. <strong>Installed · actual</strong> = reported CPAP devices, available so
+        far for MP (282), Bihar (70), Punjab (59), Rajasthan (961) and Chhattisgarh (58); “—” where not yet reported (so
+        there is no national total).
       </p>
       <div className="table-scroll">
         <table className="data">

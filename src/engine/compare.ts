@@ -17,6 +17,7 @@ export interface CmpRow {
   buExisting: number
   buNormative: number
   td: number
+  installed?: number // actual reported CPAP devices, where available
 }
 
 export interface CmpResult {
@@ -35,6 +36,7 @@ export function compare(m1: Norms, m2: M2Norms): CmpResult {
     buExisting: r.asisCpap,
     buNormative: r.normCpap,
     td: tdByState.get(r.state) ?? 0,
+    installed: r.installed,
   }))
   return { rows, nat: { buExisting: t1.asisCpap, buNormative: t1.normCpap, td: t2.gross } }
 }
