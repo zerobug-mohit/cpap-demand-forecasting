@@ -26,18 +26,18 @@ export default function CmpTable({ rows }: { rows: CmpRow[] }) {
   const cols: { key: SortKey; label: string }[] = [
     { key: 'state', label: 'State / UT' },
     { key: 'td', label: 'Clinical need' },
-    { key: 'buExisting', label: 'Guidelines-based' },
+    { key: 'buExisting', label: 'Current infra-based' },
     { key: 'buNormative', label: 'Normative' },
     { key: 'installed', label: 'Installed · actual' },
-    { key: 'coverage', label: 'Coverage (guidelines/need)' },
+    { key: 'coverage', label: 'Coverage (infra/need)' },
     { key: 'unmet', label: 'Unmet need' },
   ]
 
   return (
     <div>
       <p className="card-note">
-        Click a column to sort · 36 states / UTs. Coverage = guidelines-based ÷ clinical need; unmet =
-        clinical need − guidelines-based. Status classifies guidelines-based vs need.
+        Click a column to sort · 36 states / UTs. Coverage = current infra-based ÷ clinical need; unmet =
+        clinical need − current infra-based. Status classifies current infra-based vs need.
       </p>
       <div className="table-scroll">
         <table className="data">

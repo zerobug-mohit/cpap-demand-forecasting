@@ -50,12 +50,12 @@ export default function DataExplorer({ rows, totals, showExt }: Props) {
           )}
           {view === 'visual' && (
             <div className="series-toggle" style={{ flexWrap: 'wrap' }}>
-              <button className={series.asis ? 'on asis' : ''} onClick={() => toggleSeries('asis')}>Guidelines-based</button>
+              <button className={series.asis ? 'on asis' : ''} onClick={() => toggleSeries('asis')}>Current infra-based</button>
               <button className={series.norm ? 'on norm' : ''} onClick={() => toggleSeries('norm')}>Normative</button>
               <button className={series.installed ? 'on' : ''} onClick={() => toggleSeries('installed')}>Installed</button>
-              <button className={series.gapNG ? 'on gap' : ''} onClick={() => toggleSeries('gapNG')}>Gap n−g</button>
-              <button className={series.gapGI ? 'on gap' : ''} onClick={() => toggleSeries('gapGI')}>Gap g−i</button>
-              <button className={series.gapNI ? 'on gap' : ''} onClick={() => toggleSeries('gapNI')}>Gap n−i</button>
+              <button className={series.gapNG ? 'on gap' : ''} onClick={() => toggleSeries('gapNG')}>Gap norm−infra</button>
+              <button className={series.gapGI ? 'on gap' : ''} onClick={() => toggleSeries('gapGI')}>Gap infra−inst</button>
+              <button className={series.gapNI ? 'on gap' : ''} onClick={() => toggleSeries('gapNI')}>Gap norm−inst</button>
             </div>
           )}
         </div>

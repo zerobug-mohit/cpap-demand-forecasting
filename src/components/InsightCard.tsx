@@ -8,7 +8,7 @@ export default function InsightCard({ totals }: { totals: Totals }) {
       <div className="recommend">
         Under FBNC 2025 norms, India's <strong>current</strong> SNCU network implies about{' '}
         <strong>{fmt(totals.asisCpap)} CPAP devices</strong>, while a <strong>fully built-out</strong> network
-        implies about <strong>{fmt(totals.normCpap)}</strong>. The guidelines-based estimate therefore sits at roughly{' '}
+        implies about <strong>{fmt(totals.normCpap)}</strong>. The current infra-based estimate therefore sits at roughly{' '}
         <strong>{fmtPct(totals.coverage)}</strong> of the normative ceiling — a build-out gap of about{' '}
         <strong>{fmt(totals.cpapGap)} devices</strong>.
       </div>

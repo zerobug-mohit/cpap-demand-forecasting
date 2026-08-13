@@ -75,8 +75,8 @@ export interface ComputedRow extends StateRow {
   asisCpap: number // SNCU as-is + add-ons
   normCpap: number // SNCU normative + add-ons
   bedGap: number
-  cpapGap: number // gap-1: normative − guidelines-based (build-out gap)
-  gapGuidInstalled?: number // gap-2: guidelines-based − installed (undefined if no installed count)
+  cpapGap: number // gap-1: normative − current-infra (build-out gap)
+  gapGuidInstalled?: number // gap-2: current-infra − installed (undefined if no installed count)
   gapNormInstalled?: number // gap-3: normative − installed
   coverage: number
 }

@@ -18,9 +18,9 @@ interface Tab {
 
 const SUBS: Record<Section, Tab[]> = {
   estimation: [
-    { key: 'bu', label: 'Infrastructure-based' },
+    { key: 'bu', label: 'Guidelines-based' },
     { key: 'td', label: 'Epidemiological' },
-    { key: 'cmp', label: 'Infrastructure vs Epidemiological' },
+    { key: 'cmp', label: 'Guidelines-based vs Epidemiological' },
   ],
   forecasting: [{ key: 'fc', label: 'Forecast' }],
 }

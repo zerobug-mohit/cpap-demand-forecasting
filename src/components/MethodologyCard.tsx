@@ -17,11 +17,11 @@ export default function MethodologyCard() {
   return (
     <div className="card">
       <h2>Methodology &amp; sources</h2>
-      <p className="card-note">Infrastructure-based method — facility &amp; norms.</p>
+      <p className="card-note">Guidelines-based method — facility &amp; norms.</p>
 
       <div className="section-label">The calculation</div>
       <p style={{ fontSize: '0.86rem', marginTop: 0 }}>
-        <strong>Guidelines-based:</strong> SNCU beds (units × avg beds) × CPAP-per-bed norm.
+        <strong>Current infra-based:</strong> SNCU beds (units × avg beds) × CPAP-per-bed norm.
         <br />
         <strong>Normative:</strong> (public institutional births ÷ 1,000 × norm beds) × CPAP-per-bed norm, where
         public institutional births = live births × institutional-delivery rate × public-facility share (all NFHS-6);

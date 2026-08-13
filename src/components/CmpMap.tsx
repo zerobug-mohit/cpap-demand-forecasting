@@ -19,8 +19,8 @@ function scaleColor(t: number) {
 
 type CmpMetric = 'unmet' | 'coverage' | 'td'
 const METRICS: { key: CmpMetric; label: string }[] = [
-  { key: 'unmet', label: 'Unmet need (clinical − infrastructure)' },
-  { key: 'coverage', label: 'Coverage (infrastructure ÷ clinical)' },
+  { key: 'unmet', label: 'Unmet need (clinical − guidelines-based)' },
+  { key: 'coverage', label: 'Coverage (guidelines-based ÷ clinical)' },
   { key: 'td', label: 'Clinical need (epidemiological)' },
 ]
 
@@ -34,7 +34,7 @@ export default function CmpMap({ rows, lens }: { rows: CmpRow[]; lens: BuLens })
   const path = useMemo(() => geoPath(geoMercator().fitSize([W, H], geo)), [geo])
 
   const buOf = (r: CmpRow) => (lens === 'existing' ? r.buExisting : r.buNormative)
-  const lensLabel = lens === 'existing' ? 'guidelines-based' : 'normative'
+  const lensLabel = lens === 'existing' ? 'current infra-based' : 'normative'
   const valueOf = (r: CmpRow): number => {
     if (metricKey === 'td') return r.td
     if (metricKey === 'coverage') return r.td > 0 ? buOf(r) / r.td : NaN
@@ -65,7 +65,7 @@ export default function CmpMap({ rows, lens }: { rows: CmpRow[]; lens: BuLens })
           </select>
         </label>
       </div>
-      <p className="card-note">Comparing infrastructure <strong>{lensLabel}</strong> against epidemiological clinical need, by state. Darker = higher value.</p>
+      <p className="card-note">Comparing the guidelines-based estimate (<strong>{lensLabel}</strong> lens) against epidemiological clinical need, by state. Darker = higher value.</p>
       <div className="map-wrap" ref={wrapRef}>
         <svg viewBox={`0 0 ${W} ${H}`} className="india-map" role="img" aria-label={`Comparison choropleth — ${label}`}>
           {geo.features.map((f: any) => {
@@ -88,7 +88,7 @@ export default function CmpMap({ rows, lens }: { rows: CmpRow[]; lens: BuLens })
             <div className="mt-rows">
               <div><span>Clinical need</span><b>{fmt(hover.row.td)}</b></div>
               <div><span>{lensLabel} (selected)</span><b>{fmt(hover.bu)}</b></div>
-              <div><span>Guidelines-based</span><b>{fmt(hover.row.buExisting)}</b></div>
+              <div><span>Current infra-based</span><b>{fmt(hover.row.buExisting)}</b></div>
               <div><span>Normative</span><b>{fmt(hover.row.buNormative)}</b></div>
             </div>
           </div>

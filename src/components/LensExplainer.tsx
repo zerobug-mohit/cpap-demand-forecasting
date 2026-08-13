@@ -17,8 +17,8 @@ export default function LensExplainer({ totals, norms, rows }: { totals: Totals;
           <h2>Two ways to read the requirement</h2>
           {!open && (
             <span className="lens-summary">
-              Guidelines-based <strong>{fmt(totals.asisCpap)}</strong> vs normative <strong>{fmt(totals.normCpap)}</strong> ·{' '}
-              {fmtPct(totals.coverage)} coverage — what “guidelines-based” and “normative” mean
+              Current infra-based <strong>{fmt(totals.asisCpap)}</strong> vs normative <strong>{fmt(totals.normCpap)}</strong> ·{' '}
+              {fmtPct(totals.coverage)} coverage — what “current infra-based” and “normative” mean
             </span>
           )}
         </div>
@@ -36,7 +36,7 @@ export default function LensExplainer({ totals, norms, rows }: { totals: Totals;
             <div className="lens-box asis">
               <div className="lens-name">
                 <span className="lens-dot" style={{ background: 'var(--c-asis)' }} />
-                Guidelines-based estimation
+                Current infra-based
               </div>
               <div className="lens-q">“What does the network we already have imply?”</div>
               <p className="lens-desc">
@@ -65,7 +65,7 @@ export default function LensExplainer({ totals, norms, rows }: { totals: Totals;
           </div>
 
           <div className="lens-gap-note">
-            <strong>Why both:</strong> the gap between them is the finding. The guidelines-based estimate sits at about{' '}
+            <strong>Why both:</strong> the gap between them is the finding. The current infra-based estimate sits at about{' '}
             <strong>{fmtPct(totals.coverage)}</strong> of the normative ceiling — a build-out shortfall of roughly{' '}
             <strong>{fmt(totals.cpapGap)} devices</strong>.
           </div>
@@ -83,7 +83,7 @@ export default function LensExplainer({ totals, norms, rows }: { totals: Totals;
               </label>
             </div>
             <div className="series-toggle">
-              <button className={diag === 'asis' ? 'on asis' : ''} onClick={() => setDiag('asis')}>Guidelines-based</button>
+              <button className={diag === 'asis' ? 'on asis' : ''} onClick={() => setDiag('asis')}>Current infra-based</button>
               <button className={diag === 'normative' ? 'on norm' : ''} onClick={() => setDiag('normative')}>Normative</button>
             </div>
           </div>

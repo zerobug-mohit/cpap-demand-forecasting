@@ -9,7 +9,7 @@ const AxisTick = { fontSize: 11, fill: '#52616d', fontFamily: '"Trebuchet MS", "
 
 export default function CmpScatter({ rows, lens }: { rows: CmpRow[]; lens: BuLens }) {
   const buOf = (r: CmpRow) => (lens === 'existing' ? r.buExisting : r.buNormative)
-  const lensLabel = lens === 'existing' ? 'guidelines-based' : 'normative'
+  const lensLabel = lens === 'existing' ? 'current infra-based' : 'normative'
   const pts = rows
     .filter((r) => r.td > 0 && buOf(r) > 0)
     .map((r) => ({ state: r.state, x: r.td, y: buOf(r), z: r.births, cls: classify(buOf(r), r.td) }))
@@ -44,7 +44,7 @@ export default function CmpScatter({ rows, lens }: { rows: CmpRow[]; lens: BuLen
       <div className="chart-tip">
         <div style={{ fontWeight: 700, marginBottom: 4 }}>{d.state}</div>
         <div>Clinical need: <strong>{fmt(d.x)}</strong></div>
-        <div>Infrastructure ({lensLabel}): <strong>{fmt(d.y)}</strong></div>
+        <div>Guidelines-based ({lensLabel}): <strong>{fmt(d.y)}</strong></div>
         <div>Ratio ({lensLabel} ÷ clinical): <strong>{ratio.toFixed(2)}×</strong></div>
         <div style={{ color: CLS_COLOR[d.cls as keyof typeof CLS_COLOR], fontWeight: 700 }}>{CLS_LABEL[d.cls as keyof typeof CLS_LABEL]}</div>
       </div>
@@ -54,13 +54,13 @@ export default function CmpScatter({ rows, lens }: { rows: CmpRow[]; lens: BuLen
   return (
     <div>
       <p className="card-note">
-        Each point is a state: epidemiological clinical need (x) vs infrastructure {lensLabel} requirement (y), log–log, sized by
+        Each point is a state: epidemiological clinical need (x) vs the guidelines-based requirement (y, {lensLabel} lens), log–log, sized by
         births. The grey dashed line is parity (y = x) — points <strong>below</strong> it are states where the {lensLabel}
-        network trails clinical need; <strong>above</strong>, it exceeds need.
+        estimate trails clinical need; <strong>above</strong>, it exceeds need.
         {hasFit && (
           <> The <span style={{ color: FIT, fontWeight: 700 }}>solid line</span> is the least-squares best fit on the
           log–log data (a power law): <strong>{eqn}</strong>, <strong>R² = {r2.toFixed(2)}</strong> (n = {n}). A slope
-          b {b < 1 ? '< 1 means infrastructure grows slower than need (larger states relatively under-covered)' : b > 1 ? '> 1 means infrastructure grows faster than need' : '≈ 1 means infrastructure scales proportionally with need'}.</>
+          b {b < 1 ? '< 1 means the guidelines-based estimate grows slower than need (larger states relatively under-covered)' : b > 1 ? '> 1 means it grows faster than need' : '≈ 1 means it scales proportionally with need'}.</>
         )}
         {excluded > 0 && ` ${excluded} state(s) with a zero value are omitted.`}
       </p>
@@ -71,9 +71,9 @@ export default function CmpScatter({ rows, lens }: { rows: CmpRow[]; lens: BuLen
             <XAxis type="number" dataKey="x" name="Clinical need" scale="log" domain={[lo, hi]} allowDataOverflow
               tick={AxisTick} tickFormatter={(v) => fmt(v)}
               label={{ value: 'Epidemiological — clinical need', position: 'insideBottom', offset: -14, fontSize: 12, fill: '#52616d' }} />
-            <YAxis type="number" dataKey="y" name="Infrastructure" scale="log" domain={[lo, hi]} allowDataOverflow
+            <YAxis type="number" dataKey="y" name="Guidelines-based" scale="log" domain={[lo, hi]} allowDataOverflow
               tick={AxisTick} tickFormatter={(v) => fmt(v)} width={54}
-              label={{ value: `Infrastructure — ${lensLabel}`, angle: -90, position: 'insideLeft', fontSize: 12, fill: '#52616d' }} />
+              label={{ value: `Guidelines-based — ${lensLabel}`, angle: -90, position: 'insideLeft', fontSize: 12, fill: '#52616d' }} />
             <ZAxis type="number" dataKey="z" range={[30, 380]} />
             <ReferenceLine segment={[{ x: lo, y: lo }, { x: hi, y: hi }]} stroke="#86909a" strokeDasharray="5 4" ifOverflow="extendDomain" />
             {hasFit && (

@@ -5,7 +5,7 @@ export default function Header() {
         <div className="eyebrow">WJCF · Neonatal CPAP · India</div>
         <h1>CPAP Demand Estimation &amp; Forecasting</h1>
         <p className="subtitle">
-          Sizing the public-sector neonatal CPAP device requirement across India — through an infrastructure-based
+          Sizing the public-sector neonatal CPAP device requirement across India — through a guidelines-based
           (facility &amp; norms) method and an epidemiological (population &amp; disease-burden) method, for both current demand and a
           five-year forecast.
         </p>

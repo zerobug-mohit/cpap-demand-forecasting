@@ -61,7 +61,7 @@ export default function Forecast({ m1, m2 }: Props) {
     <div className="layout-grid">
       <div className="card card-tight sticky-col">
         <h2>Growth assumptions</h2>
-        <p className="card-note">Base-year values come from your current settings on the Infrastructure &amp; Epidemiological tabs; each line grows by its own driver.</p>
+        <p className="card-note">Base-year values come from your current settings on the Guidelines-based &amp; Epidemiological tabs; each line grows by its own driver.</p>
 
         <div className="field">
           <label><span>SNCU network growth / yr</span><span className="range-val">{fmtPct(sncuRate, 1)}</span></label>
@@ -116,7 +116,7 @@ export default function Forecast({ m1, m2 }: Props) {
             </label>
           </div>
           <p className="card-note">
-            Three trajectories, each from today's estimate: <strong style={{ color: EX }}>Guidelines-based</strong> grows with the SNCU
+            Three trajectories, each from today's estimate: <strong style={{ color: EX }}>Current infra-based</strong> grows with the SNCU
             network; <strong style={{ color: EP }}>Epidemiological</strong> with births × institutional delivery (× RDS);{' '}
             <strong style={{ color: NO }}>Normative</strong> with institutional births (delivery rate held at current level). The gaps show how procurement need diverges.
           </p>
@@ -128,7 +128,7 @@ export default function Forecast({ m1, m2 }: Props) {
                 <YAxis tick={AxisTick} tickFormatter={(v) => fmt(v)} width={54} />
                 <Tooltip content={<Tip />} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Line type="monotone" dataKey="Existing" name="Guidelines-based" stroke={EX} strokeWidth={2.5} dot={{ r: 2 }} />
+                <Line type="monotone" dataKey="Existing" name="Current infra-based" stroke={EX} strokeWidth={2.5} dot={{ r: 2 }} />
                 <Line type="monotone" dataKey="Epidemiological" stroke={EP} strokeWidth={2.5} dot={{ r: 2 }} />
                 <Line type="monotone" dataKey="Normative" stroke={NO} strokeWidth={2.5} dot={{ r: 2 }} />
               </LineChart>
@@ -139,7 +139,7 @@ export default function Forecast({ m1, m2 }: Props) {
         {first && last && (
           <div className="kpi-row">
             <div className="kpi accent-teal">
-              <div className="kpi-label">Guidelines-based · 2031</div>
+              <div className="kpi-label">Current infra-based · 2031</div>
               <div className="kpi-value">{fmt(last.Existing)}</div>
               <div className="kpi-sub">{fmtPct(growth(first.Existing, last.Existing))} vs 2025</div>
             </div>
@@ -154,7 +154,7 @@ export default function Forecast({ m1, m2 }: Props) {
               <div className="kpi-sub">{fmtPct(growth(first.Normative, last.Normative))} vs 2025</div>
             </div>
             <div className="kpi accent-good">
-              <div className="kpi-label">Guidelines ÷ Epidemiological</div>
+              <div className="kpi-label">Current-infra ÷ Epidemiological</div>
               <div className="kpi-value">{last.Epidemiological > 0 ? fmtPct(last.Existing / last.Epidemiological) : '—'}</div>
               <div className="kpi-sub">network coverage of need, 2031</div>
             </div>
@@ -166,7 +166,7 @@ export default function Forecast({ m1, m2 }: Props) {
           <div className="table-scroll">
             <table className="data">
               <thead>
-                <tr><th>Year</th><th style={{ color: EX }}>Guidelines-based</th><th style={{ color: EP }}>Epidemiological</th><th style={{ color: NO }}>Normative</th></tr>
+                <tr><th>Year</th><th style={{ color: EX }}>Current infra-based</th><th style={{ color: EP }}>Epidemiological</th><th style={{ color: NO }}>Normative</th></tr>
               </thead>
               <tbody>
                 {series.map((p) => (
@@ -185,10 +185,10 @@ export default function Forecast({ m1, m2 }: Props) {
         <div className="card">
           <h2>How to read it</h2>
           <ul className="src-list" style={{ paddingLeft: 18 }}>
-            <li><strong>Guidelines-based estimation</strong> rises with the SNCU network (~6.6%/yr, fitted to the 2014–2024 published series) — the deliverable capacity if build-out continues at its historical pace.</li>
+            <li><strong>Current infra-based</strong> rises with the SNCU network (~6.6%/yr, fitted to the 2014–2024 published series) — the deliverable capacity if build-out continues at its historical pace.</li>
             <li><strong>Epidemiological</strong> tracks clinical need: births are projected to fall while institutional delivery rises, so it stays broadly flat.</li>
             <li><strong>Normative</strong> is sized from institutional births (live births × delivery rate, held at the current level), so it declines gently as the birth cohort shrinks.</li>
-            <li>Where the guidelines-based line rises toward Epidemiological, the infrastructure gap narrows; the distance to Normative is the full build-out headroom.</li>
+            <li>Where the current infra-based line rises toward Epidemiological, the infrastructure gap narrows; the distance to Normative is the full build-out headroom.</li>
           </ul>
         </div>
       </div>

@@ -22,11 +22,11 @@ const BASE_COLS: Col[] = [
   { key: 'state', label: 'State / UT', render: (r) => r.state, foot: () => 'India total' },
   { key: 'sncu', label: 'SNCUs', render: (r) => fmt(r.sncu), foot: (t) => fmt(t.sncu) },
   { key: 'asisBeds', label: 'SNCU beds', render: (r) => fmt(r.asisBeds), foot: (t) => fmt(t.asisBeds) },
-  { key: 'asisCpap', label: 'CPAP · guidelines', render: (r) => fmt(r.asisCpap), foot: (t) => fmt(t.asisCpap), cls: 'cell-strong' },
+  { key: 'asisCpap', label: 'CPAP · current-infra', render: (r) => fmt(r.asisCpap), foot: (t) => fmt(t.asisCpap), cls: 'cell-strong' },
   { key: 'births', label: 'Live births', render: (r) => fmt(r.births), foot: (t) => fmt(t.births) },
   { key: 'normBeds', label: 'Norm. beds', render: (r) => fmt(r.normBeds), foot: (t) => fmt(t.normBeds) },
   { key: 'normCpap', label: 'CPAP · norm.', render: (r) => fmt(r.normCpap), foot: (t) => fmt(t.normCpap), cls: 'cell-strong' },
-  { key: 'cpapGap', label: 'Gap · norm−guid', render: (r) => fmt(r.cpapGap), foot: (t) => fmt(t.cpapGap), cls: 'cell-gap' },
+  { key: 'cpapGap', label: 'Gap · norm−infra', render: (r) => fmt(r.cpapGap), foot: (t) => fmt(t.cpapGap), cls: 'cell-gap' },
 ]
 
 const EXT_COL: Col = {
@@ -47,7 +47,7 @@ const INSTALLED_COL: Col = {
 
 const GAP2_COL: Col = {
   key: 'gapGuidInstalled',
-  label: 'Gap · guid−inst',
+  label: 'Gap · infra−inst',
   render: (r) => (r.gapGuidInstalled != null ? fmt(r.gapGuidInstalled) : '—'),
   foot: () => '—',
   cls: 'cell-gap',
@@ -89,11 +89,11 @@ export default function StateTable({ rows, totals, showExt }: Props) {
   return (
     <div>
       <p className="card-note">
-        Click a column to sort · 36 states / UTs. The guidelines-based lens applies the norm to today's SNCU beds;
+        Click a column to sort · 36 states / UTs. The current infra-based lens applies the norm to today's SNCU beds;
         normative applies it to the beds a fully built-out network would have (sized from institutional births = live births × NFHS-6 delivery rate).
         {showExt ? ' Add-on shows the NBSU/Transport extension, already included in the CPAP columns.' : ''}{' '}
-        Three gaps: <strong>norm−guid</strong> = normative − guidelines-based (build-out headroom);
-        <strong> guid−inst</strong> = guidelines-based − installed; <strong>norm−inst</strong> = normative − installed
+        Three gaps: <strong>norm−infra</strong> = normative − current infra-based (build-out headroom);
+        <strong> infra−inst</strong> = current infra-based − installed; <strong>norm−inst</strong> = normative − installed
         (positive = installed falls short; negative = installed exceeds that target). <strong>Installed · actual</strong> =
         reported CPAP devices, available so far for MP (282), Bihar (70), Punjab (59), Rajasthan (961) and
         Chhattisgarh (58); “—” where not yet reported (so those two gaps and any national total are blank).

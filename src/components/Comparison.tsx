@@ -25,7 +25,7 @@ function TriBar({ existing, td, normative, installed }: { existing: number; td: 
   const TIER_H = 32 // px each staggered label drops by
   const MIN_GAP = 18 // % of width below which two labels would collide → stagger
   const marks = [
-    { key: 'existing', v: existing, label: 'Guidelines-based', color: 'var(--c-primary)' },
+    { key: 'existing', v: existing, label: 'Current infra-based', color: 'var(--c-primary)' },
     { key: 'td', v: td, label: 'Clinical need', color: 'var(--c-accent)' },
     { key: 'normative', v: normative, label: 'Normative', color: 'var(--c-primary-dark)' },
     ...(installed != null ? [{ key: 'installed', v: installed, label: 'Installed (actual)', color: INSTALLED_COLOR }] : []),
@@ -64,7 +64,7 @@ function TriBar({ existing, td, normative, installed }: { existing: number; td: 
         })}
       </div>
       <div className="legend-row" style={{ marginTop: 62 + maxTier * TIER_H }}>
-        <span><span className="legend-dot" style={{ background: 'var(--c-primary)' }} />Guidelines-based</span>
+        <span><span className="legend-dot" style={{ background: 'var(--c-primary)' }} />Current infra-based</span>
         <span><span className="legend-dot" style={{ background: 'var(--c-accent)' }} />Gap to clinical need</span>
         <span><span className="legend-dot" style={{ background: 'var(--c-primary-dark)', opacity: 0.55 }} />Normative ceiling</span>
         {installed != null && <span><span className="legend-dot" style={{ background: INSTALLED_COLOR }} />Installed (actual)</span>}
@@ -116,12 +116,12 @@ export default function Comparison({ m1, m2 }: Props) {
             ? <>A full FBNC-normative build-out (<strong>{fmt(active.normative)}</strong>) would <strong>exceed</strong> clinical need by {fmtPct(buildVsNeed - 1)} — the norm-based target runs ahead of epidemiological need.</>
             : <>Even a full FBNC build-out (<strong>{fmt(active.normative)}</strong>) would <strong>fall short</strong> of clinical need by {fmtPct(1 - buildVsNeed)}.</>}{' '}
           {sel
-            ? <>This state's guidelines-based estimate is <strong>{CLS_LABEL[cls!].toLowerCase()}</strong> against clinical need (ratio {coverage.toFixed(2)}×).</>
-            : <><strong>{underserved}</strong> of {rows.length} states are under-served (guidelines-based requirement below two-thirds of need).</>}
+            ? <>This state's current infra-based estimate is <strong>{CLS_LABEL[cls!].toLowerCase()}</strong> against clinical need (ratio {coverage.toFixed(2)}×).</>
+            : <><strong>{underserved}</strong> of {rows.length} states are under-served (current infra-based requirement below two-thirds of need).</>}
           {sel?.installed != null && (
             <> <br /><strong style={{ color: INSTALLED_COLOR }}>Actual devices reported: {fmt(sel.installed)}</strong> — {' '}
             {active.td > 0 ? `${fmtPct(sel.installed / active.td)} of clinical need` : '—'} and {' '}
-            {active.existing > 0 ? `${(sel.installed / active.existing).toFixed(2)}× the guidelines-based estimate` : '—'}.</>
+            {active.existing > 0 ? `${(sel.installed / active.existing).toFixed(2)}× the current infra-based estimate` : '—'}.</>
           )}
         </div>
       </div>
@@ -137,9 +137,9 @@ export default function Comparison({ m1, m2 }: Props) {
           </div>
           {view !== 'table' && (
             <div className="explorer-controls">
-              <span className="muted" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Infrastructure lens</span>
+              <span className="muted" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Guidelines-based lens</span>
               <div className="series-toggle">
-                <button className={lens === 'existing' ? 'on asis' : ''} onClick={() => setLens('existing')}>Guidelines-based</button>
+                <button className={lens === 'existing' ? 'on asis' : ''} onClick={() => setLens('existing')}>Current infra-based</button>
                 <button className={lens === 'normative' ? 'on norm' : ''} onClick={() => setLens('normative')}>Normative</button>
               </div>
             </div>
@@ -151,16 +151,16 @@ export default function Comparison({ m1, m2 }: Props) {
         {view === 'table' && <CmpTable rows={rows} />}
 
         <hr className="divider" />
-        <SourceNote refs={[{ key: 'mohfwAR', page: 'p. 62' }, { key: 'fbnc2025', page: 'p. 57, 60' }]} note="infrastructure-based (facilities · norms)" />
+        <SourceNote refs={[{ key: 'mohfwAR', page: 'p. 62' }, { key: 'fbnc2025', page: 'p. 57, 60' }]} note="guidelines-based (facilities · norms)" />
         <SourceNote refs={[{ key: 'nfhs6', page: 'inst. delivery' }, { key: 'nfhs5', page: 'LBW' }, { key: 'srs2024', page: 'NMR · CBR' }, { key: 'ncpProj', page: 'population' }]} note="epidemiological (LBW · NMR · births)" />
       </div>
 
       <div className="card">
         <h2>How to read the divergence</h2>
         <ul className="src-list" style={{ paddingLeft: 18 }}>
-          <li><strong>Guidelines-based ≈ clinical need:</strong> the network is broadly right-sized — high confidence.</li>
-          <li><strong>Guidelines-based &lt; clinical need</strong> (most states): an infrastructure/access gap; the normative lens shows the build-out to close it.</li>
-          <li><strong>Guidelines-based &gt; clinical need:</strong> provision runs ahead of modelled need — a utilisation/right-sizing question.</li>
+          <li><strong>Current infra-based ≈ clinical need:</strong> the network is broadly right-sized — high confidence.</li>
+          <li><strong>Current infra-based &lt; clinical need</strong> (most states): an infrastructure/access gap; the normative lens shows the build-out to close it.</li>
+          <li><strong>Current infra-based &gt; clinical need:</strong> provision runs ahead of modelled need — a utilisation/right-sizing question.</li>
           <li>Both methods share the same births and are anchored to public (NHM) facilities; they differ only in what drives the requirement — infrastructure norms vs clinical epidemiology.</li>
         </ul>
       </div>
