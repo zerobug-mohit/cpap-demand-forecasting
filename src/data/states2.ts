@@ -45,10 +45,32 @@ const M2: Record<string, { lbw: number; idr: number; nmr: number | null }> = {
   'Puducherry': { lbw: 13.7, idr: 99.8, nmr: null },
 }
 
+// Public-facility share of institutional births = public-facility % ÷ total institutional %.
+// NFHS-6 (2023-24) fact sheets, indicators 35 & 36 (Manipur = NFHS-5, not covered by NFHS-6).
+// Private = 1 − this. Used to restrict estimates to public (NHM) facilities.
+const PUB: Record<string, number> = {
+  'Andhra Pradesh': 0.465, 'Arunachal Pradesh': 0.936, 'Assam': 0.863, 'Bihar': 0.709,
+  'Chhattisgarh': 0.795, 'Goa': 0.609, 'Gujarat': 0.409, 'Haryana': 0.545,
+  'Himachal Pradesh': 0.770, 'Jharkhand': 0.705, 'Karnataka': 0.589, 'Kerala': 0.344,
+  'Madhya Pradesh': 0.855, 'Maharashtra': 0.553, 'Manipur': 0.743, 'Meghalaya': 0.849,
+  'Mizoram': 0.819, 'Nagaland': 0.719, 'Odisha': 0.799, 'Punjab': 0.509,
+  'Rajasthan': 0.749, 'Sikkim': 0.734, 'Tamil Nadu': 0.638, 'Telangana': 0.582,
+  'Tripura': 0.837, 'Uttar Pradesh': 0.603, 'Uttarakhand': 0.561, 'West Bengal': 0.693,
+  'Andaman & Nicobar Islands': 0.869, 'Chandigarh': 0.837,
+  'Dadra & Nagar Haveli and Daman & Diu': 0.747, 'Delhi': 0.686, 'Jammu & Kashmir': 0.858,
+  'Ladakh': 0.973, 'Lakshadweep': 0.844, 'Puducherry': 0.763,
+}
+
+/** National public share of institutional births (NFHS-6: 58.6 ÷ 90.6). Default for a global override. */
+export const NATIONAL_PUBLIC_SHARE = 0.647
+
 export const STATES2: State2[] = STATES.map((s) => {
   const d = M2[s.state]
-  return { state: s.state, ut: s.ut, births: s.births, idr: d.idr / 100, lbw: d.lbw, nmr: d.nmr }
+  return { state: s.state, ut: s.ut, births: s.births, idr: d.idr / 100, lbw: d.lbw, nmr: d.nmr, publicShare: PUB[s.state] ?? NATIONAL_PUBLIC_SHARE }
 })
 
 /** state -> institutional-delivery rate (fraction 0..1), NFHS-6 (Manipur NFHS-5). Single source for both methods. */
 export const IDR_BY_STATE: Record<string, number> = Object.fromEntries(STATES2.map((s) => [s.state, s.idr]))
+
+/** state -> public-facility share of institutional births (fraction 0..1). */
+export const PUBLIC_SHARE_BY_STATE: Record<string, number> = { ...PUB }

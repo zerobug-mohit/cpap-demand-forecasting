@@ -9,15 +9,19 @@ export interface State2 {
   state: string
   ut?: boolean
   births: number // annual live births (from Method-1 data / SRS × projections)
-  idr: number // institutional-delivery rate, fraction 0..1 (NFHS-5)
+  idr: number // institutional-delivery rate, fraction 0..1 (NFHS-6)
   lbw: number | null // low-birth-weight %, e.g. 18.2 (NFHS-5); null if unavailable
   nmr: number | null // neonatal mortality rate per 1,000 (SRS); null if unavailable
+  publicShare: number // public-facility share of institutional births, fraction 0..1 (NFHS-6)
 }
 
 export interface M2Norms {
   // National eligibility anchor: E_nat (CPAP-eligible cases per institutional birth) = rdsPer1000/1000 × correction
   rdsPer1000: number // RDS cases per 1,000 institutional births (national, case-mix corrected)
   correction: number // ×factor for non-RDS conditions (TTN/MAS/sepsis/apnoea), >1
+  // Facility scope: restrict the institutional-birth base to public (NHM) facilities
+  publicOnly: boolean // if true, base = institutional births × public share
+  publicShareOverride: number | null // null = per-state NFHS share; else a single fraction applied to all states
   // Care cascade tail (national constants, adjustable)
   durationDays: number
   admissionRate: number // fraction of eligible cases reaching a facility
@@ -32,6 +36,8 @@ export interface M2Norms {
 export const DEFAULT_M2: M2Norms = {
   rdsPer1000: 25, // upper of India birth-denominator studies (AFMC 4.5 · NNPD 12 · AIIMS 19.1 · Aligarh 25.3). Range 4.5-25.3.
   correction: 2.0, // (% put on CPAP) ÷ (RDS share) in Indian resp-distress cohorts: Aligarh 67.5/35.5=1.90 · Navi Mumbai 68/32.8=2.07 → median ~2.0. Range 1.9-2.1.
+  publicOnly: true, // NHM scope: count only public-facility institutional births
+  publicShareOverride: null, // per-state NFHS public share by default
   durationDays: 2.0, // median of Indian per-course studies (Koti 1.0 · Niveditha 1.5 · Noolu 2.3 · Tahreem 3.0 → median ~1.9). Range 1-3 d.
   admissionRate: 1.0,
   buffer: 0.3, // combined planning uplift: peak-concurrency + attrition + lead-time/spares
@@ -42,7 +48,9 @@ export const DEFAULT_M2: M2Norms = {
 }
 
 export interface Computed2 extends State2 {
-  instBirths: number
+  instBirths: number // all institutional births (births × idr)
+  baseInstBirths: number // base used by the cascade (public institutional births when publicOnly)
+  pubFactor: number // public-share factor applied (1 when publicOnly is off)
   index: number // relative risk index (national-standardized)
   share: number // share of national eligible pool
   eligible: number // CPAP-eligible cases
@@ -57,6 +65,7 @@ export interface Computed2 extends State2 {
 export interface Totals2 {
   births: number
   instBirths: number
+  baseInstBirths: number
   eligible: number
   reaching: number
   meanConcurrent: number
@@ -77,10 +86,12 @@ const wmean = (vals: { v: number | null; w: number }[]) => {
 }
 
 export function computeAll2(states: State2[], n: M2Norms): { rows: Computed2[]; totals: Totals2 } {
-  const inst = states.map((s) => s.births * s.idr)
+  const pubFactorOf = (s: State2) => (n.publicOnly ? (n.publicShareOverride ?? s.publicShare) : 1)
+  const instAll = states.map((s) => s.births * s.idr) // all institutional births
+  const inst = states.map((s, i) => instAll[i] * pubFactorOf(s)) // base: public institutional births when publicOnly
   const instTotal = inst.reduce((a, b) => a + b, 0)
 
-  // national standardizers (institutional-births-weighted state means)
+  // national standardizers (base-institutional-births-weighted state means)
   const lbwStd = wmean(states.map((s, i) => ({ v: s.lbw, w: inst[i] })))
   const nmrStd = wmean(states.map((s, i) => ({ v: s.nmr, w: inst[i] })))
 
@@ -108,7 +119,7 @@ export function computeAll2(states: State2[], n: M2Norms): { rows: Computed2[]; 
   const rawSum = raw.reduce((a, r) => a + r.w, 0) || 1
 
   const rows: Computed2[] = states.map((s, i) => {
-    const instBirths = inst[i]
+    const baseInstBirths = inst[i]
     const { index, lbwImp, nmrImp } = indexOf(s)
     const share = raw[i].w / rawSum
     const eligible = eligiblePool * share
@@ -118,11 +129,13 @@ export function computeAll2(states: State2[], n: M2Norms): { rows: Computed2[]; 
     const gross = Math.ceil(meanConcurrent * (1 + n.buffer))
     return {
       ...s,
-      instBirths,
+      instBirths: instAll[i],
+      baseInstBirths,
+      pubFactor: pubFactorOf(s),
       index,
       share,
       eligible,
-      eligPer1000: instBirths > 0 ? (eligible / instBirths) * 1000 : 0,
+      eligPer1000: baseInstBirths > 0 ? (eligible / baseInstBirths) * 1000 : 0,
       reaching,
       meanConcurrent,
       gross,
@@ -133,9 +146,11 @@ export function computeAll2(states: State2[], n: M2Norms): { rows: Computed2[]; 
 
   const sum = (f: (r: Computed2) => number) => rows.reduce((a, r) => a + f(r), 0)
   const eligible = sum((r) => r.eligible)
+  const instAllTotal = instAll.reduce((a, b) => a + b, 0)
   const totals: Totals2 = {
     births: sum((r) => r.births),
-    instBirths: instTotal,
+    instBirths: instAllTotal,
+    baseInstBirths: instTotal,
     eligible,
     reaching: sum((r) => r.reaching),
     meanConcurrent: sum((r) => r.meanConcurrent),

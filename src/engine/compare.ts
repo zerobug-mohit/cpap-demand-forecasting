@@ -1,7 +1,7 @@
 // Joins Method-1 (bottom-up) and Method-2 (top-down) results state-by-state for the
 // comparison / triangulation view. Pure logic.
 import { STATES } from '../data/states'
-import { STATES2, IDR_BY_STATE } from '../data/states2'
+import { STATES2, IDR_BY_STATE, PUBLIC_SHARE_BY_STATE } from '../data/states2'
 import { computeAll } from './method1'
 import type { Norms } from './method1'
 import { computeAll2 } from './method2'
@@ -25,7 +25,7 @@ export interface CmpResult {
 }
 
 export function compare(m1: Norms, m2: M2Norms): CmpResult {
-  const { rows: r1, totals: t1 } = computeAll(STATES, m1, IDR_BY_STATE)
+  const { rows: r1, totals: t1 } = computeAll(STATES, m1, IDR_BY_STATE, PUBLIC_SHARE_BY_STATE)
   const { rows: r2, totals: t2 } = computeAll2(STATES2, m2)
   const tdByState = new Map(r2.map((r) => [r.state, r.gross]))
   const rows: CmpRow[] = r1.map((r) => ({

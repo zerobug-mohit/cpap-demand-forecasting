@@ -17,6 +17,7 @@ export const METRICS: Metric[] = [
   { key: 'births', label: 'Live births (latest est.)', get: (r) => r.births, kind: 'int' },
   { key: 'instBirths', label: 'Institutional births (est.)', get: (r) => r.instBirths, kind: 'int' },
   { key: 'instDelivRate', label: 'Institutional delivery rate', get: (r) => (r.births > 0 ? (r.instBirths / r.births) * 100 : NaN), kind: 'pct' },
+  { key: 'pubInstBirths', label: 'Public institutional births (est.)', get: (r) => r.pubInstBirths, kind: 'int' },
 ]
 
 export const getMetric = (key: string) => METRICS.find((m) => m.key === key) ?? METRICS[0]

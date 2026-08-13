@@ -22,6 +22,7 @@ const Op = ({ children }: { children: React.ReactNode }) => (
 export default function M2Flow({ norms, totals, rows }: { norms: M2Norms; totals: Totals2; rows: Computed2[] }) {
   const [view, setView] = useState<'national' | 'state'>('national')
   const effIDR = totals.births > 0 ? totals.instBirths / totals.births : 0
+  const effPub = totals.instBirths > 0 ? totals.baseInstBirths / totals.instBirths : 0
   const eNat = (norms.rdsPer1000 / 1000) * norms.correction
   const pct = (x: number, d = 0) => `${(x * 100).toFixed(d)}%`
 
@@ -41,6 +42,12 @@ export default function M2Flow({ norms, totals, rows }: { norms: M2Norms; totals
         <Node tone="grey" title="Live births" val={fmt(totals.births)} sub="population × SRS crude birth rate" />
         <Op>× institutional-delivery rate (~{pct(effIDR)}, NFHS)</Op>
         <Node tone="grey" title="Institutional births" val={fmt(totals.instBirths)} />
+        {norms.publicOnly && (
+          <>
+            <Op>× public-facility share <FactorPill target="m2-publicShare">~{pct(effPub)}</FactorPill> (NFHS-6)</Op>
+            <Node tone="grey" title="Public institutional births" val={fmt(totals.baseInstBirths)} sub="public (NHM) facilities only" />
+          </>
+        )}
         <Op>× eligibility {pct(eNat, 1)} = RDS <FactorPill target="m2-rdsPer1000">{pct(norms.rdsPer1000 / 1000, 1)}</FactorPill> × <FactorPill target="m2-correction">{norms.correction.toFixed(1)}×</FactorPill> · national anchor</Op>
         <Node tone="teal" title="CPAP-eligible cases" val={fmt(totals.eligible)} sub={view === 'state' ? 'national pool, then redistributed to states' : 'national clinical-need pool'} />
 

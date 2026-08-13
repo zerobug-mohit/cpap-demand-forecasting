@@ -39,6 +39,9 @@ export interface Norms {
   avgSncuBeds: number
   /** Normative SNCU beds per 1,000 live births (FBNC-consistent: 12 beds / 3,000 = 4). */
   normBedsPer1000: number
+  /** Facility scope: restrict normative sizing to public (NHM) institutional births. */
+  publicOnly: boolean
+  publicShareOverride: number | null // null = per-state NFHS share; else one fraction for all states
   nbsu: FacilityExt
   transport: TransportExt
   /** Per-state NBSU percentage overrides (fraction 0..1). */
@@ -50,6 +53,8 @@ export const DEFAULT_NORMS: Norms = {
   cpapPerBed: 0.30,
   avgSncuBeds: 16,
   normBedsPer1000: 4,
+  publicOnly: true,
+  publicShareOverride: null,
   nbsu: { pct: 0.25, bedsPerFacility: 4, cpapPerBed: 0.30 },
   transport: { perSncu: 1, perNbsu: 0 },
   overrides: {},
@@ -59,6 +64,7 @@ export type Lens = 'asis' | 'normative'
 
 export interface ComputedRow extends StateRow {
   instBirths: number // live births × institutional-delivery rate
+  pubInstBirths: number // institutional births × public-facility share (= instBirths when publicOnly off)
   asisBeds: number
   asisSncuCpap: number
   normBeds: number
@@ -79,6 +85,7 @@ export interface Totals {
   nbcc: number
   births: number
   instBirths: number
+  pubInstBirths: number
   asisBeds: number
   asisSncuCpap: number
   normBeds: number
@@ -96,12 +103,13 @@ export interface Totals {
 const extCpap = (count: number, pct: number, f: FacilityExt) =>
   Math.round(count * pct * f.bedsPerFacility * f.cpapPerBed)
 
-export function computeRow(s: StateRow, n: Norms, idr = 1): ComputedRow {
+export function computeRow(s: StateRow, n: Norms, idr = 1, pubFactor = 1): ComputedRow {
   const instBirths = Math.round(s.births * idr)
+  const pubInstBirths = Math.round(instBirths * pubFactor)
   const asisBeds = Math.round(s.sncu * n.avgSncuBeds)
   const asisSncuCpap = Math.round(asisBeds * n.cpapPerBed)
-  // Normative build-out sizes beds from INSTITUTIONAL births (births × IDR), not all live births.
-  const normBeds = Math.round((instBirths / 1000) * n.normBedsPer1000)
+  // Normative build-out sizes beds from PUBLIC institutional births (births × IDR × public share).
+  const normBeds = Math.round((pubInstBirths / 1000) * n.normBedsPer1000)
   const normSncuCpap = Math.round(normBeds * n.cpapPerBed)
 
   const ov = n.overrides[s.state] ?? {}
@@ -118,6 +126,7 @@ export function computeRow(s: StateRow, n: Norms, idr = 1): ComputedRow {
   return {
     ...s,
     instBirths,
+    pubInstBirths,
     asisBeds,
     asisSncuCpap,
     normBeds,
@@ -133,8 +142,9 @@ export function computeRow(s: StateRow, n: Norms, idr = 1): ComputedRow {
   }
 }
 
-export function computeAll(states: StateRow[], n: Norms, idrByState?: Record<string, number>): { rows: ComputedRow[]; totals: Totals } {
-  const rows = states.map((s) => computeRow(s, n, idrByState?.[s.state] ?? 1))
+export function computeAll(states: StateRow[], n: Norms, idrByState?: Record<string, number>, publicShareByState?: Record<string, number>): { rows: ComputedRow[]; totals: Totals } {
+  const pubFactorOf = (state: string) => (n.publicOnly ? (n.publicShareOverride ?? publicShareByState?.[state] ?? 1) : 1)
+  const rows = states.map((s) => computeRow(s, n, idrByState?.[s.state] ?? 1, pubFactorOf(s.state)))
   const sum = (f: (r: ComputedRow) => number) => rows.reduce((a, r) => a + f(r), 0)
   const asisCpap = sum((r) => r.asisCpap)
   const normCpap = sum((r) => r.normCpap)
@@ -144,6 +154,7 @@ export function computeAll(states: StateRow[], n: Norms, idrByState?: Record<str
     nbcc: sum((r) => r.nbcc),
     births: sum((r) => r.births),
     instBirths: sum((r) => r.instBirths),
+    pubInstBirths: sum((r) => r.pubInstBirths),
     asisBeds: sum((r) => r.asisBeds),
     asisSncuCpap: sum((r) => r.asisSncuCpap),
     normBeds: sum((r) => r.normBeds),

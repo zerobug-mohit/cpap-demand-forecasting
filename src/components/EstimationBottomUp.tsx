@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { STATES } from '../data/states'
-import { IDR_BY_STATE } from '../data/states2'
+import { IDR_BY_STATE, PUBLIC_SHARE_BY_STATE } from '../data/states2'
 import { computeAll, DEFAULT_NORMS, SCOPE_LABEL } from '../engine/method1'
 import type { Lens, Norms } from '../engine/method1'
 import { fmt } from '../utils/format'
@@ -20,7 +20,7 @@ interface Props {
 export default function EstimationBottomUp({ norms, onChange }: Props) {
   const [lens, setLens] = useState<Lens>('asis')
 
-  const { rows, totals } = useMemo(() => computeAll(STATES, norms, IDR_BY_STATE), [norms])
+  const { rows, totals } = useMemo(() => computeAll(STATES, norms, IDR_BY_STATE, PUBLIC_SHARE_BY_STATE), [norms])
 
   return (
     <div className="layout-grid">

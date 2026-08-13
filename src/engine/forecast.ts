@@ -13,7 +13,7 @@ import { computeAll } from './method1'
 import type { M2Norms } from './method2'
 import { computeAll2 } from './method2'
 import { STATES } from '../data/states'
-import { STATES2, IDR_BY_STATE } from '../data/states2'
+import { STATES2, IDR_BY_STATE, PUBLIC_SHARE_BY_STATE } from '../data/states2'
 
 export interface GrowthData {
   /** state-specific SNCU CAGR (fraction/yr); states missing here fall back to nationalSncuCagr. */
@@ -57,7 +57,7 @@ export const DEFAULT_FORECAST: Omit<ForecastParams, 'years' | 'baseYear'> = {
 }
 
 export function computeForecast(m1: Norms, m2: M2Norms, g: GrowthData, p: ForecastParams): ForecastResult {
-  const base1 = new Map(computeAll(STATES, m1, IDR_BY_STATE).rows.map((r) => [r.state, r]))
+  const base1 = new Map(computeAll(STATES, m1, IDR_BY_STATE, PUBLIC_SHARE_BY_STATE).rows.map((r) => [r.state, r]))
   const base2 = new Map(computeAll2(STATES2, m2).rows.map((r) => [r.state, r]))
   const idrBase = new Map(STATES2.map((s) => [s.state, s.idr]))
 

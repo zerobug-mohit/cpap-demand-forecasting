@@ -62,14 +62,14 @@ export default function EstimationTopDown({ norms, onChange }: Props) {
             <div className="kpi-sub">devices, clinical-need ceiling</div>
           </div>
           <div className="kpi accent-teal">
-            <div className="kpi-label">Institutional births</div>
-            <div className="kpi-value">{fmt(totals.instBirths)}</div>
-            <div className="kpi-sub">births × NFHS delivery rate</div>
+            <div className="kpi-label">{norms.publicOnly ? 'Public inst. births' : 'Institutional births'}</div>
+            <div className="kpi-value">{fmt(norms.publicOnly ? totals.baseInstBirths : totals.instBirths)}</div>
+            <div className="kpi-sub">{norms.publicOnly ? 'births × delivery rate × public share' : 'births × NFHS delivery rate'}</div>
           </div>
           <div className="kpi accent-teal">
             <div className="kpi-label">CPAP-eligible cases</div>
             <div className="kpi-value">{fmt(totals.eligible)}</div>
-            <div className="kpi-sub">{totals.eligPer1000.toFixed(1)} per 1,000 inst. births</div>
+            <div className="kpi-sub">{totals.eligPer1000.toFixed(1)} per 1,000 {norms.publicOnly ? 'public ' : ''}inst. births</div>
           </div>
           <div className="kpi accent-good">
             <div className="kpi-label">State driver</div>

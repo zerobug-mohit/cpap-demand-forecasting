@@ -23,8 +23,9 @@ export default function MethodologyCard() {
       <p style={{ fontSize: '0.86rem', marginTop: 0 }}>
         <strong>Guidelines-based:</strong> SNCU beds (units × avg beds) × CPAP-per-bed norm.
         <br />
-        <strong>Normative:</strong> (institutional births ÷ 1,000 × norm beds) × CPAP-per-bed norm, where
-        institutional births = live births × institutional-delivery rate (NFHS-6).
+        <strong>Normative:</strong> (public institutional births ÷ 1,000 × norm beds) × CPAP-per-bed norm, where
+        public institutional births = live births × institutional-delivery rate × public-facility share (all NFHS-6);
+        the public-facility filter is on by default (NHM scope) and can be toggled off.
         <br />
         Summed across 36 states/UTs to a national total. NBSU &amp; NBCC carry no CPAP under FBNC.
       </p>

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import type { M2Driver, M2Norms } from '../engine/method2'
 import { DEFAULT_M2 } from '../engine/method2'
+import { NATIONAL_PUBLIC_SHARE } from '../data/states2'
 import SourceNote from './SourceNote'
 import PanelSection from './PanelSection'
 import DataCaveats from './DataCaveats'
@@ -64,6 +65,38 @@ export default function M2NormsPanel({ norms, onChange, onReset }: Props) {
         <button className="btn link" onClick={onReset} disabled={!dirty} style={{ opacity: dirty ? 1 : 0.4 }}>Reset</button>
       </div>
       <p className="card-note">Epidemiological cascade. The national anchor is held fixed and redistributed across states by the driver. Each input's basis is noted below it.</p>
+
+      <PanelSection
+        title="Facility scope (public / private)"
+        ids={['m2-publicShare']}
+        badge={norms.publicOnly ? <span className="badge entered">public only</span> : undefined}
+      >
+        <label className="switch-row">
+          <input type="checkbox" checked={norms.publicOnly} onChange={(e) => set({ publicOnly: e.target.checked })} />
+          <span>Public (NHM) facilities only</span>
+        </label>
+        <p className="hint" style={{ marginTop: 6 }}>
+          Anchors the eligible-case pool to <strong>public-facility</strong> institutional births and redistributes
+          across states on that same base — the NHM procurement scope. Private-sector deliveries are excluded.
+        </p>
+        {norms.publicOnly && (
+          <div id="m2-publicShare" style={{ marginTop: 8 }}>
+            <label className="switch-row">
+              <input type="checkbox" checked={norms.publicShareOverride !== null}
+                onChange={(e) => set({ publicShareOverride: e.target.checked ? NATIONAL_PUBLIC_SHARE : null })} />
+              <span>Use one custom share for all states</span>
+            </label>
+            {norms.publicShareOverride !== null ? (
+              <Slider label="Public share (all states)" value={norms.publicShareOverride} min={0.2} max={1} step={0.01}
+                display={`${Math.round(norms.publicShareOverride * 100)}%`} onChange={(v) => set({ publicShareOverride: v })}
+                hint="Applied uniformly, overriding per-state NFHS values." />
+            ) : (
+              <p className="hint" style={{ marginTop: 6 }}>Using per-state NFHS-6 public shares (Kerala 34% … Ladakh 97%; national ~65%).</p>
+            )}
+            <SourceNote refs={[{ key: 'nfhs6', page: 'ind. 35–36' }]} note="public-facility share of institutional births" />
+          </div>
+        )}
+      </PanelSection>
 
       <PanelSection title="National eligibility anchor" ids={['m2-rdsPer1000', 'm2-correction']}>
         <Slider id="m2-rdsPer1000" changed={chg('rdsPer1000')} label="RDS cases / 1,000 inst. births" value={norms.rdsPer1000} min={4} max={30} step={1}

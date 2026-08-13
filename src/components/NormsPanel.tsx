@@ -1,5 +1,6 @@
 import type { Norms } from '../engine/method1'
 import { DEFAULT_NORMS, SCOPE_LABEL } from '../engine/method1'
+import { NATIONAL_PUBLIC_SHARE } from '../data/states2'
 import ScopeToggle from './ScopeToggle'
 import ExtendedNormsSection from './ExtendedNormsSection'
 import SourceNote from './SourceNote'
@@ -108,6 +109,43 @@ export default function NormsPanel({ norms, onChange, onReset }: Props) {
             </div>
           )
         })}
+      </PanelSection>
+
+      <PanelSection
+        title="Facility scope (public / private)"
+        ids={['m1-publicShare']}
+        badge={norms.publicOnly ? <span className="badge entered">public only</span> : undefined}
+      >
+        <label className="switch-row">
+          <input type="checkbox" checked={norms.publicOnly} onChange={(e) => onChange({ ...norms, publicOnly: e.target.checked })} />
+          <span>Public (NHM) facilities only</span>
+        </label>
+        <p className="hint" style={{ marginTop: 6 }}>
+          Sizes the normative build-out from <strong>public-facility</strong> institutional births only — the NHM
+          procurement scope. Private-sector deliveries are excluded.
+        </p>
+        {norms.publicOnly && (
+          <div id="m1-publicShare" style={{ marginTop: 8 }}>
+            <label className="switch-row">
+              <input type="checkbox" checked={norms.publicShareOverride !== null}
+                onChange={(e) => onChange({ ...norms, publicShareOverride: e.target.checked ? NATIONAL_PUBLIC_SHARE : null })} />
+              <span>Use one custom share for all states</span>
+            </label>
+            {norms.publicShareOverride !== null ? (
+              <div className="field" style={{ marginTop: 6 }}>
+                <label><span>Public share (all states)</span><span className="range-val">{Math.round(norms.publicShareOverride * 100)}%</span></label>
+                <div className="range-row">
+                  <input type="range" min={0.2} max={1} step={0.01} value={norms.publicShareOverride}
+                    onChange={(e) => onChange({ ...norms, publicShareOverride: parseFloat(e.target.value) })} />
+                </div>
+                <span className="hint">Applied uniformly, overriding per-state NFHS values.</span>
+              </div>
+            ) : (
+              <p className="hint" style={{ marginTop: 6 }}>Using per-state NFHS-6 public shares (Kerala 34% … Ladakh 97%; national ~65%).</p>
+            )}
+            <SourceNote refs={[{ key: 'nfhs6', page: 'ind. 35–36' }]} note="public-facility share of institutional births" />
+          </div>
+        )}
       </PanelSection>
 
       {norms.scope !== 'sncu' && (
