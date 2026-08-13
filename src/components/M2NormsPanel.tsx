@@ -117,10 +117,11 @@ export default function M2NormsPanel({ norms, onChange, onReset }: Props) {
       <PanelSection title="Care cascade" ids={['m2-durationDays', 'm2-admissionRate', 'm2-buffer']}>
         <Slider id="m2-durationDays" changed={chg('durationDays')} label="CPAP duration (days/case)" value={norms.durationDays} min={1} max={10} step={0.5}
           display={norms.durationDays.toFixed(1)} onChange={(v) => set({ durationDays: v })}
-          hint="Median of Indian per-course studies ≈ 2 d (~1.9). Range 1.0 (Koti, early-RDS median) – 3.0 d (Tahreem, 28–34 wk RDS); shorter in early-start pure-RDS cohorts, longer with later/mixed case-mix." />
+          hint="Preset 5 d per CPAP course (FBNC Operational Guidelines 2025). Indian per-course studies observe shorter time actually on CPAP — Koti 1.0 · Noolu 2.3 · Tahreem 3.0 d — so the FBNC figure is the more conservative planning value." />
+        <SourceNote refs={[{ key: 'fbnc2025', page: 'CPAP therapy' }]} note="CPAP duration per case (preset 5 d)" />
         <SourceNote
           refs={[{ key: 'cpapKoti', page: '0.98' }, { key: 'cpapNoolu', page: '2.27' }, { key: 'cpapTahreem', page: '3.01' }]}
-          note="mean/median days on CPAP · India studies (range 1.0–3.0, median ≈2)"
+          note="observed per-course duration · India studies (range 1.0–3.0 d)"
         />
         <Slider id="m2-admissionRate" changed={chg('admissionRate')} label="Facility admission rate" value={norms.admissionRate} min={0.5} max={1} step={0.01}
           display={Math.round(norms.admissionRate * 100) + '%'} onChange={(v) => set({ admissionRate: v })} />

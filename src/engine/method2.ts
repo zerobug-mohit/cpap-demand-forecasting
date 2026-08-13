@@ -38,7 +38,7 @@ export const DEFAULT_M2: M2Norms = {
   correction: 2.0, // (% put on CPAP) ÷ (RDS share) in Indian resp-distress cohorts: Aligarh 67.5/35.5=1.90 · Navi Mumbai 68/32.8=2.07 → median ~2.0. Range 1.9-2.1.
   publicOnly: true, // NHM scope: count only public-facility institutional births
   publicShareOverride: null, // per-state NFHS public share by default
-  durationDays: 2.0, // median of Indian per-course studies (Koti 1.0 · Niveditha 1.5 · Noolu 2.3 · Tahreem 3.0 → median ~1.9). Range 1-3 d.
+  durationDays: 5.0, // FBNC Operational Guidelines 2025 planning duration per CPAP course. (Indian per-course studies observe shorter: Koti 1.0 · Noolu 2.3 · Tahreem 3.0 d.)
   admissionRate: 1.0,
   buffer: 0.3, // combined planning uplift: peak-concurrency + attrition + lead-time/spares
   driver: 'composite',
