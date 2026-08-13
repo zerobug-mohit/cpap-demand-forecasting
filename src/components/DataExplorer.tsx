@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { ComputedRow, Totals } from '../engine/method1'
 import { METRICS, getMetric } from '../engine/metrics'
 import MapView from './MapView'
-import BarView from './BarView'
+import BarView, { SERIES_META } from './BarView'
 import type { Series } from './BarView'
 import StateTable from './StateTable'
 import SourceNote from './SourceNote'
@@ -20,7 +20,12 @@ export default function DataExplorer({ rows, totals, showExt }: Props) {
   const [metricKey, setMetricKey] = useState('asisCpap')
   const [series, setSeries] = useState<Series>({ asis: true, norm: true, installed: false, gapNG: false, gapGI: false, gapNI: false })
 
+  const MAX_SERIES = 3
+  const activeCount = Object.values(series).filter(Boolean).length
+
   const toggleSeries = (k: keyof Series) => {
+    const turningOn = !series[k]
+    if (turningOn && activeCount >= MAX_SERIES) return // cap at 3 simultaneous
     const next = { ...series, [k]: !series[k] }
     if (!Object.values(next).some(Boolean)) return // keep at least one
     setSeries(next)
@@ -50,12 +55,23 @@ export default function DataExplorer({ rows, totals, showExt }: Props) {
           )}
           {view === 'visual' && (
             <div className="series-toggle" style={{ flexWrap: 'wrap' }}>
-              <button className={series.asis ? 'on asis' : ''} onClick={() => toggleSeries('asis')}>Current infra-based</button>
-              <button className={series.norm ? 'on norm' : ''} onClick={() => toggleSeries('norm')}>Normative</button>
-              <button className={series.installed ? 'on' : ''} onClick={() => toggleSeries('installed')}>Installed</button>
-              <button className={series.gapNG ? 'on gap' : ''} onClick={() => toggleSeries('gapNG')}>Gap norm−infra</button>
-              <button className={series.gapGI ? 'on gap' : ''} onClick={() => toggleSeries('gapGI')}>Gap infra−inst</button>
-              <button className={series.gapNI ? 'on gap' : ''} onClick={() => toggleSeries('gapNI')}>Gap norm−inst</button>
+              {SERIES_META.map((s) => {
+                const on = series[s.flag]
+                const blocked = !on && activeCount >= MAX_SERIES
+                return (
+                  <button
+                    key={s.flag}
+                    onClick={() => toggleSeries(s.flag)}
+                    disabled={blocked}
+                    title={blocked ? `Deselect one — up to ${MAX_SERIES} series at a time` : s.name}
+                    style={on
+                      ? { background: s.color, borderColor: s.color, color: '#fff' }
+                      : { background: 'var(--c-surface)', borderColor: s.color, color: s.color, opacity: blocked ? 0.4 : 1, cursor: blocked ? 'not-allowed' : 'pointer' }}
+                  >
+                    {s.btn}
+                  </button>
+                )
+              })}
             </div>
           )}
         </div>

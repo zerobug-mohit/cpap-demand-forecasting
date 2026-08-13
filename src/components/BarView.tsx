@@ -25,13 +25,13 @@ interface Props {
 
 const AxisTick = { fontSize: 11, fill: '#52616d', fontFamily: '"Trebuchet MS", "Segoe UI", sans-serif' }
 
-const SERIES_META: { flag: keyof Series; dataKey: string; name: string; color: string }[] = [
-  { flag: 'asis', dataKey: 'asisCpap', name: 'Current infra-based', color: ASIS },
-  { flag: 'norm', dataKey: 'normCpap', name: 'Normative', color: NORM },
-  { flag: 'installed', dataKey: 'installed', name: 'Installed (actual)', color: INST },
-  { flag: 'gapNG', dataKey: 'cpapGap', name: 'Gap · norm−infra', color: GAP_NG },
-  { flag: 'gapGI', dataKey: 'gapGuidInstalled', name: 'Gap · infra−inst', color: GAP_GI },
-  { flag: 'gapNI', dataKey: 'gapNormInstalled', name: 'Gap · norm−inst', color: GAP_NI },
+export const SERIES_META: { flag: keyof Series; dataKey: string; name: string; btn: string; color: string }[] = [
+  { flag: 'asis', dataKey: 'asisCpap', name: 'Current infra-based', btn: 'Current infra-based', color: ASIS },
+  { flag: 'norm', dataKey: 'normCpap', name: 'Normative', btn: 'Normative', color: NORM },
+  { flag: 'installed', dataKey: 'installed', name: 'Installed (actual)', btn: 'Installed', color: INST },
+  { flag: 'gapNG', dataKey: 'cpapGap', name: 'Gap · norm−infra', btn: 'Gap norm−infra', color: GAP_NG },
+  { flag: 'gapGI', dataKey: 'gapGuidInstalled', name: 'Gap · infra−inst', btn: 'Gap infra−inst', color: GAP_GI },
+  { flag: 'gapNI', dataKey: 'gapNormInstalled', name: 'Gap · norm−inst', btn: 'Gap norm−inst', color: GAP_NI },
 ]
 
 function ChartTooltip({ active, payload, label }: any) {
@@ -62,8 +62,8 @@ export default function BarView({ rows, series }: Props) {
   return (
     <div>
       <p className="card-note">
-        Top 15 states by the leading series. Compare current infra-based, normative and actual-installed levels, and the
-        three gaps between them.{installedSelected && ' Installed-based series/gaps show only for the states with a reported device count.'}
+        Top 15 states by the leading series — pick up to 3 to compare (current infra-based, normative, actual-installed,
+        and the three gaps between them).{installedSelected && ' Installed-based series/gaps show only for the states with a reported device count.'}
       </p>
       <div className="chart-box" style={{ height: 470 }}>
         <ResponsiveContainer width="100%" height="100%">
