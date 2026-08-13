@@ -40,7 +40,7 @@ export const DEFAULT_M2: M2Norms = {
   publicShareOverride: null, // per-state NFHS public share by default
   durationDays: 5.0, // FBNC Operational Guidelines 2025 planning duration per CPAP course. (Indian per-course studies observe shorter: Koti 1.0 · Noolu 2.3 · Tahreem 3.0 d.)
   admissionRate: 1.0,
-  buffer: 0.3, // combined planning uplift: peak-concurrency + attrition + lead-time/spares
+  buffer: 0.25, // combined planning uplift: peak-concurrency + attrition + lead-time/spares
   driver: 'composite',
   wLbw: 0.6,
   wNmr: 0.4,

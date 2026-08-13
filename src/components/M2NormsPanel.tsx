@@ -128,7 +128,7 @@ export default function M2NormsPanel({ norms, onChange, onReset }: Props) {
         <Basis>programme assumption (concept-note default 100%).</Basis>
         <Slider id="m2-buffer" changed={chg('buffer')} label="Planning buffer" value={norms.buffer} min={0} max={1} step={0.05}
           display={Math.round(norms.buffer * 100) + '%'} onChange={(v) => set({ buffer: v })}
-          hint="One combined uplift on mean concurrent devices, covering peak-concurrency, device attrition and procurement lead-time / spares. Default 30%." />
+          hint="One combined uplift on mean concurrent devices, covering peak-concurrency, device attrition and procurement lead-time / spares. Default 25%." />
         <Basis>programme assumption — clubs peak concurrency, attrition and lead-time.</Basis>
       </PanelSection>
 
