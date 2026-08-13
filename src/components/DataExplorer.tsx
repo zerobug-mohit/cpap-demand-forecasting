@@ -18,11 +18,11 @@ interface Props {
 export default function DataExplorer({ rows, totals, showExt }: Props) {
   const [view, setView] = useState<View>('map')
   const [metricKey, setMetricKey] = useState('asisCpap')
-  const [series, setSeries] = useState<Series>({ asis: true, norm: true, gap: false })
+  const [series, setSeries] = useState<Series>({ asis: true, norm: true, installed: false, gapNG: false, gapGI: false, gapNI: false })
 
   const toggleSeries = (k: keyof Series) => {
     const next = { ...series, [k]: !series[k] }
-    if (!next.asis && !next.norm && !next.gap) return // keep at least one
+    if (!Object.values(next).some(Boolean)) return // keep at least one
     setSeries(next)
   }
 
@@ -49,10 +49,13 @@ export default function DataExplorer({ rows, totals, showExt }: Props) {
             </label>
           )}
           {view === 'visual' && (
-            <div className="series-toggle">
+            <div className="series-toggle" style={{ flexWrap: 'wrap' }}>
               <button className={series.asis ? 'on asis' : ''} onClick={() => toggleSeries('asis')}>Guidelines-based</button>
               <button className={series.norm ? 'on norm' : ''} onClick={() => toggleSeries('norm')}>Normative</button>
-              <button className={series.gap ? 'on gap' : ''} onClick={() => toggleSeries('gap')}>Gap</button>
+              <button className={series.installed ? 'on' : ''} onClick={() => toggleSeries('installed')}>Installed</button>
+              <button className={series.gapNG ? 'on gap' : ''} onClick={() => toggleSeries('gapNG')}>Gap n−g</button>
+              <button className={series.gapGI ? 'on gap' : ''} onClick={() => toggleSeries('gapGI')}>Gap g−i</button>
+              <button className={series.gapNI ? 'on gap' : ''} onClick={() => toggleSeries('gapNI')}>Gap n−i</button>
             </div>
           )}
         </div>

@@ -75,7 +75,9 @@ export interface ComputedRow extends StateRow {
   asisCpap: number // SNCU as-is + add-ons
   normCpap: number // SNCU normative + add-ons
   bedGap: number
-  cpapGap: number
+  cpapGap: number // gap-1: normative − guidelines-based (build-out gap)
+  gapGuidInstalled?: number // gap-2: guidelines-based − installed (undefined if no installed count)
+  gapNormInstalled?: number // gap-3: normative − installed
   coverage: number
 }
 
@@ -138,6 +140,8 @@ export function computeRow(s: StateRow, n: Norms, idr = 1, pubFactor = 1): Compu
     normCpap,
     bedGap: normBeds - asisBeds,
     cpapGap: normCpap - asisCpap,
+    gapGuidInstalled: s.installed != null ? asisCpap - s.installed : undefined,
+    gapNormInstalled: s.installed != null ? normCpap - s.installed : undefined,
     coverage: normCpap > 0 ? asisCpap / normCpap : 0,
   }
 }
