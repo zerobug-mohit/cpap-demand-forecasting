@@ -133,7 +133,7 @@ a { color: var(--c-primary); }
   color: var(--c-primary-dark); font-weight: 700;
 }
 .panel-section-head:hover .panel-section-title { color: var(--c-primary); }
-.panel-section-badge { margin-left: auto; }
+.panel-section-badge { margin-left: auto; flex-shrink: 0; padding-left: 8px; }
 .panel-section-body { padding: 0 0 12px; }
 
 /* ---------------- chips / badges ---------------- */
@@ -145,7 +145,7 @@ a { color: var(--c-primary); }
 .chip.brand { background: var(--c-primary-light); border-color: #bcdde3; color: var(--c-primary-dark); }
 .chip.coral { background: var(--c-accent-light); border-color: #e9c3b3; color: var(--c-accent-dark); }
 
-.badge { font-size: 0.6rem; font-weight: 700; padding: 2px 7px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+.badge { font-size: 0.6rem; font-weight: 700; padding: 2px 7px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
 .badge.preset { background: var(--c-warn-soft); color: var(--c-warn); }
 .badge.entered { background: var(--c-best); color: var(--c-entered); }
 
