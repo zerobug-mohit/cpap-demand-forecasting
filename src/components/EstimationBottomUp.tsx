@@ -27,7 +27,7 @@ export default function EstimationBottomUp({ norms, onChange }: Props) {
       <NormsPanel norms={norms} onChange={onChange} onReset={() => onChange(DEFAULT_NORMS)} />
 
       <div>
-        <LensExplainer totals={totals} norms={norms} />
+        <LensExplainer totals={totals} norms={norms} rows={rows} />
 
         <div className="flex-between" style={{ marginBottom: 4 }}>
           <div className="section-label" style={{ margin: 0 }}>

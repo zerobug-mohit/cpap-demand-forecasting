@@ -1,11 +1,14 @@
 import { useState } from 'react'
-import type { Lens, Norms, Totals } from '../engine/method1'
+import type { ComputedRow, Lens, Norms, Totals } from '../engine/method1'
 import { fmt, fmtPct } from '../utils/format'
 import M1Flow from './M1Flow'
 
-export default function LensExplainer({ totals, norms }: { totals: Totals; norms: Norms }) {
+export default function LensExplainer({ totals, norms, rows }: { totals: Totals; norms: Norms; rows: ComputedRow[] }) {
   const [open, setOpen] = useState(false)
   const [diag, setDiag] = useState<Lens>('asis')
+  const [geo, setGeo] = useState('National')
+  const sortedStates = [...rows].map((r) => r.state).sort((a, b) => a.localeCompare(b))
+  const flowTotals: Totals = geo === 'National' ? totals : (rows.find((r) => r.state === geo) ?? totals)
 
   return (
     <div className="card lens-explainer">
@@ -68,14 +71,23 @@ export default function LensExplainer({ totals, norms }: { totals: Totals; norms
           </div>
 
           <hr className="divider" />
-          <div className="flex-between" style={{ marginBottom: 8 }}>
-            <div className="section-label" style={{ margin: 0 }}>The calculation cascade</div>
+          <div className="flex-between" style={{ marginBottom: 8, gap: 10, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div className="section-label" style={{ margin: 0 }}>The calculation cascade</div>
+              <label className="ctrl-inline">
+                <span className="muted">Geography</span>
+                <select value={geo} onChange={(e) => setGeo(e.target.value)}>
+                  <option value="National">India (national)</option>
+                  {sortedStates.map((s) => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </label>
+            </div>
             <div className="series-toggle">
               <button className={diag === 'asis' ? 'on asis' : ''} onClick={() => setDiag('asis')}>Guidelines-based</button>
               <button className={diag === 'normative' ? 'on norm' : ''} onClick={() => setDiag('normative')}>Normative</button>
             </div>
           </div>
-          <M1Flow norms={norms} totals={totals} lens={diag} />
+          <M1Flow norms={norms} totals={flowTotals} lens={diag} />
         </div>
       )}
     </div>
