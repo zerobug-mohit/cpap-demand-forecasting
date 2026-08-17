@@ -294,6 +294,13 @@ table.data tfoot td:first-child { text-align: left; }
 .seg-toggle button.active { background: var(--c-primary); color: #fff; }
 .seg-toggle button:not(.active):hover { background: var(--c-surface-alt); color: var(--c-primary); }
 
+/* Forecast WIP placeholder */
+.wip-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 4px; }
+@media (max-width: 640px) { .wip-grid { grid-template-columns: 1fr; } }
+.wip-factor { border: 1px solid var(--c-border); border-radius: var(--radius-sm); padding: 10px 12px; background: var(--c-surface-alt); }
+.wip-factor-title { font-weight: 700; color: var(--c-primary-dark); font-size: 0.88rem; margin-bottom: 3px; }
+.wip-factor-note { font-size: 0.8rem; color: var(--c-text-muted); line-height: 1.4; }
+
 .flow-view-head { display: flex; justify-content: flex-start; margin-bottom: 14px; }
 .flow-split-row { display: flex; gap: 10px; flex-wrap: wrap; }
 .flow-split-row .flow-node { flex: 1 1 0; min-width: 150px; }

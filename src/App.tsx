@@ -4,6 +4,11 @@ import EstimationBottomUp from './components/EstimationBottomUp'
 import EstimationTopDown from './components/EstimationTopDown'
 import Comparison from './components/Comparison'
 import Forecast from './components/Forecast'
+import ForecastWIP from './components/ForecastWIP'
+
+// Forecasting tab is masked with a WIP placeholder until the methodology is finalised.
+// Flip to false to re-enable the interactive Forecast module.
+const FORECAST_WIP = true
 import { DEFAULT_NORMS } from './engine/method1'
 import type { Norms } from './engine/method1'
 import { DEFAULT_M2 } from './engine/method2'
@@ -45,7 +50,7 @@ function renderContent({ section, sub, m1, setM1, m2, setM2 }: ContentProps) {
     if (sub === 'td') return <EstimationTopDown norms={m2} onChange={setM2} />
     return <Comparison m1={m1} m2={m2} />
   }
-  return <Forecast m1={m1} m2={m2} />
+  return FORECAST_WIP ? <ForecastWIP /> : <Forecast m1={m1} m2={m2} />
 }
 
 export default function App() {
