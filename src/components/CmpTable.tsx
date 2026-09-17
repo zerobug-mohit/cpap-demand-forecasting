@@ -3,7 +3,7 @@ import type { CmpRow } from '../engine/compare'
 import { classify, CLS_LABEL, CLS_COLOR } from '../engine/compare'
 import { fmt } from '../utils/format'
 
-type SortKey = 'state' | 'td' | 'buExisting' | 'buNormative' | 'installed' | 'coverage' | 'unmet'
+type SortKey = 'state' | 'td' | 'buExisting' | 'installed' | 'coverage' | 'unmet'
 
 const coverage = (r: CmpRow) => (r.td > 0 ? r.buExisting / r.td : 0)
 const unmet = (r: CmpRow) => Math.max(0, r.td - r.buExisting)
@@ -13,7 +13,7 @@ export default function CmpTable({ rows }: { rows: CmpRow[] }) {
   const [asc, setAsc] = useState(false)
 
   const val = (r: CmpRow, k: SortKey): number =>
-    k === 'coverage' ? coverage(r) : k === 'unmet' ? unmet(r) : k === 'installed' ? (r.installed ?? -1) : (r[k as 'td' | 'buExisting' | 'buNormative'] as number)
+    k === 'coverage' ? coverage(r) : k === 'unmet' ? unmet(r) : k === 'installed' ? (r.installed ?? -1) : (r[k as 'td' | 'buExisting'] as number)
 
   const sorted = [...rows].sort((a, b) => {
     const cmp = sortKey === 'state' ? a.state.localeCompare(b.state) : val(a, sortKey) - val(b, sortKey)
@@ -21,13 +21,12 @@ export default function CmpTable({ rows }: { rows: CmpRow[] }) {
   })
   const onSort = (k: SortKey) => { if (k === sortKey) setAsc(!asc); else { setSortKey(k); setAsc(k === 'state') } }
 
-  const tot = rows.reduce((a, r) => ({ td: a.td + r.td, e: a.e + r.buExisting, n: a.n + r.buNormative }), { td: 0, e: 0, n: 0 })
+  const tot = rows.reduce((a, r) => ({ td: a.td + r.td, e: a.e + r.buExisting }), { td: 0, e: 0 })
 
   const cols: { key: SortKey; label: string }[] = [
     { key: 'state', label: 'State / UT' },
     { key: 'td', label: 'Clinical need' },
     { key: 'buExisting', label: 'Current infra-based' },
-    { key: 'buNormative', label: 'Normative' },
     { key: 'installed', label: 'Installed · actual' },
     { key: 'coverage', label: 'Coverage (infra/need)' },
     { key: 'unmet', label: 'Unmet need' },
@@ -59,7 +58,6 @@ export default function CmpTable({ rows }: { rows: CmpRow[] }) {
                   <td>{r.state}</td>
                   <td>{fmt(r.td)}</td>
                   <td>{fmt(r.buExisting)}</td>
-                  <td>{fmt(r.buNormative)}</td>
                   <td className="cell-strong">{r.installed != null ? fmt(r.installed) : '—'}</td>
                   <td>{r.td > 0 ? `${Math.round(coverage(r) * 100)}%` : 'NA'}</td>
                   <td className="cell-gap">{fmt(unmet(r))}</td>
@@ -73,7 +71,6 @@ export default function CmpTable({ rows }: { rows: CmpRow[] }) {
               <td>India total</td>
               <td>{fmt(tot.td)}</td>
               <td>{fmt(tot.e)}</td>
-              <td>{fmt(tot.n)}</td>
               <td>—</td>
               <td>{tot.td > 0 ? `${Math.round((tot.e / tot.td) * 100)}%` : 'NA'}</td>
               <td className="cell-gap">{fmt(Math.max(0, tot.td - tot.e))}</td>

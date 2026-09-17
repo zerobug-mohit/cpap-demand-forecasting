@@ -36,7 +36,7 @@ export default function ForecastWIP() {
       <div className="card">
         <h2>How the forecast will work</h2>
         <p className="card-note" style={{ marginTop: 0 }}>
-          Each trajectory (current infra-based / epidemiological / normative) grows from today's estimate by its own
+          Each trajectory (current infra-based / epidemiological) grows from today's estimate by its own
           driver, most of which are already sourced and wired in:
         </p>
         <ul className="src-list" style={{ paddingLeft: 18 }}>

@@ -87,9 +87,8 @@ export default function CmpMap({ rows, lens }: { rows: CmpRow[]; lens: BuLens })
             <div className="mt-primary"><span>{label}</span><strong>{fmtVal(valueOf(hover.row))}</strong></div>
             <div className="mt-rows">
               <div><span>Clinical need</span><b>{fmt(hover.row.td)}</b></div>
-              <div><span>{lensLabel} (selected)</span><b>{fmt(hover.bu)}</b></div>
               <div><span>Current infra-based</span><b>{fmt(hover.row.buExisting)}</b></div>
-              <div><span>Normative</span><b>{fmt(hover.row.buNormative)}</b></div>
+              {hover.row.installed != null && <div><span>Installed (actual)</span><b>{fmt(hover.row.installed)}</b></div>}
             </div>
           </div>
         )}

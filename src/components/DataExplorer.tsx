@@ -18,7 +18,7 @@ interface Props {
 export default function DataExplorer({ rows, totals, showExt }: Props) {
   const [view, setView] = useState<View>('map')
   const [metricKey, setMetricKey] = useState('asisCpap')
-  const [series, setSeries] = useState<Series>({ asis: true, norm: true, installed: false, gapNG: false, gapGI: false, gapNI: false })
+  const [series, setSeries] = useState<Series>({ asis: true, installed: true, gapGI: false })
 
   const MAX_SERIES = 3
   const activeCount = Object.values(series).filter(Boolean).length

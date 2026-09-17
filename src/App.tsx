@@ -13,6 +13,8 @@ import { DEFAULT_NORMS } from './engine/method1'
 import type { Norms } from './engine/method1'
 import { DEFAULT_M2 } from './engine/method2'
 import type { M2Norms } from './engine/method2'
+import { DEFAULT_M3 } from './engine/method3'
+import type { M3Norms } from './engine/method3'
 
 type Section = 'estimation' | 'forecasting'
 
@@ -42,12 +44,14 @@ interface ContentProps {
   setM1: (n: Norms) => void
   m2: M2Norms
   setM2: (n: M2Norms) => void
+  m3: M3Norms
+  setM3: (n: M3Norms) => void
 }
 
-function renderContent({ section, sub, m1, setM1, m2, setM2 }: ContentProps) {
+function renderContent({ section, sub, m1, setM1, m2, setM2, m3, setM3 }: ContentProps) {
   if (section === 'estimation') {
     if (sub === 'bu') return <EstimationBottomUp norms={m1} onChange={setM1} />
-    if (sub === 'td') return <EstimationTopDown norms={m2} onChange={setM2} />
+    if (sub === 'td') return <EstimationTopDown m2={m2} setM2={setM2} m3={m3} setM3={setM3} />
     return <Comparison m1={m1} m2={m2} />
   }
   return FORECAST_WIP ? <ForecastWIP /> : <Forecast m1={m1} m2={m2} />
@@ -58,6 +62,7 @@ export default function App() {
   const [sub, setSub] = useState<Record<Section, string>>({ estimation: 'bu', forecasting: 'fc' })
   const [m1, setM1] = useState<Norms>(DEFAULT_NORMS)
   const [m2, setM2] = useState<M2Norms>(DEFAULT_M2)
+  const [m3, setM3] = useState<M3Norms>(DEFAULT_M3)
   const activeSub = sub[section]
 
   return (
@@ -91,7 +96,7 @@ export default function App() {
       </nav>
 
       <main className="container">
-        {renderContent({ section, sub: activeSub, m1, setM1, m2, setM2 })}
+        {renderContent({ section, sub: activeSub, m1, setM1, m2, setM2, m3, setM3 })}
 
         <div className="footer">
           CPAP Demand Estimator · all calculation runs client-side.<br />

@@ -8,7 +8,7 @@ interface Props {
   showExt: boolean
 }
 
-type SortKey = 'state' | 'sncu' | 'asisBeds' | 'asisCpap' | 'births' | 'normBeds' | 'normCpap' | 'extraCpap' | 'cpapGap' | 'installed' | 'gapGuidInstalled' | 'gapNormInstalled'
+type SortKey = 'state' | 'sncu' | 'asisBeds' | 'asisCpap' | 'births' | 'extraCpap' | 'installed' | 'gapGuidInstalled'
 
 interface Col {
   key: SortKey
@@ -24,9 +24,6 @@ const BASE_COLS: Col[] = [
   { key: 'asisBeds', label: 'SNCU beds', render: (r) => fmt(r.asisBeds), foot: (t) => fmt(t.asisBeds) },
   { key: 'asisCpap', label: 'CPAP · current-infra', render: (r) => fmt(r.asisCpap), foot: (t) => fmt(t.asisCpap), cls: 'cell-strong' },
   { key: 'births', label: 'Live births', render: (r) => fmt(r.births), foot: (t) => fmt(t.births) },
-  { key: 'normBeds', label: 'Norm. beds', render: (r) => fmt(r.normBeds), foot: (t) => fmt(t.normBeds) },
-  { key: 'normCpap', label: 'CPAP · norm.', render: (r) => fmt(r.normCpap), foot: (t) => fmt(t.normCpap), cls: 'cell-strong' },
-  { key: 'cpapGap', label: 'Gap · norm−infra', render: (r) => fmt(r.cpapGap), foot: (t) => fmt(t.cpapGap), cls: 'cell-gap' },
 ]
 
 const EXT_COL: Col = {
@@ -53,24 +50,15 @@ const GAP2_COL: Col = {
   cls: 'cell-gap',
 }
 
-const GAP3_COL: Col = {
-  key: 'gapNormInstalled',
-  label: 'Gap · norm−inst',
-  render: (r) => (r.gapNormInstalled != null ? fmt(r.gapNormInstalled) : '—'),
-  foot: () => '—',
-  cls: 'cell-gap',
-}
-
 export default function StateTable({ rows, totals, showExt }: Props) {
-  const [sortKey, setSortKey] = useState<SortKey>('normCpap')
+  const [sortKey, setSortKey] = useState<SortKey>('asisCpap')
   const [asc, setAsc] = useState(false)
 
-  const cols = [...(showExt ? [...BASE_COLS.slice(0, 7), EXT_COL, BASE_COLS[7]] : BASE_COLS), INSTALLED_COL, GAP2_COL, GAP3_COL]
+  const cols = [...BASE_COLS, ...(showExt ? [EXT_COL] : []), INSTALLED_COL, GAP2_COL]
 
   const val = (r: ComputedRow) => {
     if (sortKey === 'installed') return r.installed ?? Number.NEGATIVE_INFINITY
     if (sortKey === 'gapGuidInstalled') return r.gapGuidInstalled ?? Number.NEGATIVE_INFINITY
-    if (sortKey === 'gapNormInstalled') return r.gapNormInstalled ?? Number.NEGATIVE_INFINITY
     return r[sortKey] as number
   }
   const sorted = [...rows].sort((a, b) => {
@@ -89,14 +77,12 @@ export default function StateTable({ rows, totals, showExt }: Props) {
   return (
     <div>
       <p className="card-note">
-        Click a column to sort · 36 states / UTs. The current infra-based lens applies the norm to today's SNCU beds;
-        normative applies it to the beds a fully built-out network would have (sized from institutional births = live births × NFHS-6 delivery rate).
-        {showExt ? ' Add-on shows the NBSU/Transport extension, already included in the CPAP columns.' : ''}{' '}
-        Three gaps: <strong>norm−infra</strong> = normative − current infra-based (build-out headroom);
-        <strong> infra−inst</strong> = current infra-based − installed; <strong>norm−inst</strong> = normative − installed
-        (positive = installed falls short; negative = installed exceeds that target). <strong>Installed · actual</strong> =
-        reported CPAP devices, available so far for MP (282), Bihar (70), Punjab (59), Rajasthan (961) and
-        Chhattisgarh (58); “—” where not yet reported (so those two gaps and any national total are blank).
+        Click a column to sort · 36 states / UTs. The current infra-based lens applies the FBNC norm to today's SNCU beds
+        (units × avg beds).
+        {showExt ? ' Add-on shows the NBSU/Transport extension, already included in the CPAP column.' : ''}{' '}
+        <strong>Gap · infra−inst</strong> = current infra-based − installed (positive = installed falls short).{' '}
+        <strong>Installed · actual</strong> = reported CPAP devices, available so far for MP (282), Bihar (70),
+        Punjab (59), Rajasthan (961) and Chhattisgarh (58); “—” where not yet reported (so the gap and national total are blank).
       </p>
       <div className="table-scroll">
         <table className="data">

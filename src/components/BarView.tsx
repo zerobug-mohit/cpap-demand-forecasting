@@ -3,19 +3,13 @@ import type { ComputedRow } from '../engine/method1'
 import { fmt } from '../utils/format'
 
 const ASIS = '#0e7e92'
-const NORM = '#123a5e'
 const INST = '#2e8b57'
-const GAP_NG = '#c2562b'
 const GAP_GI = '#c99700'
-const GAP_NI = '#8338ec'
 
 export interface Series {
   asis: boolean
-  norm: boolean
   installed: boolean
-  gapNG: boolean
   gapGI: boolean
-  gapNI: boolean
 }
 
 interface Props {
@@ -27,11 +21,8 @@ const AxisTick = { fontSize: 11, fill: '#52616d', fontFamily: '"Trebuchet MS", "
 
 export const SERIES_META: { flag: keyof Series; dataKey: string; name: string; btn: string; color: string }[] = [
   { flag: 'asis', dataKey: 'asisCpap', name: 'Current infra-based', btn: 'Current infra-based', color: ASIS },
-  { flag: 'norm', dataKey: 'normCpap', name: 'Normative', btn: 'Normative', color: NORM },
   { flag: 'installed', dataKey: 'installed', name: 'Installed (actual)', btn: 'Installed', color: INST },
-  { flag: 'gapNG', dataKey: 'cpapGap', name: 'Gap · norm−infra', btn: 'Gap norm−infra', color: GAP_NG },
   { flag: 'gapGI', dataKey: 'gapGuidInstalled', name: 'Gap · infra−inst', btn: 'Gap infra−inst', color: GAP_GI },
-  { flag: 'gapNI', dataKey: 'gapNormInstalled', name: 'Gap · norm−inst', btn: 'Gap norm−inst', color: GAP_NI },
 ]
 
 function ChartTooltip({ active, payload, label }: any) {
@@ -57,13 +48,13 @@ export default function BarView({ rows, series }: Props) {
     return v == null ? Number.NEGATIVE_INFINITY : v
   }
   const top = [...rows].sort((a, b) => leadVal(b) - leadVal(a)).slice(0, 15)
-  const installedSelected = series.installed || series.gapGI || series.gapNI
+  const installedSelected = series.installed || series.gapGI
 
   return (
     <div>
       <p className="card-note">
-        Top 15 states by the leading series — pick up to 3 to compare (current infra-based, normative, actual-installed,
-        and the three gaps between them).{installedSelected && ' Installed-based series/gaps show only for the states with a reported device count.'}
+        Top 15 states by the leading series — compare current infra-based, actual-installed, and the gap between them
+        (current-infra − installed).{installedSelected && ' Installed series/gap show only for the states with a reported device count.'}
       </p>
       <div className="chart-box" style={{ height: 470 }}>
         <ResponsiveContainer width="100%" height="100%">

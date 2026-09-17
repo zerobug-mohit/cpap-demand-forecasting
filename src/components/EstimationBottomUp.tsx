@@ -1,11 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { STATES } from '../data/states'
 import { IDR_BY_STATE, PUBLIC_SHARE_BY_STATE } from '../data/states2'
 import { computeAll, DEFAULT_NORMS, SCOPE_LABEL } from '../engine/method1'
-import type { Lens, Norms } from '../engine/method1'
+import type { Norms } from '../engine/method1'
 import { fmt } from '../utils/format'
 import NormsPanel from './NormsPanel'
-import LensToggle from './LensToggle'
 import LensExplainer from './LensExplainer'
 import SummaryCards from './SummaryCards'
 import DataExplorer from './DataExplorer'
@@ -18,8 +17,6 @@ interface Props {
 }
 
 export default function EstimationBottomUp({ norms, onChange }: Props) {
-  const [lens, setLens] = useState<Lens>('asis')
-
   const { rows, totals } = useMemo(() => computeAll(STATES, norms, IDR_BY_STATE, PUBLIC_SHARE_BY_STATE), [norms])
 
   return (
@@ -29,22 +26,15 @@ export default function EstimationBottomUp({ norms, onChange }: Props) {
       <div>
         <LensExplainer totals={totals} norms={norms} rows={rows} />
 
-        <div className="flex-between" style={{ marginBottom: 4 }}>
-          <div className="section-label" style={{ margin: 0 }}>
-            National result · choose a lens
-          </div>
-          <LensToggle lens={lens} onChange={setLens} />
-        </div>
-
         {norms.scope !== 'sncu' && (
           <div className="scenario-banner">
             <strong>Scope: {SCOPE_LABEL[norms.scope]}.</strong> Add-on tiers contribute{' '}
-            <strong>{fmt(totals.extraCpap)} devices</strong> to each lens (beyond current FBNC guidance).
+            <strong>{fmt(totals.extraCpap)} devices</strong> beyond the current FBNC guidance.
           </div>
         )}
 
         <div style={{ marginTop: 16 }}>
-          <SummaryCards totals={totals} lens={lens} />
+          <SummaryCards totals={totals} />
         </div>
         <InsightCard totals={totals} />
         <DataExplorer rows={rows} totals={totals} showExt={norms.scope !== 'sncu'} />

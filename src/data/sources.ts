@@ -102,6 +102,27 @@ export const SOURCES = {
     label: 'Jain et al. 2025, IJMEDPH — Navi Mumbai (CPAP 68% of resp-distress; RDS 32.8%)',
     url: 'https://ijmedph.org/Uploads/Volume15Issue1/195.%20%5B1610.%20IJMEDPH_Rahul%20Singh%5D%201043-1046.pdf',
   },
+  // ── Facility-based need cascade (epidemiological · Cascade B) ──
+  healthDynamics: {
+    label: 'Health Dynamics of India (Infra & Human Resources) 2022-23 — MoHFW (PIB release)',
+    url: 'https://www.pib.gov.in/PressReleasePage.aspx?PRID=2053070',
+  },
+  nmcColleges: {
+    label: 'National Medical Commission — list of medical colleges',
+    url: 'https://www.nmc.org.in/information-desk/college-and-course-search/',
+  },
+  sharmaBmj: {
+    label: 'Sharma et al. 2018, BMJ Global Health — public-facility delivery volumes (CHC median ~490/yr)',
+    url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5988146/',
+  },
+  manyata: {
+    label: 'Manyata evaluation 2019, BMC Health Serv Res — private maternity sector (mostly small facilities)',
+    url: 'https://bmchealthservres.biomedcentral.com/articles/10.1186/s12913-019-4782-x',
+  },
+  indiaHospEco: {
+    label: "India's hospital ecosystem — private nursing homes <30 beds (~35,000–40,000)",
+    url: 'https://www.meddeviceonline.com/doc/understanding-india-s-hospital-ecosystem-a-guide-for-medical-device-companies-0001',
+  },
 } satisfies Record<string, Source>
 
 export type SourceKey = keyof typeof SOURCES

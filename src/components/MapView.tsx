@@ -111,11 +111,8 @@ export default function MapView({ rows, metric }: Props) {
               <div><span>Live births</span><b>{fmt(hover.row.births)}</b></div>
               <div><span>Inst. births</span><b>{fmt(hover.row.instBirths)}</b></div>
               <div><span>CPAP · current-infra</span><b>{fmt(hover.row.asisCpap)}</b></div>
-              <div><span>CPAP · norm.</span><b>{fmt(hover.row.normCpap)}</b></div>
               <div><span>Installed (actual)</span><b>{hover.row.installed != null ? fmt(hover.row.installed) : 'NA'}</b></div>
-              <div><span>Gap · norm−infra</span><b className="mt-gap">{fmt(hover.row.cpapGap)}</b></div>
               <div><span>Gap · infra−inst</span><b className="mt-gap">{hover.row.gapGuidInstalled != null ? fmt(hover.row.gapGuidInstalled) : 'NA'}</b></div>
-              <div><span>Gap · norm−inst</span><b className="mt-gap">{hover.row.gapNormInstalled != null ? fmt(hover.row.gapNormInstalled) : 'NA'}</b></div>
             </div>
           </div>
         )}
