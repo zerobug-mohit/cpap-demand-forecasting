@@ -15,13 +15,17 @@ export interface State2 {
   publicShare: number // public-facility share of institutional births, fraction 0..1 (NFHS-6)
 }
 
+export type M2Sector = 'public' | 'private'
+
 export interface M2Norms {
   // National eligibility anchor: E_nat (CPAP-eligible cases per institutional birth) = rdsPer1000/1000 × correction
   rdsPer1000: number // RDS cases per 1,000 institutional births (national, case-mix corrected)
   correction: number // ×factor for non-RDS conditions (TTN/MAS/sepsis/apnoea), >1
+  // Facility sector: which slice of institutional births the estimate is scoped to
+  sector: M2Sector // 'public' = public (NHM) share; 'private' = private share (1 − public)
   // Facility scope: restrict the institutional-birth base to public (NHM) facilities
-  publicOnly: boolean // if true, base = institutional births × public share
-  publicShareOverride: number | null // null = per-state NFHS share; else a single fraction applied to all states
+  publicOnly: boolean // if true (and sector='public'), base = institutional births × public share
+  publicShareOverride: number | null // null = per-state NFHS share; else a single fraction applied to all states (interpreted as the scoped-sector share)
   // Care cascade tail (national constants, adjustable)
   durationDays: number
   admissionRate: number // fraction of eligible cases reaching a facility
@@ -36,6 +40,7 @@ export interface M2Norms {
 export const DEFAULT_M2: M2Norms = {
   rdsPer1000: 25, // upper of India birth-denominator studies (AFMC 4.5 · NNPD 12 · AIIMS 19.1 · Aligarh 25.3). Range 4.5-25.3.
   correction: 2.0, // (% put on CPAP) ÷ (RDS share) in Indian resp-distress cohorts: Aligarh 67.5/35.5=1.90 · Navi Mumbai 68/32.8=2.07 → median ~2.0. Range 1.9-2.1.
+  sector: 'public',
   publicOnly: true, // NHM scope: count only public-facility institutional births
   publicShareOverride: null, // per-state NFHS public share by default
   durationDays: 5.0, // FBNC Operational Guidelines 2025 planning duration per CPAP course. (Indian per-course studies observe shorter: Koti 1.0 · Noolu 2.3 · Tahreem 3.0 d.)
@@ -45,6 +50,13 @@ export const DEFAULT_M2: M2Norms = {
   wLbw: 0.6,
   wNmr: 0.4,
   beta: 1,
+}
+
+// Private-sector RDS estimate: same cascade, but the institutional-birth base is the
+// PRIVATE share (1 − public share) instead of the public (NHM) share.
+export const DEFAULT_M2_PRIVATE: M2Norms = {
+  ...DEFAULT_M2,
+  sector: 'private',
 }
 
 export interface Computed2 extends State2 {
@@ -86,9 +98,13 @@ const wmean = (vals: { v: number | null; w: number }[]) => {
 }
 
 export function computeAll2(states: State2[], n: M2Norms): { rows: Computed2[]; totals: Totals2 } {
-  const pubFactorOf = (s: State2) => (n.publicOnly ? (n.publicShareOverride ?? s.publicShare) : 1)
+  // Scoped-sector factor applied to institutional births: public share, or private share (1 − public).
+  const pubFactorOf = (s: State2) => {
+    if (n.sector === 'private') return n.publicShareOverride ?? Math.max(0, 1 - s.publicShare)
+    return n.publicOnly ? (n.publicShareOverride ?? s.publicShare) : 1
+  }
   const instAll = states.map((s) => s.births * s.idr) // all institutional births
-  const inst = states.map((s, i) => instAll[i] * pubFactorOf(s)) // base: public institutional births when publicOnly
+  const inst = states.map((s, i) => instAll[i] * pubFactorOf(s)) // base: scoped-sector institutional births
   const instTotal = inst.reduce((a, b) => a + b, 0)
 
   // national standardizers (base-institutional-births-weighted state means)

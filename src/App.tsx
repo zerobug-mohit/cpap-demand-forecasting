@@ -12,7 +12,7 @@ import ForecastWIP from './components/ForecastWIP'
 const FORECAST_WIP = true
 import { DEFAULT_NORMS } from './engine/method1'
 import type { Norms } from './engine/method1'
-import { DEFAULT_M2 } from './engine/method2'
+import { DEFAULT_M2, DEFAULT_M2_PRIVATE } from './engine/method2'
 import type { M2Norms } from './engine/method2'
 import { DEFAULT_M3 } from './engine/method3'
 import type { M3Norms } from './engine/method3'
@@ -30,7 +30,7 @@ const SUBS: Record<Section, Tab[]> = {
   estimation: [
     { key: 'bu', label: 'Guidelines-based current demand' },
     { key: 'td', label: 'Ideal Demand' },
-    { key: 'pvt', label: 'Private sector' },
+    { key: 'pvt', label: 'Private sector Demand' },
     { key: 'cmp', label: 'Guidelines-based vs Epidemiological' },
   ],
   forecasting: [{ key: 'fc', label: 'Forecast' }],
@@ -52,13 +52,15 @@ interface ContentProps {
   setM3: (n: M3Norms) => void
   mp: PrivateNorms
   setMp: (n: PrivateNorms) => void
+  mprv: M2Norms
+  setMprv: (n: M2Norms) => void
 }
 
-function renderContent({ section, sub, m1, setM1, m2, setM2, m3, setM3, mp, setMp }: ContentProps) {
+function renderContent({ section, sub, m1, setM1, m2, setM2, m3, setM3, mp, setMp, mprv, setMprv }: ContentProps) {
   if (section === 'estimation') {
     if (sub === 'bu') return <EstimationBottomUp norms={m1} onChange={setM1} />
     if (sub === 'td') return <EstimationTopDown m2={m2} setM2={setM2} m3={m3} setM3={setM3} />
-    if (sub === 'pvt') return <PrivateSector norms={mp} onChange={setMp} onReset={() => setMp(DEFAULT_PRIVATE)} />
+    if (sub === 'pvt') return <PrivateSector mp={mp} setMp={setMp} mprv={mprv} setMprv={setMprv} />
     return <Comparison m1={m1} m2={m2} />
   }
   return FORECAST_WIP ? <ForecastWIP /> : <Forecast m1={m1} m2={m2} />
@@ -71,6 +73,7 @@ export default function App() {
   const [m2, setM2] = useState<M2Norms>(DEFAULT_M2)
   const [m3, setM3] = useState<M3Norms>(DEFAULT_M3)
   const [mp, setMp] = useState<PrivateNorms>(DEFAULT_PRIVATE)
+  const [mprv, setMprv] = useState<M2Norms>(DEFAULT_M2_PRIVATE)
   const activeSub = sub[section]
 
   return (
@@ -104,7 +107,7 @@ export default function App() {
       </nav>
 
       <main className="container">
-        {renderContent({ section, sub: activeSub, m1, setM1, m2, setM2, m3, setM3, mp, setMp })}
+        {renderContent({ section, sub: activeSub, m1, setM1, m2, setM2, m3, setM3, mp, setMp, mprv, setMprv })}
 
         <div className="footer">
           CPAP Demand Estimator · all calculation runs client-side.<br />

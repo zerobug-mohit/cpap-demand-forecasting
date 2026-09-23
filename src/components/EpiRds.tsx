@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { STATES2 } from '../data/states2'
-import { computeAll2, DEFAULT_M2 } from '../engine/method2'
+import { computeAll2, DEFAULT_M2, DEFAULT_M2_PRIVATE } from '../engine/method2'
 import type { M2Norms } from '../engine/method2'
 import { fmt } from '../utils/format'
 import M2NormsPanel from './M2NormsPanel'
@@ -21,10 +21,12 @@ interface Props {
 export default function EpiRds({ norms, onChange }: Props) {
   const { rows, totals } = useMemo(() => computeAll2(STATES2, norms), [norms])
   const [open, setOpen] = useState(false)
+  const priv = norms.sector === 'private'
+  const scoped = priv || norms.publicOnly
 
   return (
     <div className="layout-grid">
-      <M2NormsPanel norms={norms} onChange={onChange} onReset={() => onChange(DEFAULT_M2)} />
+      <M2NormsPanel norms={norms} onChange={onChange} onReset={() => onChange(priv ? DEFAULT_M2_PRIVATE : DEFAULT_M2)} />
 
       <div>
         <div className="card lens-explainer">
@@ -62,14 +64,14 @@ export default function EpiRds({ norms, onChange }: Props) {
             <div className="kpi-sub">devices, clinical-need ceiling</div>
           </div>
           <div className="kpi accent-teal">
-            <div className="kpi-label">{norms.publicOnly ? 'Public inst. births' : 'Institutional births'}</div>
-            <div className="kpi-value">{fmt(norms.publicOnly ? totals.baseInstBirths : totals.instBirths)}</div>
-            <div className="kpi-sub">{norms.publicOnly ? 'births × delivery rate × public share' : 'births × NFHS delivery rate'}</div>
+            <div className="kpi-label">{priv ? 'Private inst. births' : scoped ? 'Public inst. births' : 'Institutional births'}</div>
+            <div className="kpi-value">{fmt(scoped ? totals.baseInstBirths : totals.instBirths)}</div>
+            <div className="kpi-sub">{priv ? 'births × delivery rate × private share' : scoped ? 'births × delivery rate × public share' : 'births × NFHS delivery rate'}</div>
           </div>
           <div className="kpi accent-teal">
             <div className="kpi-label">CPAP-eligible cases</div>
             <div className="kpi-value">{fmt(totals.eligible)}</div>
-            <div className="kpi-sub">{totals.eligPer1000.toFixed(1)} per 1,000 {norms.publicOnly ? 'public ' : ''}inst. births</div>
+            <div className="kpi-sub">{totals.eligPer1000.toFixed(1)} per 1,000 {priv ? 'private ' : scoped ? 'public ' : ''}inst. births</div>
           </div>
           <div className="kpi accent-good">
             <div className="kpi-label">State driver</div>

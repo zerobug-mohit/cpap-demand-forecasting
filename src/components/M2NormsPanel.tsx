@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import type { M2Driver, M2Norms } from '../engine/method2'
-import { DEFAULT_M2 } from '../engine/method2'
+import { DEFAULT_M2, DEFAULT_M2_PRIVATE } from '../engine/method2'
 import { NATIONAL_PUBLIC_SHARE } from '../data/states2'
 import SourceNote from './SourceNote'
 import PanelSection from './PanelSection'
@@ -54,9 +54,12 @@ const DRIVERS: { key: M2Driver; label: string }[] = [
 ]
 
 export default function M2NormsPanel({ norms, onChange, onReset }: Props) {
+  const priv = norms.sector === 'private'
+  const DEF = priv ? DEFAULT_M2_PRIVATE : DEFAULT_M2
+  const nationalShare = priv ? 1 - NATIONAL_PUBLIC_SHARE : NATIONAL_PUBLIC_SHARE
   const set = (patch: Partial<M2Norms>) => onChange({ ...norms, ...patch })
-  const dirty = JSON.stringify(norms) !== JSON.stringify(DEFAULT_M2)
-  const chg = (k: keyof M2Norms) => norms[k] !== DEFAULT_M2[k]
+  const dirty = JSON.stringify(norms) !== JSON.stringify(DEF)
+  const chg = (k: keyof M2Norms) => norms[k] !== DEF[k]
 
   return (
     <div className="card card-tight sticky-col">
@@ -67,33 +70,46 @@ export default function M2NormsPanel({ norms, onChange, onReset }: Props) {
       <p className="card-note">Epidemiological cascade. The national anchor is held fixed and redistributed across states by the driver. Each input's basis is noted below it.</p>
 
       <PanelSection
-        title="Facility scope (public / private)"
+        title={priv ? 'Facility scope (private)' : 'Facility scope (public / private)'}
         ids={['m2-publicShare']}
-        badge={norms.publicOnly ? <span className="badge entered">public only</span> : undefined}
+        badge={priv ? <span className="badge entered">private only</span> : (norms.publicOnly ? <span className="badge entered">public only</span> : undefined)}
       >
-        <label className="switch-row">
-          <input type="checkbox" checked={norms.publicOnly} onChange={(e) => set({ publicOnly: e.target.checked })} />
-          <span>Public (NHM) facilities only</span>
-        </label>
-        <p className="hint" style={{ marginTop: 6 }}>
-          Anchors the eligible-case pool to <strong>public-facility</strong> institutional births and redistributes
-          across states on that same base — the NHM procurement scope. Private-sector deliveries are excluded.
-        </p>
-        {norms.publicOnly && (
+        {priv ? (
+          <p className="hint" style={{ marginTop: 0 }}>
+            Anchors the eligible-case pool to <strong>private-facility</strong> institutional births (1 − public share)
+            and redistributes across states on that same base — the private-sector market, outside NHM procurement.
+          </p>
+        ) : (
+          <>
+            <label className="switch-row">
+              <input type="checkbox" checked={norms.publicOnly} onChange={(e) => set({ publicOnly: e.target.checked })} />
+              <span>Public (NHM) facilities only</span>
+            </label>
+            <p className="hint" style={{ marginTop: 6 }}>
+              Anchors the eligible-case pool to <strong>public-facility</strong> institutional births and redistributes
+              across states on that same base — the NHM procurement scope. Private-sector deliveries are excluded.
+            </p>
+          </>
+        )}
+        {(priv || norms.publicOnly) && (
           <div id="m2-publicShare" style={{ marginTop: 8 }}>
             <label className="switch-row">
               <input type="checkbox" checked={norms.publicShareOverride !== null}
-                onChange={(e) => set({ publicShareOverride: e.target.checked ? NATIONAL_PUBLIC_SHARE : null })} />
+                onChange={(e) => set({ publicShareOverride: e.target.checked ? nationalShare : null })} />
               <span>Use one custom share for all states</span>
             </label>
             {norms.publicShareOverride !== null ? (
-              <Slider label="Public share (all states)" value={norms.publicShareOverride} min={0.2} max={1} step={0.01}
+              <Slider label={`${priv ? 'Private' : 'Public'} share (all states)`} value={norms.publicShareOverride} min={priv ? 0 : 0.2} max={1} step={0.01}
                 display={`${Math.round(norms.publicShareOverride * 100)}%`} onChange={(v) => set({ publicShareOverride: v })}
                 hint="Applied uniformly, overriding per-state NFHS values." />
             ) : (
-              <p className="hint" style={{ marginTop: 6 }}>Using per-state NFHS-6 public shares (Kerala 34% … Ladakh 97%; national ~65%).</p>
+              <p className="hint" style={{ marginTop: 6 }}>
+                {priv
+                  ? 'Using per-state private shares = 1 − NFHS-6 public share (Kerala ~66% … Ladakh ~3%; national ~35%).'
+                  : 'Using per-state NFHS-6 public shares (Kerala 34% … Ladakh 97%; national ~65%).'}
+              </p>
             )}
-            <SourceNote refs={[{ key: 'nfhs6', page: 'ind. 35–36' }]} note="public-facility share of institutional births" />
+            <SourceNote refs={[{ key: 'nfhs6', page: 'ind. 35–36' }]} note={`${priv ? 'private' : 'public'}-facility share of institutional births`} />
           </div>
         )}
       </PanelSection>

@@ -65,10 +65,10 @@ export default function M2Flow({ norms, totals, rows }: { norms: M2Norms; totals
         <Node tone="grey" title="Live births" val={fmt(births)} sub={sel ? `${sel.state} · SRS × projections` : 'population × SRS crude birth rate'} />
         <Op>× institutional-delivery rate (~{pct(idrShown)}, NFHS)</Op>
         <Node tone="grey" title="Institutional births" val={fmt(instBirths)} />
-        {norms.publicOnly && (
+        {(norms.publicOnly || norms.sector === 'private') && (
           <>
-            <Op>× public-facility share <FactorPill target="m2-publicShare">~{pct(pubShown)}</FactorPill> (NFHS-6)</Op>
-            <Node tone="grey" title="Public institutional births" val={fmt(baseInst)} sub="public (NHM) facilities only" />
+            <Op>× {norms.sector === 'private' ? 'private' : 'public'}-facility share <FactorPill target="m2-publicShare">~{pct(pubShown)}</FactorPill> (NFHS-6)</Op>
+            <Node tone="grey" title={`${norms.sector === 'private' ? 'Private' : 'Public'} institutional births`} val={fmt(baseInst)} sub={norms.sector === 'private' ? 'private facilities only' : 'public (NHM) facilities only'} />
           </>
         )}
 
