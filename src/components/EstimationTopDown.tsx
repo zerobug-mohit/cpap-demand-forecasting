@@ -15,8 +15,8 @@ interface Props {
 }
 
 const APPROACHES: { key: Approach; label: string }[] = [
-  { key: 'facility', label: 'Facility-based need' },
-  { key: 'rds', label: 'RDS-based redistribution' },
+  { key: 'facility', label: 'Deliveries × FBNC norms' },
+  { key: 'rds', label: 'RDS prevalence' },
 ]
 
 export default function EstimationTopDown({ m2, setM2, m3, setM3 }: Props) {
@@ -25,12 +25,12 @@ export default function EstimationTopDown({ m2, setM2, m3, setM3 }: Props) {
   return (
     <div>
       <div className="card lens-explainer" style={{ marginBottom: 16 }}>
-        <h2>Epidemiological estimation · two independent approaches</h2>
+        <h2>Ideal demand · two approaches</h2>
         <p className="card-note" style={{ marginTop: 4 }}>
-          Both size CPAP from clinical/service need rather than the current SNCU asset base — but from different evidence.
-          Switch between them:
+          Two ways to estimate the ideal CPAP demand — one based on <strong>deliveries in public facilities and FBNC
+          norms</strong>, the other based on <strong>RDS prevalence</strong>:
         </p>
-        <div className="epi-switch" role="tablist" aria-label="Epidemiological approach">
+        <div className="epi-switch" role="tablist" aria-label="Ideal demand approach">
           {APPROACHES.map((a) => (
             <button key={a.key} role="tab" aria-selected={approach === a.key}
               className={approach === a.key ? 'active' : ''} onClick={() => setApproach(a.key)}>
@@ -38,22 +38,6 @@ export default function EstimationTopDown({ m2, setM2, m3, setM3 }: Props) {
             </button>
           ))}
         </div>
-        <p className="card-note" style={{ marginTop: 10, marginBottom: 0 }}>
-          {approach === 'facility' ? (
-            <>
-              <strong>Facility-based need (Cascade B):</strong> counts the deliveries the public network conducts
-              (District Hospitals, Medical Colleges, Sub-District Hospitals, CHCs) and applies an editable FBNC norm
-              (beds/1,000 deliveries × CPAP/bed). A bottom-up, facility-anchored need model. The private sector is
-              estimated on its own tab.
-            </>
-          ) : (
-            <>
-              <strong>RDS-based redistribution:</strong> anchors a national CPAP-eligible pool to the literature RDS rate
-              × correction factor, then splits it across states by an LBW + NMR risk index. A population-epidemiology
-              model, independent of any facility count.
-            </>
-          )}
-        </p>
       </div>
 
       {approach === 'facility'
