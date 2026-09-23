@@ -28,7 +28,7 @@ interface Tab {
 
 const SUBS: Record<Section, Tab[]> = {
   estimation: [
-    { key: 'bu', label: 'Guidelines-based' },
+    { key: 'bu', label: 'Guidelines-based current demand' },
     { key: 'td', label: 'Epidemiological' },
     { key: 'pvt', label: 'Private sector' },
     { key: 'cmp', label: 'Guidelines-based vs Epidemiological' },
