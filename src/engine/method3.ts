@@ -1,8 +1,9 @@
 // Pure calculation engine for the facility-based CPAP NEED cascade ("Cascade B").
 // Epidemiological sub-approach: instead of anchoring to a clinical RDS rate, it sizes
-// devices from the deliveries the public facility network conducts (District Hospitals,
-// Medical Colleges, Sub-District Hospitals, CHCs) plus private maternity homes, applying
-// an editable FBNC-consistent norm (beds per 1,000 deliveries × CPAP per bed). No React.
+// devices from the deliveries the PUBLIC facility network conducts (District Hospitals,
+// Medical Colleges, Sub-District Hospitals, CHCs), applying an editable FBNC-consistent
+// norm (beds per 1,000 deliveries × CPAP per bed). Private-sector facilities are estimated
+// separately on their own tab (see engine/methodPrivate.ts). No React.
 
 export type Burden = 'high' | 'med' | 'low'
 
@@ -18,21 +19,9 @@ export interface FacilityLevel {
   inc: boolean // included in the total
 }
 
-export interface PrivateTier {
-  name: string
-  share: number // % of delivering private facilities
-  cpap: number // CPAP devices per facility
-}
-
 export interface M3Norms {
   levels: FacilityLevel[]
   avg: Record<Burden, number> // average annual deliveries per facility, by burden tier
-  private: {
-    inc: boolean
-    homes: number // private nursing homes <30 beds
-    deliveryPct: number // % conducting deliveries
-    tiers: PrivateTier[]
-  }
 }
 
 // Burden cutoffs (annual deliveries): High > 3,000 · Medium 1,000–3,000 · Low < 1,000 (FBNC).
@@ -44,16 +33,6 @@ export const DEFAULT_M3: M3Norms = {
     { key: 'chc', name: 'Community Health Centres', count: 6359, tiers: { high: 5, med: 15, low: 80 }, beds: 4, cpapPerBed: 0.3, fbnc: false, lock: false, inc: true },
   ],
   avg: { high: 5000, med: 2000, low: 500 },
-  private: {
-    inc: true,
-    homes: 37500,
-    deliveryPct: 100,
-    tiers: [
-      { name: 'High · 3+ bed SNCU', share: 10, cpap: 4 },
-      { name: 'Medium · 1–2 bed SNCU', share: 10, cpap: 2 },
-      { name: 'Small · basic setup', share: 80, cpap: 1 },
-    ],
-  },
 }
 
 export const BURDEN_LABEL: Record<Burden, string> = {
@@ -65,8 +44,8 @@ export const BURDEN_LABEL: Record<Burden, string> = {
 export interface TierRow {
   label: string
   facilities: number
-  deliveries: number | null // null for private (sized by facility size, not deliveries)
-  mid: string // norm (beds×cpapPerBed) for public, CPAP/facility for private
+  deliveries: number
+  mid: string // norm (beds × cpapPerBed)
   devices: number
 }
 
@@ -74,10 +53,9 @@ export interface Section {
   key: string
   name: string
   fbnc?: boolean
-  priv?: boolean
   excluded?: boolean
   facilities: number
-  deliveries: number | null
+  deliveries: number
   devices: number
   midHead: string
   tiers: TierRow[]
@@ -85,7 +63,7 @@ export interface Section {
 
 export interface Totals3 {
   devices: number
-  deliveries: number // public, delivery-based levels only (excl. private)
+  deliveries: number
   facilities: number
 }
 
@@ -94,7 +72,6 @@ export interface Computed3 {
   totals: Totals3
   bars: { name: string; devices: number }[]
   maxBar: number
-  privateDelivering: number
 }
 
 const r = (n: number) => Math.round(n)
@@ -108,7 +85,7 @@ export function computeM3(state: M3Norms): Computed3 {
 
   for (const l of state.levels) {
     if (!l.inc) {
-      sections.push({ key: l.key, name: l.name, excluded: true, facilities: l.count, deliveries: null, devices: 0, midHead: 'Norm', tiers: [], fbnc: l.fbnc })
+      sections.push({ key: l.key, name: l.name, excluded: true, facilities: l.count, deliveries: 0, devices: 0, midHead: 'Norm', tiers: [], fbnc: l.fbnc })
       continue
     }
     const facs: Record<Burden, number> = {
@@ -139,30 +116,10 @@ export function computeM3(state: M3Norms): Computed3 {
     tFac += lFac
   }
 
-  const p = state.private
-  const delivering = r(p.homes * p.deliveryPct / 100)
-  if (p.inc) {
-    const tiers: TierRow[] = []
-    let pDev = 0
-    for (const t of p.tiers) {
-      const f = r(delivering * t.share / 100)
-      const dev = f * t.cpap
-      tiers.push({ label: t.name, facilities: f, deliveries: null, mid: String(t.cpap), devices: dev })
-      pDev += dev
-    }
-    sections.push({ key: 'private', name: 'Private maternity homes', priv: true, facilities: delivering, deliveries: null, devices: pDev, midHead: 'CPAP/fac', tiers })
-    bars.push({ name: 'Private', devices: pDev })
-    tDev += pDev
-    tFac += delivering
-  } else {
-    sections.push({ key: 'private', name: 'Private maternity homes', priv: true, excluded: true, facilities: delivering, deliveries: null, devices: 0, midHead: 'CPAP/fac', tiers: [] })
-  }
-
   return {
     sections,
     totals: { devices: tDev, deliveries: tDel, facilities: tFac },
     bars,
     maxBar: Math.max(1, ...bars.map((b) => b.devices)),
-    privateDelivering: delivering,
   }
 }

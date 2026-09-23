@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import type { Burden, M3Norms, PrivateTier } from '../engine/method3'
+import type { Burden, M3Norms } from '../engine/method3'
 import { computeM3, DEFAULT_M3 } from '../engine/method3'
 import { fmt } from '../utils/format'
 import SourceNote from './SourceNote'
@@ -40,11 +40,6 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
     setLevel(i, { tiers: t })
   }
   const setAvg = (key: Burden, val: number) => onChange({ ...norms, avg: { ...norms.avg, [key]: Math.max(0, val) } })
-  const setPrivate = (patch: Partial<M3Norms['private']>) => onChange({ ...norms, private: { ...norms.private, ...patch } })
-  const setPvtTier = (i: number, patch: Partial<PrivateTier>) => {
-    const tiers = norms.private.tiers.map((t, j) => (j === i ? { ...t, ...patch } : t))
-    setPrivate({ tiers })
-  }
 
   return (
     <div className="layout-grid">
@@ -55,9 +50,10 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
           <button className="btn link" onClick={onReset} disabled={!dirty} style={{ opacity: dirty ? 1 : 0.4 }}>Reset</button>
         </div>
         <p className="card-note" style={{ marginTop: 2 }}>
-          Device norm = <strong>beds per 1,000 deliveries × CPAP per bed</strong>, all editable (default 4 × 0.30 = 1.2/1k).
-          The <span className="fc-fbnc-tag">FBNC</span> tag marks the SNCU/NICU levels whose default follows the guideline.
-          Untick a level to exclude it.
+          Public network only. Device norm = <strong>beds per 1,000 deliveries × CPAP per bed</strong>, all editable
+          (default 4 × 0.30 = 1.2/1k). The <span className="fc-fbnc-tag">FBNC</span> tag marks the SNCU/NICU levels whose
+          default follows the guideline. Untick a level to exclude it. Private-sector facilities are estimated on the{' '}
+          <strong>Private sector</strong> tab.
         </p>
 
         {norms.levels.map((l, i) => {
@@ -81,36 +77,6 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
           )
         })}
         <SourceNote refs={[{ key: 'fbnc2025', page: 'p. 28, 57–60' }]} note="4 SNCU beds / 1,000 deliveries · CPAP = 30% of beds" />
-
-        <PanelSection
-          title="Private maternity homes"
-          defaultOpen={false}
-          badge={norms.private.inc ? <span className="badge entered">included</span> : <span className="badge preset">excluded</span>}
-        >
-          <label className="switch-row" style={{ marginBottom: 8 }}>
-            <input type="checkbox" checked={norms.private.inc} onChange={(e) => setPrivate({ inc: e.target.checked })} />
-            <span>Include private cascade</span>
-          </label>
-          <p className="hint" style={{ marginTop: 0 }}>Separate cascade — split by facility size, not deliveries.</p>
-          <div className="fc-row2" style={{ marginBottom: 6 }}>
-            <NumField label="Nursing homes <30 beds" value={norms.private.homes} step={500} disabled={!norms.private.inc} onChange={(v) => setPrivate({ homes: v })} />
-            <NumField label="% doing deliveries" value={norms.private.deliveryPct} max={100} disabled={!norms.private.inc} onChange={(v) => setPrivate({ deliveryPct: Math.min(100, v) })} />
-          </div>
-          <p className="hint" style={{ margin: '2px 0 8px' }}>→ delivering private facilities ≈ <strong>{fmt(r.privateDelivering)}</strong></p>
-          {norms.private.tiers.map((t, i) => (
-            <div className="field" key={t.name} style={{ marginBottom: 8 }}>
-              <div className="fc-mini" style={{ marginBottom: 4 }}>{t.name}</div>
-              <div className="fc-row2">
-                <NumField label="Share %" value={t.share} max={100} disabled={!norms.private.inc} onChange={(v) => setPvtTier(i, { share: v })} />
-                <NumField label="CPAP / facility" value={t.cpap} disabled={!norms.private.inc} onChange={(v) => setPvtTier(i, { cpap: v })} />
-              </div>
-            </div>
-          ))}
-          <SourceNote
-            refs={[{ key: 'indiaHospEco', page: 'nursing homes <30 beds' }, { key: 'manyata', page: 'size mix' }]}
-            note="~35,000–40,000 private nursing homes × % conducting deliveries (default 100%, adjustable); size split assumed — no registry"
-          />
-        </PanelSection>
 
         <PanelSection title="Average deliveries / facility" defaultOpen={false}>
           <div className="fc-row3">
@@ -148,19 +114,19 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
       <div>
         <div className="kpi-row">
           <div className="kpi accent-navy">
-            <div className="kpi-label">CPAP devices · total need</div>
+            <div className="kpi-label">CPAP devices · public need</div>
             <div className="kpi-value">{fmt(r.totals.devices)}</div>
-            <div className="kpi-sub">included levels + private</div>
+            <div className="kpi-sub">included public levels (private on its own tab)</div>
           </div>
           <div className="kpi accent-teal">
             <div className="kpi-label">Institutional deliveries modelled</div>
             <div className="kpi-value">{fmt(r.totals.deliveries)}</div>
-            <div className="kpi-sub">public, delivery-based levels (excl. private)</div>
+            <div className="kpi-sub">public, delivery-based levels</div>
           </div>
           <div className="kpi accent-good">
             <div className="kpi-label">Facilities counted</div>
             <div className="kpi-value">{fmt(r.totals.facilities)}</div>
-            <div className="kpi-sub">across included public + private levels</div>
+            <div className="kpi-sub">across included public levels</div>
           </div>
         </div>
 
@@ -168,7 +134,7 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
           <p className="card-note" style={{ marginTop: 0 }}>
             <strong>Institutional deliveries</strong> = facility count × average deliveries per burden tier (bottom-up over
             four public levels; excludes PHCs / sub-centres, so it differs from the top-down births × IDR figure used by the
-            RDS-based approach).
+            RDS-based approach). The <strong>private sector</strong> is estimated separately on its own tab.
           </p>
           <SourceNote
             refs={[{ key: 'healthDynamics', page: 'facility counts' }, { key: 'sharmaBmj', page: 'CHC ~490/yr' }, { key: 'fbnc2025', page: 'norm & cutoffs' }]}
@@ -206,12 +172,11 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
                 </div>
               )
             }
-            const meta = s.deliveries == null ? `${fmt(s.facilities)} facilities` : `${fmt(s.facilities)} facs · ${fmt(s.deliveries)} del`
             return (
               <details className="fc-lvl" key={s.key}>
                 <summary>
                   <span className="fc-lvl-name">{s.name}</span>
-                  <span className="fc-lvl-meta" style={{ flex: 1 }}>{meta}</span>
+                  <span className="fc-lvl-meta" style={{ flex: 1 }}>{fmt(s.facilities)} facs · {fmt(s.deliveries)} del</span>
                   <span className="fc-lvl-dev">{fmt(s.devices)}</span>
                 </summary>
                 <table className="fc-tier-tbl">
@@ -229,7 +194,7 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
                       <tr key={t.label}>
                         <td>{t.label}</td>
                         <td className="fc-num">{fmt(t.facilities)}</td>
-                        <td className="fc-num">{t.deliveries == null ? '—' : fmt(t.deliveries)}</td>
+                        <td className="fc-num">{fmt(t.deliveries)}</td>
                         <td className="fc-num">{t.mid}</td>
                         <td className="fc-num">{fmt(t.devices)}</td>
                       </tr>
@@ -241,7 +206,7 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
           })}
 
           <div className="fc-grand">
-            <span className="g-lab">Grand total · CPAP devices</span>
+            <span className="g-lab">Public total · CPAP devices</span>
             <span className="g-val fc-num">{fmt(r.totals.devices)}</span>
             <span className="g-sub fc-num">{fmt(r.totals.facilities)} facilities · {fmt(r.totals.deliveries)} public deliveries</span>
           </div>
@@ -250,10 +215,10 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
         <div className="card">
           <h2>Method &amp; caveats</h2>
           <ul className="src-list" style={{ paddingLeft: 18 }}>
-            <li>A <strong>need</strong> model: sizes CPAP to what a right-sized newborn-care network across the health system would require, not to today's installed base.</li>
+            <li>A <strong>need</strong> model: sizes CPAP to what a right-sized newborn-care network across the public health system would require, not to today's installed base.</li>
             <li>Structural inputs (facility counts, FBNC norm) are sourced; burden splits and the High/Med average deliveries are modelled — no published per-facility delivery distribution — and editable on the left.</li>
             <li>District Hospitals &amp; Medical Colleges are held at 100% High (a DH / medical college is Level-3 regardless of caseload, per FBNC).</li>
-            <li>Bottom-up over four public levels only (excludes PHCs / sub-centres); the private cascade is separate and toggleable.</li>
+            <li>Public levels only (DH / Medical Colleges / SDH / CHC; excludes PHCs / sub-centres). The <strong>private sector</strong> is a separate estimate on its own tab.</li>
           </ul>
         </div>
       </div>

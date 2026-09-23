@@ -42,8 +42,9 @@ export default function EstimationTopDown({ m2, setM2, m3, setM3 }: Props) {
           {approach === 'facility' ? (
             <>
               <strong>Facility-based need (Cascade B):</strong> counts the deliveries the public network conducts
-              (District Hospitals, Medical Colleges, Sub-District Hospitals, CHCs) plus private maternity homes, and
-              applies an editable FBNC norm (beds/1,000 deliveries × CPAP/bed). A bottom-up, facility-anchored need model.
+              (District Hospitals, Medical Colleges, Sub-District Hospitals, CHCs) and applies an editable FBNC norm
+              (beds/1,000 deliveries × CPAP/bed). A bottom-up, facility-anchored need model. The private sector is
+              estimated on its own tab.
             </>
           ) : (
             <>
