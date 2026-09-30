@@ -77,6 +77,11 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
           )
         })}
         <SourceNote refs={[{ key: 'fbnc2025', page: 'p. 28, 57–60' }]} note="4 SNCU beds / 1,000 deliveries · CPAP = 30% of beds" />
+        <p className="hint" style={{ marginTop: 6 }}>
+          <strong>SDH &amp; CHC floor:</strong> at least one CPAP per facility — a tier's devices are the greater of the
+          facility count and the delivery-based norm devices, so low-burden tiers settle at one per facility (marked{' '}
+          <span className="fc-tag">≥1/fac</span> in the breakdown).
+        </p>
 
         <PanelSection title="Average deliveries / facility" defaultOpen={false}>
           <div className="fc-row3">
@@ -196,7 +201,10 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
                         <td className="fc-num">{fmt(t.facilities)}</td>
                         <td className="fc-num">{fmt(t.deliveries)}</td>
                         <td className="fc-num">{t.mid}</td>
-                        <td className="fc-num">{fmt(t.devices)}</td>
+                        <td className="fc-num">
+                          {fmt(t.devices)}
+                          {t.floored && <span className="fc-tag" style={{ marginLeft: 6 }} title="Floored to one CPAP per facility (exceeds the delivery-based norm)">≥1/fac</span>}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -218,6 +226,7 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
             <li>A <strong>need</strong> model: sizes CPAP to what a right-sized newborn-care network across the public health system would require, not to today's installed base.</li>
             <li>Structural inputs (facility counts, FBNC norm) are sourced; burden splits and the High/Med average deliveries are modelled — no published per-facility delivery distribution — and editable on the left.</li>
             <li>District Hospitals &amp; Medical Colleges are held at 100% High (a DH / medical college is Level-3 regardless of caseload, per FBNC).</li>
+            <li><strong>SDH &amp; CHC</strong> get at least one CPAP per facility: a tier's devices = max(facility count, FBNC-norm devices), so low-burden tiers floor at one per facility rather than following the delivery-based norm below it.</li>
             <li>Public levels only (DH / Medical Colleges / SDH / CHC; excludes PHCs / sub-centres). The <strong>private sector</strong> is a separate estimate on its own tab.</li>
           </ul>
         </div>
