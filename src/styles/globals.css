@@ -465,7 +465,7 @@ select:focus { outline: 2px solid var(--c-primary-bright); outline-offset: 1px; 
   position: relative; height: 26px; background: var(--c-surface-alt);
   border: 1px solid var(--c-border); border-radius: 5px;
 }
-.tri-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--c-primary-light); border-radius: 4px 0 0 4px; }
+.tri-seg { position: absolute; top: 0; bottom: 0; opacity: 0.24; }
 .tri-mark { position: absolute; top: -8px; height: 42px; color: var(--c-primary); }
 .tri-mark-line { position: relative; width: 2px; height: 42px; background: currentColor; border-radius: 1px; }
 .tri-mark-line::before { content: ""; position: absolute; top: -5px; left: 50%; transform: translateX(-50%); width: 9px; height: 9px; border-radius: 50%; background: currentColor; border: 2px solid var(--c-surface); }

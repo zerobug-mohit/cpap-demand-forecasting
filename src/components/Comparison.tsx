@@ -24,10 +24,18 @@ const INSTALLED_COLOR = '#2e8b57'
 interface Mark { key: string; label: string; value: number; color: string }
 
 /** Single horizontal axis with a marker (line + label + value) for each approach, like the old triangulation bar. */
-function MarkerBar({ marks, current }: { marks: Mark[]; current: number }) {
+function MarkerBar({ marks }: { marks: Mark[] }) {
   const rawMax = Math.max(1, ...marks.map((m) => m.value))
   const max = rawMax * 1.08 // headroom so the largest marker never sits on the edge
   const pct = (v: number) => `${(Math.min(v, max) / max) * 100}%`
+  // graduated fill: each band runs from the previous marker to this one, in this marker's colour
+  const ordered = [...marks].sort((a, b) => a.value - b.value)
+  let acc = 0
+  const segs = ordered.map((m, i) => {
+    const seg = { key: m.key, left: acc, width: ((m.value - acc) / max) * 100, color: m.color, first: i === 0 }
+    acc = m.value
+    return seg
+  })
   const TIER_H = 34
   const MIN_GAP = 19 // % of width below which two labels collide → stagger onto a new tier
   const withP = marks.map((m) => ({ ...m, p: (m.value / max) * 100 }))
@@ -45,7 +53,9 @@ function MarkerBar({ marks, current }: { marks: Mark[]; current: number }) {
   return (
     <div className="tri-wrap">
       <div className="tri-track">
-        <div className="tri-fill" style={{ width: pct(current) }} />
+        {segs.map((s) => (
+          <div key={s.key} className="tri-seg" style={{ left: pct(s.left), width: `${s.width}%`, background: s.color, borderRadius: s.first ? '4px 0 0 4px' : 0 }} />
+        ))}
         {withP.map((m) => {
           const align = m.p > 86 ? 'right' : m.p < 12 ? 'left' : 'center'
           const t = tier[m.key]
@@ -124,7 +134,7 @@ export default function Comparison({ m1, m2, m3 }: Props) {
           shows the number of machines actually installed, where that has been reported. Private-sector demand is on its
           own tab and is not included here.
         </p>
-        <MarkerBar marks={marks} current={active.guid} />
+        <MarkerBar marks={marks} />
 
         <div className="kpi-row" style={{ marginTop: 16 }}>
           <div className="kpi accent-teal">
