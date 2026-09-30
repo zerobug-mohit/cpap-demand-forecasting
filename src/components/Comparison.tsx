@@ -8,7 +8,6 @@ import { fmt, fmtPct } from '../utils/format'
 import CmpScatter from './CmpScatter'
 import CmpMap from './CmpMap'
 import CmpTable from './CmpTable'
-import SourceNote from './SourceNote'
 
 interface Props {
   m1: Norms
@@ -158,9 +157,6 @@ export default function Comparison({ m1, m2, m3 }: Props) {
           </div>
         </div>
 
-        <hr className="divider" />
-        <SourceNote refs={[{ key: 'mohfwAR', page: 'p. 62' }, { key: 'fbnc2025', page: 'p. 28, 57–60' }, { key: 'healthDynamics', page: 'Tables 6–7' }]} note="guidelines-based · facility-based (facilities · FBNC norm)" />
-        <SourceNote refs={[{ key: 'rdsRecent', page: '25.3/1,000' }, { key: 'nfhs6', page: 'inst. delivery · public share' }, { key: 'srs2024', page: 'NMR · CBR' }]} note="RDS-based epidemiological need" />
       </div>
 
       {(() => {
