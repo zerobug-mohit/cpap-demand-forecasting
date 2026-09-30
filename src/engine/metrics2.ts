@@ -11,13 +11,13 @@ export interface Metric2 {
 }
 
 export const METRICS2: Metric2[] = [
-  { key: 'gross', label: 'CPAP required', get: (r) => r.gross, kind: 'int' },
-  { key: 'eligible', label: 'CPAP-eligible cases', get: (r) => r.eligible, kind: 'int' },
-  { key: 'eligPer1000', label: 'Eligible per 1,000 inst. births', get: (r) => r.eligPer1000, kind: 'dec1' },
-  { key: 'instBirths', label: 'Institutional births', get: (r) => r.instBirths, kind: 'int' },
+  { key: 'gross', label: 'CPAP devices needed', get: (r) => r.gross, kind: 'int' },
+  { key: 'eligible', label: 'Newborns likely to need CPAP', get: (r) => r.eligible, kind: 'int' },
+  { key: 'eligPer1000', label: 'Likely to need CPAP per 1,000 facility births', get: (r) => r.eligPer1000, kind: 'dec1' },
+  { key: 'instBirths', label: 'Births in facilities', get: (r) => r.instBirths, kind: 'int' },
   { key: 'lbw', label: 'Low birth weight %', get: (r) => (r.lbw ?? NaN), kind: 'pct' },
-  { key: 'nmr', label: 'Neonatal mortality rate', get: (r) => (r.nmr ?? NaN), kind: 'int' },
-  { key: 'index', label: 'Risk index (state)', get: (r) => r.index, kind: 'dec2' },
+  { key: 'nmr', label: 'Newborn death rate (per 1,000)', get: (r) => (r.nmr ?? NaN), kind: 'int' },
+  { key: 'index', label: 'Need score (state)', get: (r) => r.index, kind: 'dec2' },
 ]
 
 export const getMetric2 = (key: string) => METRICS2.find((m) => m.key === key) ?? METRICS2[0]

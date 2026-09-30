@@ -62,38 +62,39 @@ export default function M2Flow({ norms, totals, rows }: { norms: M2Norms; totals
         )}
       </div>
       <div className="flow">
-        <Node tone="grey" title="Live births" val={fmt(births)} sub={sel ? `${sel.state} · SRS × projections` : 'population × SRS crude birth rate'} />
-        <Op>× institutional-delivery rate (~{pct(idrShown)}, NFHS)</Op>
-        <Node tone="grey" title="Institutional births" val={fmt(instBirths)} />
+        <Node tone="grey" title="Live births" val={fmt(births)} sub={sel ? `${sel.state} · SRS × projections` : 'population × SRS birth rate'} />
+        <Op>× share of births that happen in a facility (~{pct(idrShown)}, NFHS)</Op>
+        <Node tone="grey" title="Births in facilities" val={fmt(instBirths)} />
         {(norms.publicOnly || norms.sector === 'private') && (
           <>
-            <Op>× {norms.sector === 'private' ? 'private' : 'public'}-facility share <FactorPill target="m2-publicShare">~{pct(pubShown)}</FactorPill> (NFHS-6)</Op>
-            <Node tone="grey" title={`${norms.sector === 'private' ? 'Private' : 'Public'} institutional births`} val={fmt(baseInst)} sub={norms.sector === 'private' ? 'private facilities only' : 'public (NHM) facilities only'} />
+            <Op>× share in {norms.sector === 'private' ? 'private' : 'public'} facilities <FactorPill target="m2-publicShare">~{pct(pubShown)}</FactorPill> (NFHS-6)</Op>
+            <Node tone="grey" title={`Births in ${norms.sector === 'private' ? 'private' : 'public'} facilities`} val={fmt(baseInst)} sub={norms.sector === 'private' ? 'private facilities only' : 'public (government) facilities only'} />
           </>
         )}
 
         {sel ? (
           <>
-            <Op>× {sel.state}'s risk-weighted share of the national eligible pool (<FactorPill target="m2-driver">{pct(sel.share, 1)}</FactorPill>)</Op>
-            <Node tone="teal" title="CPAP-eligible cases" val={fmt(eligible)} sub={`${sel.state}'s share of the national pool`} />
+            <Op>× {sel.state}'s share of the national total, based on its need (<FactorPill target="m2-driver">{pct(sel.share, 1)}</FactorPill>)</Op>
+            <Node tone="teal" title="Newborns likely to need CPAP" val={fmt(eligible)} sub={`${sel.state}'s share`} />
           </>
         ) : (
           <>
-            <Op>× eligibility {pct(eNat, 1)} = RDS <FactorPill target="m2-rdsPer1000">{pct(norms.rdsPer1000 / 1000, 1)}</FactorPill> × <FactorPill target="m2-correction">{norms.correction.toFixed(1)}×</FactorPill> · national anchor</Op>
-            <Node tone="teal" title="CPAP-eligible cases" val={fmt(eligible)} sub={view === 'state' ? 'national pool, then redistributed to states' : 'national epidemiological-need pool'} />
+            <Op>× share likely to need CPAP {pct(eNat, 1)} (RDS <FactorPill target="m2-rdsPer1000">{pct(norms.rdsPer1000 / 1000, 1)}</FactorPill> × <FactorPill target="m2-correction">{norms.correction.toFixed(1)}×</FactorPill> correction)</Op>
+            <Node tone="teal" title="Newborns likely to need CPAP" val={fmt(eligible)} sub={view === 'state' ? 'national total, then shared across states' : 'national total'} />
           </>
         )}
 
         {showSplit ? (
           <>
             <div className="flow-side">
-              State split ∝ institutional births × <FactorPill target="m2-driver">risk-index</FactorPill><sup>
-              <FactorPill target="m2-beta">β {norms.beta.toFixed(2)}</FactorPill></sup> · index = LBW % + NMR (state ÷ national)
+              Each state's share is based on its births and its need. Need combines the low-birth-weight rate and the
+              newborn death rate, compared with the national level.
             </div>
             <Op>
-              each state's share → same cascade (× admission <FactorPill target="m2-admissionRate">{pct(norms.admissionRate)}</FactorPill>
-              {' '}· × duration <FactorPill target="m2-durationDays">{norms.durationDays} d</FactorPill> ÷ 365
-              {' '}· + buffer <FactorPill target="m2-buffer">{pct(norms.buffer)}</FactorPill>)
+              each state's share then goes through the same steps: reaching a facility
+              (<FactorPill target="m2-admissionRate">{pct(norms.admissionRate)}</FactorPill>), days on CPAP
+              (<FactorPill target="m2-durationDays">{norms.durationDays} d</FactorPill> ÷ 365) and the planning buffer
+              (<FactorPill target="m2-buffer">{pct(norms.buffer)}</FactorPill>)
             </Op>
             <div className="flow-split-row">
               {top.map((r, i) => (
@@ -102,24 +103,24 @@ export default function M2Flow({ norms, totals, rows }: { norms: M2Norms; totals
               ))}
             </div>
             <div className="flow-side" style={{ textAlign: 'center' }}>
-              … similarly for the other <strong>{rest}</strong> states/UTs (≈ {fmt(restGross)} devices).
+              and so on for the other <strong>{rest}</strong> states and union territories (about {fmt(restGross)} devices).
             </div>
             <span className="op-arrow" style={{ display: 'block', textAlign: 'center' }}>↓</span>
-            <Node tone="out" title="Gross device requirement" val={fmt(totals.gross)} sub="all 36 states/UTs summed to national total" />
+            <Node tone="out" title="CPAP devices needed" val={fmt(totals.gross)} sub="all 36 states and union territories added up" />
           </>
         ) : (
           <>
-            <Op>× facility admission rate <FactorPill target="m2-admissionRate">{pct(norms.admissionRate)}</FactorPill></Op>
-            <Node tone="teal" title="Cases reaching facility" val={fmt(reaching)} />
-            <Op>× CPAP duration <FactorPill target="m2-durationDays">{norms.durationDays} d</FactorPill> ÷ 365</Op>
-            <Node tone="grey" title="Mean concurrent devices" val={fmt(meanC)} />
+            <Op>× share of babies who reach a facility <FactorPill target="m2-admissionRate">{pct(norms.admissionRate)}</FactorPill></Op>
+            <Node tone="teal" title="Babies reaching a facility" val={fmt(reaching)} />
+            <Op>× days on CPAP <FactorPill target="m2-durationDays">{norms.durationDays} d</FactorPill> ÷ 365</Op>
+            <Node tone="grey" title="Machines in use at once (average)" val={fmt(meanC)} />
             <div className="flow-side">
-              Why ÷ 365: this assumes each case is administered CPAP for ~{norms.durationDays} days (the RDS-course duration
-              set on the left), so a course ties up a device for that long. Annual courses × days ÷ 365 = the average number
-              of devices in use at the same time (one device covers ~{Math.round(365 / norms.durationDays)} courses a year).
+              Why divide by 365: each baby uses a machine for about {norms.durationDays} days (the number set on the left),
+              so one machine can serve about {Math.round(365 / norms.durationDays)} babies over a year. Dividing the year's
+              total by 365 gives the average number of machines in use at the same time.
             </div>
-            <Op>+ planning buffer <FactorPill target="m2-buffer">{pct(norms.buffer)}</FactorPill> (peak concurrency, attrition, lead-time)</Op>
-            <Node tone="out" title="Gross device requirement" val={fmt(gross)} sub={sel ? `${sel.state} requirement` : 'summed to national total'} />
+            <Op>+ planning buffer <FactorPill target="m2-buffer">{pct(norms.buffer)}</FactorPill> (for busy periods, wear-and-tear and reorder time)</Op>
+            <Node tone="out" title="CPAP devices needed" val={fmt(gross)} sub={sel ? `${sel.state} total` : 'added up across all states'} />
           </>
         )}
       </div>

@@ -20,9 +20,9 @@ interface Props {
 const AxisTick = { fontSize: 11, fill: '#52616d', fontFamily: '"Trebuchet MS", "Segoe UI", sans-serif' }
 
 export const SERIES_META: { flag: keyof Series; dataKey: string; name: string; btn: string; color: string }[] = [
-  { flag: 'asis', dataKey: 'asisCpap', name: 'Current infra-based', btn: 'Current infra-based', color: ASIS },
+  { flag: 'asis', dataKey: 'asisCpap', name: 'Current demand', btn: 'Current demand', color: ASIS },
   { flag: 'installed', dataKey: 'installed', name: 'Installed (actual)', btn: 'Installed', color: INST },
-  { flag: 'gapGI', dataKey: 'gapGuidInstalled', name: 'Gap · infra−inst', btn: 'Gap infra−inst', color: GAP_GI },
+  { flag: 'gapGI', dataKey: 'gapGuidInstalled', name: 'Gap: current − installed', btn: 'Gap: current − installed', color: GAP_GI },
 ]
 
 function ChartTooltip({ active, payload, label }: any) {
@@ -53,8 +53,9 @@ export default function BarView({ rows, series }: Props) {
   return (
     <div>
       <p className="card-note">
-        Top 15 states by the leading series — compare current infra-based, actual-installed, and the gap between them
-        (current-infra − installed).{installedSelected && ' Installed series/gap show only for the states with a reported device count.'}
+        This shows the top 15 states by the first series you pick. You can compare the current-demand estimate, the
+        devices actually installed, and the gap between them (current demand minus installed).
+        {installedSelected && ' The installed figures appear only for states that have reported a count.'}
       </p>
       <div className="chart-box" style={{ height: 470 }}>
         <ResponsiveContainer width="100%" height="100%">

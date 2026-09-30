@@ -29,7 +29,7 @@ const ROWS: RowDef[] = [
   {
     key: 'cpapPerBed',
     label: 'CPAP devices per SNCU bed',
-    hint: 'FBNC 2025: ~30% of SNCU beds are CPAP-capable (4 per 12-bed unit).',
+    hint: 'The FBNC 2025 guideline says about 30% of SNCU beds should have a CPAP machine (about 4 in a 12-bed unit).',
     unit: 'per bed',
     min: 0.1,
     max: 1,
@@ -39,7 +39,7 @@ const ROWS: RowDef[] = [
   {
     key: 'avgSncuBeds',
     label: 'Avg beds per SNCU',
-    hint: 'Per-state beds are unpublished; beds = SNCU units × this. Biggest single assumption.',
+    hint: 'The beds per SNCU are not published, so we estimate total beds as the number of SNCUs times this average. This is the biggest single assumption.',
     unit: 'beds',
     min: 8,
     max: 30,
@@ -60,7 +60,7 @@ export default function NormsPanel({ norms, onChange, onReset }: Props) {
           Reset
         </button>
       </div>
-      <p className="card-note" style={{ marginTop: 2 }}>Editable levers · green = edited, amber = preset.</p>
+      <p className="card-note" style={{ marginTop: 2 }}>You can change any value below. Green means you changed it; amber is the preset default.</p>
 
       <PanelSection
         title="CPAP scope"
@@ -108,7 +108,7 @@ export default function NormsPanel({ norms, onChange, onReset }: Props) {
 
       <PanelSection title="NICU note" defaultOpen={false}>
         <p className="card-note" style={{ marginTop: 0, marginBottom: 2 }}>
-          NICU CPAP is folded into the SNCU count (the source merges the two), so it is not sized separately here.
+          The data source counts NICU beds together with SNCU beds, so NICUs are already included here and are not estimated separately.
         </p>
         <SourceNote refs={[{ key: 'mohfwAR', page: 'p. 62' }]} note="SNCU count includes NICUs" />
       </PanelSection>

@@ -34,7 +34,6 @@ export default function CmpMap({ rows, lens }: { rows: CmpRow[]; lens: BuLens })
   const path = useMemo(() => geoPath(geoMercator().fitSize([W, H], geo)), [geo])
 
   const buOf = (r: CmpRow) => (lens === 'existing' ? r.buExisting : r.buNormative)
-  const lensLabel = lens === 'existing' ? 'current infra-based' : 'normative'
   const valueOf = (r: CmpRow): number => {
     if (metricKey === 'td') return r.td
     if (metricKey === 'coverage') return r.td > 0 ? buOf(r) / r.td : NaN
@@ -65,7 +64,7 @@ export default function CmpMap({ rows, lens }: { rows: CmpRow[]; lens: BuLens })
           </select>
         </label>
       </div>
-      <p className="card-note">Comparing the guidelines-based estimate (<strong>{lensLabel}</strong> lens) against epidemiological need, by state. Darker = higher value.</p>
+      <p className="card-note">This map shows, for each state, how the guidelines-based current demand compares with the epidemiological need. Darker means a higher value.</p>
       <div className="map-wrap" ref={wrapRef}>
         <svg viewBox={`0 0 ${W} ${H}`} className="india-map" role="img" aria-label={`Comparison choropleth — ${label}`}>
           {geo.features.map((f: any) => {

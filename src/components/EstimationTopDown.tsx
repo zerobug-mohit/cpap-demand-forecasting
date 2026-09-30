@@ -25,10 +25,13 @@ export default function EstimationTopDown({ m2, setM2, m3, setM3 }: Props) {
   return (
     <div>
       <div className="card lens-explainer" style={{ marginBottom: 16 }}>
-        <h2>Epidemiological need · two approaches</h2>
+        <h2>Epidemiological need — two approaches</h2>
         <p className="card-note" style={{ marginTop: 4 }}>
-          Two ways to estimate the epidemiological CPAP need — one based on <strong>RDS prevalence</strong>, the other
-          based on <strong>deliveries in public facilities and FBNC norms</strong>:
+          This tab estimates how many CPAP machines newborns actually need, based on health data rather than on the
+          facilities that exist today. There are two ways to do this. The first uses <strong>how common newborn
+          breathing problems (RDS) are</strong>. The second counts the <strong>babies delivered in public health
+          facilities</strong> and applies the government (FBNC) norm for how many machines a facility should have.
+          Choose an approach below.
         </p>
         <div className="epi-switch" role="tablist" aria-label="Epidemiological need approach">
           {APPROACHES.map((a) => (

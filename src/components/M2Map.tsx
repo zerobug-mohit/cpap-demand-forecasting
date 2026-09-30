@@ -66,12 +66,12 @@ export default function M2Map({ rows, metric }: { rows: Computed2[]; metric: Met
             <div className="mt-title">{hover.row.state}{hover.row.ut && <span className="mt-ut">UT</span>}</div>
             <div className="mt-primary"><span>{metric.label}</span><strong>{fmtMetric(metric.kind, metric.get(hover.row))}</strong></div>
             <div className="mt-rows">
-              <div><span>Inst. births</span><b>{fmt(hover.row.instBirths)}</b></div>
-              <div><span>LBW %</span><b>{hover.row.lbw != null ? hover.row.lbw.toFixed(1) : 'NA'}</b></div>
-              <div><span>NMR</span><b>{hover.row.nmr != null ? hover.row.nmr : 'NA'}</b></div>
-              <div><span>Risk index</span><b>{hover.row.index.toFixed(2)}</b></div>
-              <div><span>Eligible</span><b>{fmt(hover.row.eligible)}</b></div>
-              <div><span>CPAP req.</span><b>{fmt(hover.row.gross)}</b></div>
+              <div><span>Births in facilities</span><b>{fmt(hover.row.instBirths)}</b></div>
+              <div><span>Low birth weight %</span><b>{hover.row.lbw != null ? hover.row.lbw.toFixed(1) : 'NA'}</b></div>
+              <div><span>Newborn deaths /1k</span><b>{hover.row.nmr != null ? hover.row.nmr : 'NA'}</b></div>
+              <div><span>Need score</span><b>{hover.row.index.toFixed(2)}</b></div>
+              <div><span>Likely to need CPAP</span><b>{fmt(hover.row.eligible)}</b></div>
+              <div><span>CPAP devices needed</span><b>{fmt(hover.row.gross)}</b></div>
             </div>
           </div>
         )}

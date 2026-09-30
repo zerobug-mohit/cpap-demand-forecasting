@@ -67,7 +67,7 @@ export default function M2NormsPanel({ norms, onChange, onReset }: Props) {
         <h2>Assumptions &amp; drivers</h2>
         <button className="btn link" onClick={onReset} disabled={!dirty} style={{ opacity: dirty ? 1 : 0.4 }}>Reset</button>
       </div>
-      <p className="card-note">Epidemiological cascade. The national anchor is held fixed and redistributed across states by the driver. Each input's basis is noted below it.</p>
+      <p className="card-note">This works out the machines needed from how common newborn breathing problems are. The national total is fixed; the controls below only change how it is split across states. Under each control is a note on where its value comes from.</p>
 
       <PanelSection
         title={priv ? 'Facility scope (private)' : 'Facility scope (public / private)'}
@@ -76,8 +76,8 @@ export default function M2NormsPanel({ norms, onChange, onReset }: Props) {
       >
         {priv ? (
           <p className="hint" style={{ marginTop: 0 }}>
-            Anchors the eligible-case pool to <strong>private-facility</strong> institutional births (1 − public share)
-            and redistributes across states on that same base — the private-sector market, outside NHM procurement.
+            This counts only babies born in <strong>private facilities</strong> (the share of facility births that are
+            not in public/government facilities). This is the private market, which the government does not buy for.
           </p>
         ) : (
           <>
@@ -86,8 +86,8 @@ export default function M2NormsPanel({ norms, onChange, onReset }: Props) {
               <span>Public (NHM) facilities only</span>
             </label>
             <p className="hint" style={{ marginTop: 6 }}>
-              Anchors the eligible-case pool to <strong>public-facility</strong> institutional births and redistributes
-              across states on that same base — the NHM procurement scope. Private-sector deliveries are excluded.
+              This counts only babies born in <strong>public (government) facilities</strong>, because that is what the
+              government would buy machines for. Births in private facilities are left out.
             </p>
           </>
         )}
@@ -109,13 +109,13 @@ export default function M2NormsPanel({ norms, onChange, onReset }: Props) {
                   : 'Using per-state NFHS-6 public shares (Kerala 34% … Ladakh 97%; national ~65%).'}
               </p>
             )}
-            <SourceNote refs={[{ key: 'nfhs6', page: 'ind. 35–36' }]} note={`${priv ? 'private' : 'public'}-facility share of institutional births`} />
+            <SourceNote refs={[{ key: 'nfhs6', page: 'ind. 35–36' }]} note={`share of facility births that are in ${priv ? 'private' : 'public'} facilities`} />
           </div>
         )}
       </PanelSection>
 
-      <PanelSection title="National eligibility anchor" ids={['m2-rdsPer1000', 'm2-correction']}>
-        <Slider id="m2-rdsPer1000" changed={chg('rdsPer1000')} label="RDS cases / 1,000 inst. births" value={norms.rdsPer1000} min={4} max={30} step={1}
+      <PanelSection title="How many newborns need CPAP (national)" ids={['m2-rdsPer1000', 'm2-correction']}>
+        <Slider id="m2-rdsPer1000" changed={chg('rdsPer1000')} label="RDS cases per 1,000 facility births" value={norms.rdsPer1000} min={4} max={30} step={1}
           display={String(norms.rdsPer1000)} onChange={(v) => set({ rdsPer1000: v })} />
         <SourceNote
           refs={[{ key: 'rdsRecent', page: '25.3' }, { key: 'rdsAIIMS', page: '19.1' }, { key: 'nnpd', page: '12.0' }, { key: 'rdsAFMC', page: '4.5' }]}
@@ -123,40 +123,40 @@ export default function M2NormsPanel({ norms, onChange, onReset }: Props) {
         />
         <Slider id="m2-correction" changed={chg('correction')} label="Correction factor (other conditions)" value={norms.correction} min={1} max={3} step={0.1}
           display={norms.correction.toFixed(1) + '×'} onChange={(v) => set({ correction: v })}
-          hint="Scales RDS up to all CPAP-treated conditions (TTN, MAS, pneumonia/sepsis, apnoea). Built as (% of distressed neonates put on CPAP) ÷ (RDS share of them): Aligarh 67.5% ÷ 35.5% = 1.9×; Navi Mumbai 68% ÷ 32.8% = 2.1× → median ≈ 2.0×." />
+          hint="Respiratory distress (RDS) is not the only condition treated with CPAP. This factor scales the RDS number up to cover the others too, such as TTN, meconium aspiration, pneumonia, sepsis and apnoea. Indian studies suggest about 2 times: in Aligarh 67.5% of babies in breathing distress were put on CPAP while RDS made up 35.5% of them (1.9 times), and in Navi Mumbai it was 68% versus 32.8% (2.1 times)." />
         <SourceNote
           refs={[{ key: 'rdsRecent', page: 'CPAP 67.5% ÷ RDS 35.5%' }, { key: 'distJain', page: 'CPAP 68% ÷ RDS 32.8%' }]}
           note="CPAP-put fraction ÷ RDS share · India resp-distress cohorts → ×1.9–2.1 (median ~2.0)"
         />
       </PanelSection>
 
-      <PanelSection title="Care cascade" ids={['m2-durationDays', 'm2-admissionRate', 'm2-buffer']}>
+      <PanelSection title="From cases to machines" ids={['m2-durationDays', 'm2-admissionRate', 'm2-buffer']}>
         <Slider id="m2-durationDays" changed={chg('durationDays')} label="CPAP duration (days/case)" value={norms.durationDays} min={1} max={10} step={0.5}
           display={norms.durationDays.toFixed(1)} onChange={(v) => set({ durationDays: v })}
-          hint="Preset 5 d per CPAP course (FBNC Operational Guidelines 2025). Indian per-course studies observe shorter time actually on CPAP — Koti 1.0 · Noolu 2.3 · Tahreem 3.0 d — so the FBNC figure is the more conservative planning value." />
+          hint="How many days a baby stays on CPAP in one course. The preset is 5 days, from the FBNC 2025 guidelines. Indian studies have observed shorter times on CPAP (Koti 1.0, Noolu 2.3, Tahreem 3.0 days), so 5 days is the more cautious planning figure." />
         <SourceNote refs={[{ key: 'fbnc2025', page: 'CPAP therapy' }]} note="CPAP duration per case (preset 5 d)" />
         <SourceNote
           refs={[{ key: 'cpapKoti', page: '0.98' }, { key: 'cpapNoolu', page: '2.27' }, { key: 'cpapTahreem', page: '3.01' }]}
-          note="observed per-course duration · India studies (range 1.0–3.0 d)"
+          note="observed days on CPAP per course · India studies (1.0–3.0 days)"
         />
-        <Slider id="m2-admissionRate" changed={chg('admissionRate')} label="Facility admission rate" value={norms.admissionRate} min={0.5} max={1} step={0.01}
+        <Slider id="m2-admissionRate" changed={chg('admissionRate')} label="Share of babies who reach a facility" value={norms.admissionRate} min={0.5} max={1} step={0.01}
           display={Math.round(norms.admissionRate * 100) + '%'} onChange={(v) => set({ admissionRate: v })} />
-        <Basis>programme assumption (concept-note default 100%).</Basis>
+        <Basis>a programme assumption (the concept note uses 100%).</Basis>
         <Slider id="m2-buffer" changed={chg('buffer')} label="Planning buffer" value={norms.buffer} min={0} max={1} step={0.05}
           display={Math.round(norms.buffer * 100) + '%'} onChange={(v) => set({ buffer: v })}
-          hint="One combined uplift on mean concurrent devices, covering peak-concurrency, device attrition and procurement lead-time / spares. Default 25%." />
-        <Basis>programme assumption — clubs peak concurrency, attrition and lead-time.</Basis>
+          hint="A single extra allowance on top of the machines in use at any one time. It covers busy periods, machines that break or wear out, and the time needed to order replacements. The preset is 25%." />
+        <Basis>a programme assumption that combines busy periods, wear-and-tear and reorder time.</Basis>
       </PanelSection>
 
       <PanelSection
-        title="State-variance driver"
+        title="How the total is split across states"
         ids={['m2-driver', 'm2-beta', 'm2-wLbw', 'm2-wNmr']}
         badge={chg('driver') ? <span className="badge entered">edited</span> : undefined}
       >
         <p className="card-note" style={{ marginTop: 0 }}>
-          This does <strong>not</strong> change the national total — it only sets <strong>how that total is split across
-          states</strong>. States with more low-birth-weight babies and higher newborn mortality take a larger share,
-          because those signal a heavier RDS/prematurity burden.
+          This does <strong>not</strong> change the national total. It only decides <strong>how that total is shared
+          across states</strong>. States with more low-birth-weight babies and higher newborn deaths get a larger share,
+          because those point to greater need.
         </p>
         <div className="scope-toggle" role="group" aria-label="Driver" id="m2-driver">
           {DRIVERS.map((d) => (
@@ -166,9 +166,9 @@ export default function M2NormsPanel({ norms, onChange, onReset }: Props) {
           ))}
         </div>
         <p className="hint" style={{ marginTop: 6 }}>
-          <strong>LBW + NMR</strong> — split by both signals (recommended). <strong>LBW only</strong> — by
-          low-birth-weight rate alone. <strong>Volume</strong> — by births only, so every state gets the same rate per
-          birth (no risk weighting).
+          <strong>LBW + NMR</strong> uses both signals (recommended). <strong>LBW only</strong> uses the
+          low-birth-weight rate on its own. <strong>Volume</strong> ignores need and splits by number of births only, so
+          every state gets the same rate per birth.
         </p>
         <SourceNote refs={[{ key: 'nfhs6', page: 'inst. delivery' }, { key: 'nfhs5', page: 'LBW' }]} note="institutional delivery · LBW" />
         <SourceNote refs={[{ key: 'srs2024', page: 'Statement 48' }]} note="neonatal mortality rate" />
@@ -176,24 +176,24 @@ export default function M2NormsPanel({ norms, onChange, onReset }: Props) {
 
         {norms.driver !== 'volume' && (
           <div style={{ marginTop: 12 }}>
-            <Slider id="m2-beta" changed={chg('beta')} label="Sensitivity β" value={norms.beta} min={0} max={1.5} step={0.05}
+            <Slider id="m2-beta" changed={chg('beta')} label="How strongly need affects the split" value={norms.beta} min={0} max={1.5} step={0.05}
               display={norms.beta.toFixed(2)} onChange={(v) => set({ beta: v })}
-              hint="How strongly a state's risk shifts its share. β = 0 → risk ignored, split by births only (every state the same rate per birth). β = 1 → full effect: a state with twice the risk index gets twice the per-birth rate. Higher β widens the gap between high- and low-risk states." />
+              hint="At 0, need is ignored and the split follows births only (every state gets the same rate per birth). At 1, a state with twice the need gets twice the rate per birth. Higher values widen the gap between high-need and low-need states." />
             {norms.driver === 'composite' && (
               <>
                 <p className="hint" style={{ margin: '4px 0 6px' }}>
-                  Weights set how much each signal counts in the risk index — only their <strong>ratio</strong> matters
-                  (currently LBW {norms.wLbw.toFixed(2)} : NMR {norms.wNmr.toFixed(2)}).
+                  These set how much each signal counts. Only the <strong>ratio</strong> between them matters
+                  (currently low birth weight {norms.wLbw.toFixed(2)} : newborn deaths {norms.wNmr.toFixed(2)}).
                 </p>
-                <Slider id="m2-wLbw" changed={chg('wLbw')} label="Weight — LBW" value={norms.wLbw} min={0} max={1} step={0.05}
+                <Slider id="m2-wLbw" changed={chg('wLbw')} label="Weight — low birth weight" value={norms.wLbw} min={0} max={1} step={0.05}
                   display={norms.wLbw.toFixed(2)} onChange={(v) => set({ wLbw: v })}
-                  hint="Emphasis on low-birth-weight rate (the closest available proxy for prematurity/RDS)." />
-                <Slider id="m2-wNmr" changed={chg('wNmr')} label="Weight — NMR" value={norms.wNmr} min={0} max={1} step={0.05}
+                  hint="How much the low-birth-weight rate counts (the closest stand-in for premature birth)." />
+                <Slider id="m2-wNmr" changed={chg('wNmr')} label="Weight — newborn death rate" value={norms.wNmr} min={0} max={1} step={0.05}
                   display={norms.wNmr.toFixed(2)} onChange={(v) => set({ wNmr: v })}
-                  hint="Emphasis on neonatal mortality rate (a marker of overall sick-newborn burden)." />
+                  hint="How much the newborn death rate counts (a sign of how many newborns are seriously ill)." />
               </>
             )}
-            <Basis>β and weights are analyst-set model levers — no external source.</Basis>
+            <Basis>these are settings you choose; they have no external source.</Basis>
           </div>
         )}
       </PanelSection>

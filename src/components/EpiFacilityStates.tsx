@@ -80,9 +80,9 @@ export default function EpiFacilityStates({ norms }: { norms: M3Norms }) {
         <div>
           <h2 style={{ marginBottom: 2 }}>State-wise variation</h2>
           <p className="card-note" style={{ margin: 0 }}>
-            The facility-based need split across states — driven by each state's mix of District Hospitals,
-            Sub-District Hospitals, CHCs and government medical colleges. The tier split, average deliveries and FBNC
-            norm from the left apply uniformly; states differ by their facility counts.
+            This shows the facility-based need for each state. It depends on how many District Hospitals, Sub-District
+            Hospitals, CHCs and government medical colleges the state has. The group split, average deliveries and FBNC
+            norm from the left are the same for every state, so the differences come from the facility counts.
           </p>
         </div>
       </div>

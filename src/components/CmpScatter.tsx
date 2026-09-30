@@ -9,7 +9,6 @@ const AxisTick = { fontSize: 11, fill: '#52616d', fontFamily: '"Trebuchet MS", "
 
 export default function CmpScatter({ rows, lens }: { rows: CmpRow[]; lens: BuLens }) {
   const buOf = (r: CmpRow) => (lens === 'existing' ? r.buExisting : r.buNormative)
-  const lensLabel = lens === 'existing' ? 'current infra-based' : 'normative'
   const pts = rows
     .filter((r) => r.td > 0 && buOf(r) > 0)
     .map((r) => ({ state: r.state, x: r.td, y: buOf(r), z: r.births, cls: classify(buOf(r), r.td) }))
@@ -44,8 +43,8 @@ export default function CmpScatter({ rows, lens }: { rows: CmpRow[]; lens: BuLen
       <div className="chart-tip">
         <div style={{ fontWeight: 700, marginBottom: 4 }}>{d.state}</div>
         <div>Epidemiological need: <strong>{fmt(d.x)}</strong></div>
-        <div>Guidelines-based ({lensLabel}): <strong>{fmt(d.y)}</strong></div>
-        <div>Ratio ({lensLabel} ÷ epidemiological): <strong>{ratio.toFixed(2)}×</strong></div>
+        <div>Guidelines-based current demand: <strong>{fmt(d.y)}</strong></div>
+        <div>Ratio (current ÷ need): <strong>{ratio.toFixed(2)}×</strong></div>
         <div style={{ color: CLS_COLOR[d.cls as keyof typeof CLS_COLOR], fontWeight: 700 }}>{CLS_LABEL[d.cls as keyof typeof CLS_LABEL]}</div>
       </div>
     )
@@ -54,15 +53,16 @@ export default function CmpScatter({ rows, lens }: { rows: CmpRow[]; lens: BuLen
   return (
     <div>
       <p className="card-note">
-        Each point is a state: epidemiological need (x) vs the guidelines-based requirement (y, {lensLabel} lens), log–log, sized by
-        births. The grey dashed line is parity (y = x) — points <strong>below</strong> it are states where the {lensLabel}
-        estimate trails epidemiological need; <strong>above</strong>, it exceeds need.
+        Each dot is a state. The bottom axis is the epidemiological need and the side axis is the guidelines-based current
+        demand. Both axes use a log scale, and a dot is larger where the state has more births. The grey dashed line is
+        where the two are equal: dots <strong>below</strong> it are states where current demand is lower than the need, and
+        dots <strong>above</strong> it are states where it is higher.
         {hasFit && (
-          <> The <span style={{ color: FIT, fontWeight: 700 }}>solid line</span> is the least-squares best fit on the
-          log–log data (a power law): <strong>{eqn}</strong>, <strong>R² = {r2.toFixed(2)}</strong> (n = {n}). A slope
-          b {b < 1 ? '< 1 means the guidelines-based estimate grows slower than need (larger states relatively under-covered)' : b > 1 ? '> 1 means it grows faster than need' : '≈ 1 means it scales proportionally with need'}.</>
+          <> The <span style={{ color: FIT, fontWeight: 700 }}>coloured line</span> is the best-fit trend through the
+          dots (<strong>{eqn}</strong>, R² = {r2.toFixed(2)}).{' '}
+          {b < 1 ? 'Its slope is below 1, so current demand rises more slowly than need, and larger states are relatively less well covered.' : b > 1 ? 'Its slope is above 1, so current demand rises faster than need.' : 'Its slope is about 1, so current demand rises in step with need.'}</>
         )}
-        {excluded > 0 && ` ${excluded} state(s) with a zero value are omitted.`}
+        {excluded > 0 && ` ${excluded} state(s) with a zero value are left out.`}
       </p>
       <div className="chart-box" style={{ height: 460 }}>
         <ResponsiveContainer width="100%" height="100%">
@@ -73,7 +73,7 @@ export default function CmpScatter({ rows, lens }: { rows: CmpRow[]; lens: BuLen
               label={{ value: 'Epidemiological need', position: 'insideBottom', offset: -14, fontSize: 12, fill: '#52616d' }} />
             <YAxis type="number" dataKey="y" name="Guidelines-based" scale="log" domain={[lo, hi]} allowDataOverflow
               tick={AxisTick} tickFormatter={(v) => fmt(v)} width={54}
-              label={{ value: `Guidelines-based — ${lensLabel}`, angle: -90, position: 'insideLeft', fontSize: 12, fill: '#52616d' }} />
+              label={{ value: 'Guidelines-based current demand', angle: -90, position: 'insideLeft', fontSize: 12, fill: '#52616d' }} />
             <ZAxis type="number" dataKey="z" range={[30, 380]} />
             <ReferenceLine segment={[{ x: lo, y: lo }, { x: hi, y: hi }]} stroke="#86909a" strokeDasharray="5 4" ifOverflow="extendDomain" />
             {hasFit && (

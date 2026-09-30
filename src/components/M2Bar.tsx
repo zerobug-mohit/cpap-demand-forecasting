@@ -23,7 +23,7 @@ export default function M2Bar({ rows, metric }: { rows: Computed2[]; metric: Met
 
   return (
     <div>
-      <p className="card-note">Top 15 states by {metric.label.toLowerCase()}.</p>
+      <p className="card-note">The 15 states with the highest {metric.label.toLowerCase()}.</p>
       <div className="chart-box" style={{ height: 470 }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={top} layout="vertical" margin={{ top: 4, right: 28, bottom: 4, left: 8 }}>

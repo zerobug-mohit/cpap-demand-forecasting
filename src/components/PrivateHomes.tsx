@@ -41,7 +41,8 @@ export default function PrivateHomes({ norms, onChange, onReset }: Props) {
           <button className="btn link" onClick={onReset} disabled={!dirty} style={{ opacity: dirty ? 1 : 0.4 }}>Reset</button>
         </div>
         <p className="card-note" style={{ marginTop: 2 }}>
-          Private maternity homes counted by size tier — a number of homes and a normative CPAP-per-facility for each.
+          Private maternity homes are counted in three size groups. For each group, set how many homes there are and how
+          many CPAP machines each home should have.
         </p>
 
         <div className="section-label" style={{ marginTop: 4 }}>Size tiers</div>
@@ -63,7 +64,7 @@ export default function PrivateHomes({ norms, onChange, onReset }: Props) {
 
         <SourceNote
           refs={[{ key: 'indiaHospEco', page: 'nursing homes <30 beds' }, { key: 'manyata', page: 'size mix' }]}
-          note="~35,000–40,000 private nursing homes <30 beds; per-tier counts and CPAP/facility are assumptions (no registry) — adjust as needed"
+          note="There is no official registry of private maternity homes. Private nursing homes with fewer than 30 beds are estimated at 35,000–40,000 in total; the number in each size group and the machines per home are assumptions you can change."
         />
       </div>
 
@@ -73,7 +74,7 @@ export default function PrivateHomes({ norms, onChange, onReset }: Props) {
           <div className="kpi accent-navy">
             <div className="kpi-label">CPAP devices · private sector</div>
             <div className="kpi-value">{fmt(r.devices)}</div>
-            <div className="kpi-sub">normative — each delivering facility equipped to its tier</div>
+            <div className="kpi-sub">assumes each delivering home has the machines set for its group</div>
           </div>
           <div className="kpi accent-teal">
             <div className="kpi-label">Maternity homes</div>
@@ -145,9 +146,9 @@ export default function PrivateHomes({ norms, onChange, onReset }: Props) {
         <div className="card">
           <h2>Method &amp; caveats</h2>
           <ul className="src-list" style={{ paddingLeft: 18 }}>
-            <li>Kept <strong>outside</strong> the public (NHM) estimates — this is not part of government procurement scope, but sizes the total market / private demand.</li>
-            <li>No registry of private maternity homes exists: the per-tier counts (~2.5k high / 5k medium / 30k small) and CPAP-per-facility are assumptions — small "basic-setup" homes carry no CPAP by default.</li>
-            <li>Normative by tier — assumes every delivering facility is equipped to its size level; lower "% doing deliveries" or the per-tier CPAP to model partial coverage.</li>
+            <li>This is kept <strong>out</strong> of the public (government) estimates. The government does not buy machines for private facilities, but this shows the size of the private market.</li>
+            <li>There is no official registry of private maternity homes, so the number in each group (about 2,500 high, 5,000 medium and 30,000 small) and the machines per home are assumptions. Small basic-setup homes are set to no CPAP by default.</li>
+            <li>This assumes every home that does deliveries is fully equipped for its group. To model partial coverage, lower the “% doing deliveries” or the machines per home.</li>
           </ul>
         </div>
       </div>

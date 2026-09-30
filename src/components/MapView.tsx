@@ -62,7 +62,7 @@ export default function MapView({ rows, metric }: Props) {
   return (
     <div>
       <p className="card-note">
-        State-wise choropleth, shaded by the selected metric. Hover a state for its full detail.
+        This map shades each state by the value you choose above. Hover over a state to see its full details.
       </p>
 
       <div className="map-wrap" ref={wrapRef}>

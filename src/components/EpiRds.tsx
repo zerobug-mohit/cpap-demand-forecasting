@@ -8,9 +8,9 @@ import M2Explorer from './M2Explorer'
 import M2Flow from './M2Flow'
 
 const DRIVER_LABEL: Record<string, string> = {
-  composite: 'LBW + NMR composite',
-  lbw: 'LBW only',
-  volume: 'volume only (uniform rate)',
+  composite: 'Low birth weight + newborn deaths',
+  lbw: 'Low birth weight only',
+  volume: 'Births only (no need weighting)',
 }
 
 interface Props {
@@ -35,7 +35,7 @@ export default function EpiRds({ norms, onChange }: Props) {
               <h2>How the RDS-based estimate works</h2>
               {!open && (
                 <span className="lens-summary">
-                  Population → institutional births → eligible cases → devices · national pool redistributed across states by an LBW + NMR risk index
+                  We start from the number of newborns, work out how many are likely to need CPAP, turn that into a number of machines, and then split it across states.
                 </span>
               )}
             </div>
@@ -43,15 +43,15 @@ export default function EpiRds({ norms, onChange }: Props) {
           </button>
           {open && (
             <div style={{ marginTop: 12 }}>
-              <p className="card-note">An epidemiological-need estimate independent of the facility network. The cascade below carries the current national figures through each step:</p>
+              <p className="card-note">This estimate is based on how common newborn breathing problems are, not on the facilities that exist today. The steps below show how we get from the number of births to the number of machines, using the current national figures:</p>
               <M2Flow norms={norms} totals={totals} rows={rows} />
               <p style={{ fontSize: '0.88rem', margin: '14px 0 0' }}>
-                The <strong>national</strong> eligible-case pool is anchored to the literature rate (RDS × correction) and
-                then <strong>redistributed across states</strong> in proportion to <em>institutional births × risk-index<sup>β</sup></em>.
-                The risk index blends each state's <strong>low-birth-weight %</strong> and <strong>neonatal mortality rate</strong>
-                relative to the national level — the best all-state signals of prematurity/RDS burden, since state-wise RDS
-                prevalence itself is not available. β and the weights are adjustable on the left; at β = 0 the rate is uniform
-                (states differ only by births).
+                We first work out the number of newborns likely to need CPAP for the whole country. We take the rate of
+                respiratory distress (RDS) reported in Indian studies and multiply it by a correction factor to also cover
+                other conditions that need CPAP. We then <strong>split this national number across states</strong>. States
+                with more low-birth-weight babies and higher newborn deaths get a larger share, because those are signs of
+                greater need. We use these two signals because a state-by-state RDS rate is not available. You can adjust how
+                strongly need affects the split, and the weight given to each signal, using the controls on the left.
               </p>
             </div>
           )}
@@ -59,24 +59,24 @@ export default function EpiRds({ norms, onChange }: Props) {
 
         <div className="kpi-row">
           <div className="kpi accent-navy">
-            <div className="kpi-label">CPAP required · national</div>
+            <div className="kpi-label">CPAP devices needed · national</div>
             <div className="kpi-value">{fmt(totals.gross)}</div>
-            <div className="kpi-sub">devices, epidemiological-need ceiling</div>
+            <div className="kpi-sub">the total this level of need implies</div>
           </div>
           <div className="kpi accent-teal">
-            <div className="kpi-label">{priv ? 'Private inst. births' : scoped ? 'Public inst. births' : 'Institutional births'}</div>
+            <div className="kpi-label">{priv ? 'Births in private facilities' : scoped ? 'Births in public facilities' : 'Births in facilities'}</div>
             <div className="kpi-value">{fmt(scoped ? totals.baseInstBirths : totals.instBirths)}</div>
-            <div className="kpi-sub">{priv ? 'births × delivery rate × private share' : scoped ? 'births × delivery rate × public share' : 'births × NFHS delivery rate'}</div>
+            <div className="kpi-sub">{priv ? 'births × delivery rate × private-facility share' : scoped ? 'births × delivery rate × public-facility share' : 'births × facility-delivery rate'}</div>
           </div>
           <div className="kpi accent-teal">
-            <div className="kpi-label">CPAP-eligible cases</div>
+            <div className="kpi-label">Newborns likely to need CPAP</div>
             <div className="kpi-value">{fmt(totals.eligible)}</div>
-            <div className="kpi-sub">{totals.eligPer1000.toFixed(1)} per 1,000 {priv ? 'private ' : scoped ? 'public ' : ''}inst. births</div>
+            <div className="kpi-sub">{totals.eligPer1000.toFixed(1)} per 1,000 births in {priv ? 'private' : scoped ? 'public' : ''} facilities</div>
           </div>
           <div className="kpi accent-good">
-            <div className="kpi-label">State driver</div>
+            <div className="kpi-label">How the total is split</div>
             <div className="kpi-value" style={{ fontSize: '1.05rem' }}>{DRIVER_LABEL[norms.driver]}</div>
-            <div className="kpi-sub">β = {norms.beta.toFixed(2)}</div>
+            <div className="kpi-sub">need weighting strength: {norms.beta.toFixed(2)}</div>
           </div>
         </div>
 
@@ -85,10 +85,10 @@ export default function EpiRds({ norms, onChange }: Props) {
         <div className="card">
           <h2>Method &amp; caveats</h2>
           <ul className="src-list" style={{ paddingLeft: 18 }}>
-            <li>National anchored to the literature RDS rate × correction factor; states carry the variance (anchor + redistribute).</li>
-            <li>State driver = LBW + NMR composite (both national-standardised); NMR is NA for smaller states/UTs and defaults to neutral in the index.</li>
-            <li>Tertiary-facility RDS studies overstate population prevalence (referral bias) — used only to set the national rate, never the state spread.</li>
-            <li>No reliable state-wise preterm rate exists; LBW is the accepted stand-in.</li>
+            <li>We work out the national number first, then split it across states.</li>
+            <li>States are split using two signals: the share of low-birth-weight babies and the newborn death rate, each compared to the national level. The newborn death rate is not reported for smaller states and union territories, so for them we use low birth weight only.</li>
+            <li>The RDS rates come from studies in large referral hospitals, which see sicker babies than the general population. We use them only to set the national number, not to decide each state's share.</li>
+            <li>There is no reliable state-by-state rate of premature birth, so we use low birth weight as the closest available substitute.</li>
           </ul>
         </div>
       </div>

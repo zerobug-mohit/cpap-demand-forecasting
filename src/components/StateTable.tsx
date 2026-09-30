@@ -77,12 +77,13 @@ export default function StateTable({ rows, totals, showExt }: Props) {
   return (
     <div>
       <p className="card-note">
-        Click a column to sort · 36 states / UTs. The current infra-based lens applies the FBNC norm to today's SNCU beds
-        (units × avg beds).
-        {showExt ? ' Add-on shows the NBSU/Transport extension, already included in the CPAP column.' : ''}{' '}
-        <strong>Gap · infra−inst</strong> = current infra-based − installed (positive = installed falls short).{' '}
-        <strong>Installed · actual</strong> = reported CPAP devices, available so far for MP (282), Bihar (70),
-        Punjab (59), Rajasthan (961) and Chhattisgarh (58); “—” where not yet reported (so the gap and national total are blank).
+        Click a column heading to sort. This covers all 36 states and union territories. The current-demand figure
+        applies the FBNC norm to today's SNCU beds (the number of SNCUs times the average beds each).
+        {showExt ? ' The "Add-on" column shows the NBSU/Transport extension, which is already included in the CPAP column.' : ''}{' '}
+        <strong>Gap · infra−inst</strong> is the current-demand estimate minus the devices actually installed; a positive
+        number means fewer are installed than the estimate. <strong>Installed · actual</strong> is the number of CPAP
+        devices actually reported, which we have so far for Madhya Pradesh (282), Bihar (70), Punjab (59), Rajasthan (961)
+        and Chhattisgarh (58). It shows “—” where no count has been reported yet, so the gap and the national total are left blank there.
       </p>
       <div className="table-scroll">
         <table className="data">

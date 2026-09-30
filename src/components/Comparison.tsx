@@ -119,9 +119,10 @@ export default function Comparison({ m1, m2, m3 }: Props) {
         </div>
         <h2>Demand by approach — {scopeName}</h2>
         <p className="card-note">
-          The public CPAP estimates side by side for the selected scope — what the current network is equipped for
-          (guidelines-based) and two independent readings of epidemiological need — with the actual installed count where
-          it has been reported. (Private-sector demand is on its own tab and excluded here.)
+          This shows the public CPAP estimates side by side for the area you choose. It compares what the current network
+          should have (the guidelines-based figure) with two independent estimates of what newborns actually need. It also
+          shows the number of machines actually installed, where that has been reported. Private-sector demand is on its
+          own tab and is not included here.
         </p>
         <MarkerBar marks={marks} current={active.guid} needHi={needHi} />
 
@@ -144,20 +145,20 @@ export default function Comparison({ m1, m2, m3 }: Props) {
           <div className="kpi accent-bad">
             <div className="kpi-label">Coverage of need</div>
             <div className="kpi-value">{fmtPct(coverage)}</div>
-            <div className="kpi-sub">current ÷ mean epidemiological need</div>
+            <div className="kpi-sub">current demand ÷ average of the two need estimates</div>
           </div>
         </div>
 
         <div className="lens-gap-note" style={{ marginTop: 16 }}>
-          <strong>{scopeName}</strong>: the current SNCU network is equipped for about <strong>{fmt(active.guid)}</strong>{' '}
-          CPAP devices (guidelines-based). Epidemiological need is <strong>{needLo === needHi ? fmt(needLo) : `${fmt(needLo)}–${fmt(needHi)}`}</strong>{' '}
-          (RDS-based ↔ facility-based) — a build-out gap of roughly <strong>{fmt(Math.max(0, needHi - active.guid))}</strong>{' '}
-          above what exists today.{' '}
+          In <strong>{scopeName}</strong>, the SNCUs that exist today should have about <strong>{fmt(active.guid)}</strong>{' '}
+          CPAP devices (the guidelines-based figure). The two estimates of what newborns actually need come to{' '}
+          <strong>{needLo === needHi ? fmt(needLo) : `${fmt(needLo)}–${fmt(needHi)}`}</strong>. That is a gap of about{' '}
+          <strong>{fmt(Math.max(0, needHi - active.guid))}</strong> more than the current network provides.{' '}
           {!sel
-            ? 'Installed devices are reported for only a few states — pick a state above to see its actual count.'
+            ? 'The number of machines actually installed is reported for only a few states — pick a state above to see its count.'
             : active.installed != null && active.installed > 0
-              ? <>Actual installed: <strong style={{ color: INSTALLED_COLOR }}>{fmt(active.installed)}</strong>.</>
-              : 'No installed count is reported for this state.'}
+              ? <>Machines actually installed: <strong style={{ color: INSTALLED_COLOR }}>{fmt(active.installed)}</strong>.</>
+              : 'No installed count has been reported for this state.'}
         </div>
 
         <hr className="divider" />
@@ -170,8 +171,8 @@ export default function Comparison({ m1, m2, m3 }: Props) {
           <div>
             <h2 style={{ marginBottom: 2 }}>By state · current demand vs need</h2>
             <p className="card-note" style={{ margin: 0 }}>
-              Every state at once — guidelines-based current demand against the {needLabel} epidemiological need, with
-              installed actuals where reported.
+              This shows all states at once: the guidelines-based current demand against the {needLabel} estimate of need,
+              with the machines actually installed where reported.
             </p>
           </div>
         </div>
@@ -200,10 +201,10 @@ export default function Comparison({ m1, m2, m3 }: Props) {
       <div className="card">
         <h2>How to read it</h2>
         <ul className="src-list" style={{ paddingLeft: 18 }}>
-          <li><strong>Current demand vs need:</strong> the gap between what the existing SNCU network is equipped for (guidelines-based) and what epidemiological need implies is the public build-out headroom.</li>
-          <li><strong>Two need estimates:</strong> RDS prevalence and facility-based (deliveries × FBNC norm) are independent — treat their spread as an uncertainty band, and switch the bubble/map/table between them with the need-basis toggle.</li>
-          <li><strong>Installed (actual):</strong> reported for only a few states — a reality check on the current-demand estimate, not a national number.</li>
-          <li>Private-sector demand is deliberately excluded here; it is estimated separately on the Private sector Demand tab.</li>
+          <li><strong>Current demand vs need:</strong> the gap between what the SNCUs that exist today should have and what newborns actually need is how much more the public system would have to build.</li>
+          <li><strong>Two estimates of need:</strong> the RDS-based and facility-based numbers are worked out in different ways, so treat the range between them as the likely range rather than one exact figure. Use the need-basis buttons to switch which one the chart, map and table use.</li>
+          <li><strong>Machines installed:</strong> reported for only a few states, so use it as a check on the current-demand estimate, not as a national total.</li>
+          <li>Private-sector demand is left out here on purpose. It is estimated separately on the Private sector Demand tab.</li>
         </ul>
       </div>
     </div>

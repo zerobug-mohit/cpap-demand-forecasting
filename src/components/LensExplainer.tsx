@@ -17,7 +17,7 @@ export default function LensExplainer({ totals, norms, rows }: { totals: Totals;
           <h2>How the current infra-based estimate works</h2>
           {!open && (
             <span className="lens-summary">
-              Current SNCUs → beds → × CPAP-per-bed norm = <strong>{fmt(totals.asisCpap)} devices</strong> — what today's network should be equipped with per FBNC
+              We take the SNCUs that exist today, count their beds, and apply the government norm for CPAP per bed. That comes to <strong>{fmt(totals.asisCpap)} devices</strong>.
             </span>
           )}
         </div>
@@ -27,28 +27,29 @@ export default function LensExplainer({ totals, norms, rows }: { totals: Totals;
       {open && (
         <div style={{ marginTop: 12 }}>
           <p className="card-note">
-            This is the <strong>guidelines-based</strong> estimate applied to the network that <strong>exists today</strong>.
+            This estimate is based only on the special newborn care units (SNCUs) that <strong>already exist today</strong>.
           </p>
 
           <div className="lens-box asis" style={{ maxWidth: 640 }}>
             <div className="lens-name">
               <span className="lens-dot" style={{ background: 'var(--c-asis)' }} />
-              Current infra-based
+              Based on today's SNCUs
             </div>
-            <div className="lens-q">“What does the SNCU network we already have imply?”</div>
+            <div className="lens-q">How many CPAP devices should the SNCUs we already have be equipped with?</div>
             <p className="lens-desc">
-              Applies the FBNC norm to the beds of the SNCUs that <strong>exist today</strong> — the CPAP the current
-              network <em>should</em> be equipped with per guidelines, not the devices actually installed (which aren't
-              publicly reported). A grounded, near-term number.
+              For every SNCU that exists today, we count its beds and apply the FBNC guideline, which says about 30% of
+              SNCU beds should have a CPAP machine. This gives the number of machines the current network <em>should</em>
+              have if it followed the guideline. It is not a count of the machines actually installed, because those
+              figures are not published. It is a realistic, near-term number.
             </p>
-            <div className="lens-flow">current SNCUs → beds → × CPAP-per-bed = <strong>{fmt(totals.asisCpap)} devices</strong></div>
-            <p className="lens-blind">⚠ Blind spot: misses need where no SNCU exists yet — the epidemiological tab sizes that need directly.</p>
+            <div className="lens-flow">SNCUs today → count their beds → apply CPAP-per-bed norm = <strong>{fmt(totals.asisCpap)} devices</strong></div>
+            <p className="lens-blind">Note: this does not include places that need newborn care but do not have an SNCU yet. The Epidemiological need tab estimates that.</p>
           </div>
 
           <hr className="divider" />
           <div className="flex-between" style={{ marginBottom: 8, gap: 10, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div className="section-label" style={{ margin: 0 }}>The calculation cascade</div>
+              <div className="section-label" style={{ margin: 0 }}>Step-by-step calculation</div>
               <label className="ctrl-inline">
                 <span className="muted">Geography</span>
                 <select value={geo} onChange={(e) => setGeo(e.target.value)}>

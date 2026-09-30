@@ -27,9 +27,10 @@ export default function PrivateSector({ mp, setMp, mprv, setMprv }: Props) {
       <div className="card lens-explainer" style={{ marginBottom: 16 }}>
         <h2>Private sector demand · two approaches</h2>
         <p className="card-note" style={{ marginTop: 4 }}>
-          The private maternity sector is estimated <strong>separately</strong> from the public (NHM) network. Two ways
-          to size it — one from <strong>private maternity-home counts</strong>, the other from <strong>RDS prevalence
-          applied to private-facility deliveries</strong> (the private share of institutional births, ≈ 35%):
+          The private maternity sector is estimated on its own, <strong>separate</strong> from the public (government)
+          system. There are two ways to size it. The first counts <strong>private maternity homes</strong> and how many
+          CPAP machines each should have. The second uses <strong>how common newborn breathing problems are</strong>,
+          applied to babies born in private facilities (about 35% of all facility births). Choose an approach below.
         </p>
         <div className="epi-switch" role="tablist" aria-label="Private sector approach">
           {APPROACHES.map((a) => (

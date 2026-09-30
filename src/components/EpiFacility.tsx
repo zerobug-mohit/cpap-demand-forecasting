@@ -51,10 +51,11 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
           <button className="btn link" onClick={onReset} disabled={!dirty} style={{ opacity: dirty ? 1 : 0.4 }}>Reset</button>
         </div>
         <p className="card-note" style={{ marginTop: 2 }}>
-          Public network only. Device norm = <strong>beds per 1,000 deliveries × CPAP per bed</strong>, all editable
-          (default 4 × 0.30 = 1.2/1k). The <span className="fc-fbnc-tag">FBNC</span> tag marks the SNCU/NICU levels whose
-          default follows the guideline. Untick a level to exclude it. Private-sector facilities are estimated on the{' '}
-          <strong>Private sector</strong> tab.
+          This covers the public network only. For each level, the number of CPAP machines is worked out as
+          <strong> beds per 1,000 deliveries × CPAP machines per bed</strong> (the default 4 × 0.30 gives 1.2 machines
+          per 1,000 deliveries). You can change both numbers. The <span className="fc-fbnc-tag">FBNC</span> tag marks the
+          levels whose default follows the government guideline. Untick a level to leave it out. Private facilities are
+          estimated on the <strong>Private sector Demand</strong> tab.
         </p>
 
         {norms.levels.map((l, i) => {
@@ -79,9 +80,9 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
         })}
         <SourceNote refs={[{ key: 'fbnc2025', page: 'p. 28, 57–60' }]} note="4 SNCU beds / 1,000 deliveries · CPAP = 30% of beds" />
         <p className="hint" style={{ marginTop: 6 }}>
-          <strong>SDH &amp; CHC floor:</strong> at least one CPAP per facility — a tier's devices are the greater of the
-          facility count and the delivery-based norm devices, so low-burden tiers settle at one per facility (marked{' '}
-          <span className="fc-tag">≥1/fac</span> in the breakdown).
+          <strong>SDH &amp; CHC floor:</strong> every facility gets at least one CPAP machine. For each group we take the
+          larger of the facility count and the number worked out from deliveries, so low-volume facilities settle at one
+          machine each (marked <span className="fc-tag">≥1/fac</span> below).
         </p>
 
         <PanelSection title="Average deliveries / facility" defaultOpen={false}>
@@ -94,7 +95,7 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
             refs={[{ key: 'fbnc2025', page: 'burden cutoffs' }]}
             note="cutoffs (annual deliveries): High >3,000 · Medium 1,000–3,000 · Low <1,000 (SNCU / NBSU / NBCC)"
           />
-          <SourceNote refs={[{ key: 'sharmaBmj', page: 'CHC ~490/yr' }]} note="Low avg anchored to CHC median; High & Med assumed" />
+          <SourceNote refs={[{ key: 'sharmaBmj', page: 'CHC ~490/yr' }]} note="the Low-group average uses the CHC median; the High and Medium averages are assumed" />
         </PanelSection>
 
         <PanelSection title="Facility counts & burden split" defaultOpen={false}>
@@ -138,9 +139,10 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
 
         <div className="card">
           <p className="card-note" style={{ marginTop: 0 }}>
-            <strong>Institutional deliveries</strong> = facility count × average deliveries per burden tier (bottom-up over
-            four public levels; excludes PHCs / sub-centres, so it differs from the top-down births × IDR figure used by the
-            RDS-based approach). The <strong>private sector</strong> is estimated separately on its own tab.
+            The number of <strong>deliveries</strong> here is the facility count times the average deliveries per facility
+            in each group, added up over the four public levels. It leaves out PHCs and sub-centres, so it will not match
+            the births figure used by the RDS-based approach. The <strong>private sector</strong> is estimated separately
+            on its own tab.
           </p>
           <SourceNote
             refs={[{ key: 'healthDynamics', page: 'facility counts' }, { key: 'sharmaBmj', page: 'CHC ~490/yr' }, { key: 'fbnc2025', page: 'norm & cutoffs' }]}
@@ -226,11 +228,11 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
         <div className="card">
           <h2>Method &amp; caveats</h2>
           <ul className="src-list" style={{ paddingLeft: 18 }}>
-            <li>A <strong>need</strong> model: sizes CPAP to what a right-sized newborn-care network across the public health system would require, not to today's installed base.</li>
-            <li>Structural inputs (facility counts, FBNC norm) are sourced; burden splits and the High/Med average deliveries are modelled — no published per-facility delivery distribution — and editable on the left.</li>
-            <li>District Hospitals &amp; Medical Colleges are held at 100% High (a DH / medical college is Level-3 regardless of caseload, per FBNC).</li>
-            <li><strong>SDH &amp; CHC</strong> get at least one CPAP per facility: a tier's devices = max(facility count, FBNC-norm devices), so low-burden tiers floor at one per facility rather than following the delivery-based norm below it.</li>
-            <li>Public levels only (DH / Medical Colleges / SDH / CHC; excludes PHCs / sub-centres). The <strong>private sector</strong> is a separate estimate on its own tab.</li>
+            <li>This is a <strong>need</strong> estimate. It works out how many machines a properly-equipped public network would require, not how many are installed today.</li>
+            <li>The facility counts and the FBNC norm come from published sources. The split of facilities into high, medium and low groups and the average deliveries for the high and medium groups are our own assumptions, because there is no published breakdown. You can change them on the left.</li>
+            <li>District Hospitals and medical colleges are all treated as high-volume, because under FBNC they are the top level of newborn care whatever their number of deliveries.</li>
+            <li><strong>SDH and CHC</strong> get at least one CPAP machine per facility: for each group we take the larger of the facility count and the number worked out from deliveries, so low-volume facilities settle at one machine each.</li>
+            <li>This covers the four public levels only (District Hospitals, medical colleges, Sub-District Hospitals and CHCs) and leaves out PHCs and sub-centres. The <strong>private sector</strong> is a separate estimate on its own tab.</li>
           </ul>
         </div>
       </div>

@@ -14,12 +14,12 @@ interface Col {
 
 const COLS: Col[] = [
   { key: 'state', label: 'State / UT', render: (r) => r.state, foot: () => 'India total' },
-  { key: 'instBirths', label: 'Inst. births', render: (r) => fmt(r.instBirths), foot: (t) => fmt(t.instBirths) },
-  { key: 'lbw', label: 'LBW %', render: (r) => (r.lbw != null ? r.lbw.toFixed(1) : 'NA'), foot: () => '' },
-  { key: 'nmr', label: 'NMR', render: (r) => (r.nmr != null ? String(r.nmr) : 'NA'), foot: () => '' },
-  { key: 'index', label: 'Risk index', render: (r) => r.index.toFixed(2), foot: () => '' },
-  { key: 'eligible', label: 'Eligible cases', render: (r) => fmt(r.eligible), foot: (t) => fmt(t.eligible) },
-  { key: 'gross', label: 'CPAP required', render: (r) => fmt(r.gross), foot: (t) => fmt(t.gross), cls: 'cell-strong' },
+  { key: 'instBirths', label: 'Facility births', render: (r) => fmt(r.instBirths), foot: (t) => fmt(t.instBirths) },
+  { key: 'lbw', label: 'Low birth wt %', render: (r) => (r.lbw != null ? r.lbw.toFixed(1) : 'NA'), foot: () => '' },
+  { key: 'nmr', label: 'Newborn deaths /1k', render: (r) => (r.nmr != null ? String(r.nmr) : 'NA'), foot: () => '' },
+  { key: 'index', label: 'Need score', render: (r) => r.index.toFixed(2), foot: () => '' },
+  { key: 'eligible', label: 'Likely to need CPAP', render: (r) => fmt(r.eligible), foot: (t) => fmt(t.eligible) },
+  { key: 'gross', label: 'CPAP devices', render: (r) => fmt(r.gross), foot: (t) => fmt(t.gross), cls: 'cell-strong' },
 ]
 
 export default function M2Table({ rows, totals }: { rows: Computed2[]; totals: Totals2 }) {
@@ -45,9 +45,10 @@ export default function M2Table({ rows, totals }: { rows: Computed2[]; totals: T
   return (
     <div>
       <p className="card-note">
-        Click a column to sort · 36 states / UTs. Risk index blends state LBW and NMR (relative to national); the
-        national eligible-case pool is redistributed by institutional births × index^β. NMR is NA for smaller
-        states/UTs (SRS does not report), and defaults to neutral in the index.
+        Click a column heading to sort. This covers all 36 states and union territories. The <strong>need score</strong>{' '}
+        combines each state's low-birth-weight rate and newborn death rate, compared with the national level. The national
+        total is shared out using each state's facility births and its need score. The newborn death rate is not reported
+        for smaller states and union territories, so for them we use low birth weight only.
       </p>
       <div className="table-scroll">
         <table className="data">
