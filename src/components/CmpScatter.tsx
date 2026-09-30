@@ -43,9 +43,9 @@ export default function CmpScatter({ rows, lens }: { rows: CmpRow[]; lens: BuLen
     return (
       <div className="chart-tip">
         <div style={{ fontWeight: 700, marginBottom: 4 }}>{d.state}</div>
-        <div>Clinical need: <strong>{fmt(d.x)}</strong></div>
+        <div>Epidemiological need: <strong>{fmt(d.x)}</strong></div>
         <div>Guidelines-based ({lensLabel}): <strong>{fmt(d.y)}</strong></div>
-        <div>Ratio ({lensLabel} ÷ clinical): <strong>{ratio.toFixed(2)}×</strong></div>
+        <div>Ratio ({lensLabel} ÷ epidemiological): <strong>{ratio.toFixed(2)}×</strong></div>
         <div style={{ color: CLS_COLOR[d.cls as keyof typeof CLS_COLOR], fontWeight: 700 }}>{CLS_LABEL[d.cls as keyof typeof CLS_LABEL]}</div>
       </div>
     )
@@ -54,9 +54,9 @@ export default function CmpScatter({ rows, lens }: { rows: CmpRow[]; lens: BuLen
   return (
     <div>
       <p className="card-note">
-        Each point is a state: epidemiological clinical need (x) vs the guidelines-based requirement (y, {lensLabel} lens), log–log, sized by
+        Each point is a state: epidemiological need (x) vs the guidelines-based requirement (y, {lensLabel} lens), log–log, sized by
         births. The grey dashed line is parity (y = x) — points <strong>below</strong> it are states where the {lensLabel}
-        estimate trails clinical need; <strong>above</strong>, it exceeds need.
+        estimate trails epidemiological need; <strong>above</strong>, it exceeds need.
         {hasFit && (
           <> The <span style={{ color: FIT, fontWeight: 700 }}>solid line</span> is the least-squares best fit on the
           log–log data (a power law): <strong>{eqn}</strong>, <strong>R² = {r2.toFixed(2)}</strong> (n = {n}). A slope
@@ -68,9 +68,9 @@ export default function CmpScatter({ rows, lens }: { rows: CmpRow[]; lens: BuLen
         <ResponsiveContainer width="100%" height="100%">
           <ScatterChart margin={{ top: 8, right: 24, bottom: 28, left: 8 }}>
             <CartesianGrid stroke="#e4ebef" />
-            <XAxis type="number" dataKey="x" name="Clinical need" scale="log" domain={[lo, hi]} allowDataOverflow
+            <XAxis type="number" dataKey="x" name="Epidemiological need" scale="log" domain={[lo, hi]} allowDataOverflow
               tick={AxisTick} tickFormatter={(v) => fmt(v)}
-              label={{ value: 'Epidemiological — clinical need', position: 'insideBottom', offset: -14, fontSize: 12, fill: '#52616d' }} />
+              label={{ value: 'Epidemiological need', position: 'insideBottom', offset: -14, fontSize: 12, fill: '#52616d' }} />
             <YAxis type="number" dataKey="y" name="Guidelines-based" scale="log" domain={[lo, hi]} allowDataOverflow
               tick={AxisTick} tickFormatter={(v) => fmt(v)} width={54}
               label={{ value: `Guidelines-based — ${lensLabel}`, angle: -90, position: 'insideLeft', fontSize: 12, fill: '#52616d' }} />

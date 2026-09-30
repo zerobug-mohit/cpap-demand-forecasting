@@ -43,7 +43,7 @@ export default function EpiRds({ norms, onChange }: Props) {
           </button>
           {open && (
             <div style={{ marginTop: 12 }}>
-              <p className="card-note">A clinical-need estimate independent of the facility network. The cascade below carries the current national figures through each step:</p>
+              <p className="card-note">An epidemiological-need estimate independent of the facility network. The cascade below carries the current national figures through each step:</p>
               <M2Flow norms={norms} totals={totals} rows={rows} />
               <p style={{ fontSize: '0.88rem', margin: '14px 0 0' }}>
                 The <strong>national</strong> eligible-case pool is anchored to the literature rate (RDS × correction) and
@@ -61,7 +61,7 @@ export default function EpiRds({ norms, onChange }: Props) {
           <div className="kpi accent-navy">
             <div className="kpi-label">CPAP required · national</div>
             <div className="kpi-value">{fmt(totals.gross)}</div>
-            <div className="kpi-sub">devices, clinical-need ceiling</div>
+            <div className="kpi-sub">devices, epidemiological-need ceiling</div>
           </div>
           <div className="kpi accent-teal">
             <div className="kpi-label">{priv ? 'Private inst. births' : scoped ? 'Public inst. births' : 'Institutional births'}</div>

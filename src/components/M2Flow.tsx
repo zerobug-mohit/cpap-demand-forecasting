@@ -80,7 +80,7 @@ export default function M2Flow({ norms, totals, rows }: { norms: M2Norms; totals
         ) : (
           <>
             <Op>× eligibility {pct(eNat, 1)} = RDS <FactorPill target="m2-rdsPer1000">{pct(norms.rdsPer1000 / 1000, 1)}</FactorPill> × <FactorPill target="m2-correction">{norms.correction.toFixed(1)}×</FactorPill> · national anchor</Op>
-            <Node tone="teal" title="CPAP-eligible cases" val={fmt(eligible)} sub={view === 'state' ? 'national pool, then redistributed to states' : 'national clinical-need pool'} />
+            <Node tone="teal" title="CPAP-eligible cases" val={fmt(eligible)} sub={view === 'state' ? 'national pool, then redistributed to states' : 'national epidemiological-need pool'} />
           </>
         )}
 

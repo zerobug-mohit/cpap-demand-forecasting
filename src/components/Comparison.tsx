@@ -83,7 +83,7 @@ export default function Comparison({ m1, m2, m3 }: Props) {
     guid: sel ? sel.buExisting : nat.buExisting,
     rds: sel ? sel.td : nat.td,
     fac: sel ? sel.tdFacility : nat.tdFacility,
-    installed: sel ? (sel.installed ?? null) : nat.installed,
+    installed: sel ? (sel.installed ?? null) : null, // installed shown per-state only, never a national total
   }
   const needLo = Math.min(active.rds, active.fac)
   const needHi = Math.max(active.rds, active.fac)
@@ -139,7 +139,7 @@ export default function Comparison({ m1, m2, m3 }: Props) {
           <div className="kpi accent-good">
             <div className="kpi-label">Installed (actual)</div>
             <div className="kpi-value">{active.installed != null && active.installed > 0 ? fmt(active.installed) : '—'}</div>
-            <div className="kpi-sub">{sel ? (active.installed != null && active.installed > 0 ? 'reported for this state' : 'not reported') : 'reported states only'}</div>
+            <div className="kpi-sub">{sel ? (active.installed != null && active.installed > 0 ? 'reported for this state' : 'not reported') : 'shown per state only'}</div>
           </div>
           <div className="kpi accent-bad">
             <div className="kpi-label">Coverage of need</div>
@@ -153,10 +153,11 @@ export default function Comparison({ m1, m2, m3 }: Props) {
           CPAP devices (guidelines-based). Epidemiological need is <strong>{needLo === needHi ? fmt(needLo) : `${fmt(needLo)}–${fmt(needHi)}`}</strong>{' '}
           (RDS-based ↔ facility-based) — a build-out gap of roughly <strong>{fmt(Math.max(0, needHi - active.guid))}</strong>{' '}
           above what exists today.{' '}
-          {active.installed != null && active.installed > 0
-            ? <>Actual installed: <strong style={{ color: INSTALLED_COLOR }}>{fmt(active.installed)}</strong>
-              {!sel && ' (a handful of reporting states only — not a national figure)'}.</>
-            : 'No installed count is reported for this scope.'}
+          {!sel
+            ? 'Installed devices are reported for only a few states — pick a state above to see its actual count.'
+            : active.installed != null && active.installed > 0
+              ? <>Actual installed: <strong style={{ color: INSTALLED_COLOR }}>{fmt(active.installed)}</strong>.</>
+              : 'No installed count is reported for this state.'}
         </div>
 
         <hr className="divider" />

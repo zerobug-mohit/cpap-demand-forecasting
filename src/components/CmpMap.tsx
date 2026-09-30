@@ -19,9 +19,9 @@ function scaleColor(t: number) {
 
 type CmpMetric = 'unmet' | 'coverage' | 'td'
 const METRICS: { key: CmpMetric; label: string }[] = [
-  { key: 'unmet', label: 'Unmet need (clinical − guidelines-based)' },
-  { key: 'coverage', label: 'Coverage (guidelines-based ÷ clinical)' },
-  { key: 'td', label: 'Clinical need (epidemiological)' },
+  { key: 'unmet', label: 'Unmet need (epidemiological − guidelines-based)' },
+  { key: 'coverage', label: 'Coverage (guidelines-based ÷ epidemiological)' },
+  { key: 'td', label: 'Epidemiological need' },
 ]
 
 interface Hover { row: CmpRow; bu: number; x: number; y: number; flip: boolean }
@@ -65,7 +65,7 @@ export default function CmpMap({ rows, lens }: { rows: CmpRow[]; lens: BuLens })
           </select>
         </label>
       </div>
-      <p className="card-note">Comparing the guidelines-based estimate (<strong>{lensLabel}</strong> lens) against epidemiological clinical need, by state. Darker = higher value.</p>
+      <p className="card-note">Comparing the guidelines-based estimate (<strong>{lensLabel}</strong> lens) against epidemiological need, by state. Darker = higher value.</p>
       <div className="map-wrap" ref={wrapRef}>
         <svg viewBox={`0 0 ${W} ${H}`} className="india-map" role="img" aria-label={`Comparison choropleth — ${label}`}>
           {geo.features.map((f: any) => {
@@ -86,7 +86,7 @@ export default function CmpMap({ rows, lens }: { rows: CmpRow[]; lens: BuLens })
             <div className="mt-title">{hover.row.state}{hover.row.ut && <span className="mt-ut">UT</span>}</div>
             <div className="mt-primary"><span>{label}</span><strong>{fmtVal(valueOf(hover.row))}</strong></div>
             <div className="mt-rows">
-              <div><span>Clinical need</span><b>{fmt(hover.row.td)}</b></div>
+              <div><span>Epidemiological need</span><b>{fmt(hover.row.td)}</b></div>
               <div><span>Current infra-based</span><b>{fmt(hover.row.buExisting)}</b></div>
               {hover.row.installed != null && <div><span>Installed (actual)</span><b>{fmt(hover.row.installed)}</b></div>}
             </div>

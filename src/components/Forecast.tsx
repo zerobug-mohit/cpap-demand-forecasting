@@ -186,7 +186,7 @@ export default function Forecast({ m1, m2 }: Props) {
           <h2>How to read it</h2>
           <ul className="src-list" style={{ paddingLeft: 18 }}>
             <li><strong>Current infra-based</strong> rises with the SNCU network (~6.6%/yr, fitted to the 2014–2024 published series) — the deliverable capacity if build-out continues at its historical pace.</li>
-            <li><strong>Epidemiological</strong> tracks clinical need: births are projected to fall while institutional delivery rises, so it stays broadly flat.</li>
+            <li><strong>Epidemiological</strong> tracks epidemiological need: births are projected to fall while institutional delivery rises, so it stays broadly flat.</li>
             <li><strong>Normative</strong> is sized from institutional births (live births × delivery rate, held at the current level), so it declines gently as the birth cohort shrinks.</li>
             <li>Where the current infra-based line rises toward Epidemiological, the infrastructure gap narrows; the distance to Normative is the full build-out headroom.</li>
           </ul>
