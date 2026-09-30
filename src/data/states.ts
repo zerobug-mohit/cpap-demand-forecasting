@@ -19,8 +19,8 @@ export interface StateRow {
 }
 
 export const STATES: StateRow[] = [
-  { state: 'Uttar Pradesh',    region: 'Central', sncu: 99, nbsu: 436, nbcc: 2240, births: 5721451 },
-  { state: 'Bihar',            region: 'East',    sncu: 45, nbsu: 41,  nbcc: 812,  births: 3560380, installed: 70 },
+  { state: 'Uttar Pradesh',    region: 'Central', sncu: 99, nbsu: 436, nbcc: 2240, births: 5721451, installed: 211 },
+  { state: 'Bihar',            region: 'East',    sncu: 45, nbsu: 41,  nbcc: 812,  births: 3560380, installed: 72 },
   { state: 'Madhya Pradesh',   region: 'Central', sncu: 62, nbsu: 343, nbcc: 1408, births: 2024212, installed: 282 },
   { state: 'Rajasthan',        region: 'West',    sncu: 62, nbsu: 284, nbcc: 2065, births: 1912441, installed: 961 },
   { state: 'Maharashtra',      region: 'West',    sncu: 69, nbsu: 205, nbcc: 1779, births: 1788259 },

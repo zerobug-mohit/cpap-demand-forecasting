@@ -24,7 +24,7 @@ const INSTALLED_COLOR = '#2e8b57'
 interface Mark { key: string; label: string; value: number; color: string }
 
 /** Single horizontal axis with a marker (line + label + value) for each approach, like the old triangulation bar. */
-function MarkerBar({ marks }: { marks: Mark[] }) {
+function MarkerBar({ marks, showLegend = true, valueOnly = false }: { marks: Mark[]; showLegend?: boolean; valueOnly?: boolean }) {
   const rawMax = Math.max(1, ...marks.map((m) => m.value))
   const max = rawMax * 1.08 // headroom so the largest marker never sits on the edge
   const pct = (v: number) => `${(Math.min(v, max) / max) * 100}%`
@@ -64,15 +64,14 @@ function MarkerBar({ marks }: { marks: Mark[] }) {
             <div key={m.key} className={`tri-mark ${align}`} style={{ left: pct(m.value), height: lineH, color: m.color }}>
               <div className="tri-mark-line" style={{ height: lineH }} />
               <div className="tri-mark-label" style={{ top: 44 + t * TIER_H }}>
-                <span>{m.label}</span>
-                <b>{fmt(m.value)}</b>
+                {valueOnly ? <span>{fmt(m.value)}</span> : <><span>{m.label}</span><b>{fmt(m.value)}</b></>}
               </div>
             </div>
           )
         })}
       </div>
       <div className="legend-row" style={{ marginTop: 60 + maxTier * TIER_H }}>
-        {marks.map((m) => (
+        {showLegend && marks.map((m) => (
           <span key={m.key}><span className="legend-dot" style={{ background: m.color }} />{m.label}</span>
         ))}
       </div>
@@ -175,6 +174,43 @@ export default function Comparison({ m1, m2, m3 }: Props) {
         <SourceNote refs={[{ key: 'mohfwAR', page: 'p. 62' }, { key: 'fbnc2025', page: 'p. 28, 57–60' }, { key: 'healthDynamics', page: 'Tables 6–7' }]} note="guidelines-based · facility-based (facilities · FBNC norm)" />
         <SourceNote refs={[{ key: 'rdsRecent', page: '25.3/1,000' }, { key: 'nfhs6', page: 'inst. delivery · public share' }, { key: 'srs2024', page: 'NMR · CBR' }]} note="RDS-based epidemiological need" />
       </div>
+
+      {(() => {
+        const installedRows = rows.filter((r) => r.installed != null && r.installed > 0).sort((a, b) => b.tdFacility - a.tdFacility)
+        if (installedRows.length === 0) return null
+        return (
+          <div className="card">
+            <h2>States with reported installed devices</h2>
+            <p className="card-note">
+              For the states that have reported how many CPAP machines are actually installed, this shows how that count
+              compares with the estimates. Each bar is scaled to its own state.
+            </p>
+            <div className="legend-row" style={{ marginBottom: 2 }}>
+              <span><span className="legend-dot" style={{ background: 'var(--c-asis)' }} />Current (guidelines)</span>
+              <span><span className="legend-dot" style={{ background: 'var(--c-opt)' }} />RDS need</span>
+              <span><span className="legend-dot" style={{ background: 'var(--c-primary-dark)' }} />Facility-based need</span>
+              <span><span className="legend-dot" style={{ background: INSTALLED_COLOR }} />Installed (actual)</span>
+            </div>
+            <div className="state-bars">
+              {installedRows.map((r) => (
+                <div className="state-bar-row" key={r.state}>
+                  <div className="state-bar-name">{r.state}</div>
+                  <MarkerBar
+                    showLegend={false}
+                    valueOnly
+                    marks={[
+                      { key: 'guid', label: 'Current (guidelines)', value: r.buExisting, color: 'var(--c-asis)' },
+                      { key: 'rds', label: 'RDS need', value: r.td, color: 'var(--c-opt)' },
+                      { key: 'fac', label: 'Facility-based need', value: r.tdFacility, color: 'var(--c-primary-dark)' },
+                      { key: 'installed', label: 'Installed (actual)', value: r.installed as number, color: INSTALLED_COLOR },
+                    ]}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      })()}
 
       <div className="card">
         <div className="explorer-head">

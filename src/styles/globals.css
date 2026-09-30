@@ -478,6 +478,12 @@ select:focus { outline: 2px solid var(--c-primary-bright); outline-offset: 1px; 
 .tri-mark.right .tri-mark-label { right: 0; text-align: right; }
 .tri-mark.right { margin-left: -2px; }
 
+/* per-state installed-vs-estimate bars (comparison) */
+.state-bars { margin-top: 10px; }
+.state-bars .state-bar-row + .state-bar-row { border-top: 1px solid var(--c-border); margin-top: 8px; padding-top: 14px; }
+.state-bars .state-bar-name { font-weight: 700; color: var(--c-primary-dark); font-size: 0.9rem; }
+.state-bars .tri-wrap { margin: 8px 0 2px; }
+
 /* ---------------- misc ---------------- */
 .recommend {
   background: var(--c-best); border: 1px solid #c6e3dc;

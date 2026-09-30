@@ -82,8 +82,8 @@ export default function StateTable({ rows, totals, showExt }: Props) {
         {showExt ? ' The "Add-on" column shows the NBSU/Transport extension, which is already included in the CPAP column.' : ''}{' '}
         <strong>Gap · infra−inst</strong> is the current-demand estimate minus the devices actually installed; a positive
         number means fewer are installed than the estimate. <strong>Installed · actual</strong> is the number of CPAP
-        devices actually reported, which we have so far for Madhya Pradesh (282), Bihar (70), Punjab (59), Rajasthan (961)
-        and Chhattisgarh (58). It shows “—” where no count has been reported yet, so the gap and the national total are left blank there.
+        devices actually reported, which we have so far for Uttar Pradesh (211), Madhya Pradesh (282), Bihar (72),
+        Punjab (59), Rajasthan (961) and Chhattisgarh (58). It shows “—” where no count has been reported yet, so the gap and the national total are left blank there.
       </p>
       <div className="table-scroll">
         <table className="data">
