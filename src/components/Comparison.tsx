@@ -21,22 +21,51 @@ type NeedBasis = 'rds' | 'facility'
 
 const INSTALLED_COLOR = '#2e8b57'
 
-interface Bar { key: string; label: string; sub: string; value: number; color: string }
+interface Mark { key: string; label: string; value: number; color: string }
 
-function Bars({ bars }: { bars: Bar[] }) {
-  const max = Math.max(1, ...bars.map((b) => b.value))
+/** Single horizontal axis with a marker (line + label + value) for each approach, like the old triangulation bar. */
+function MarkerBar({ marks, current, needHi }: { marks: Mark[]; current: number; needHi: number }) {
+  const max = Math.max(1, ...marks.map((m) => m.value))
+  const pct = (v: number) => `${(Math.min(v, max) / max) * 100}%`
+  const TIER_H = 34
+  const MIN_GAP = 19 // % of width below which two labels collide → stagger onto a new tier
+  const withP = marks.map((m) => ({ ...m, p: (m.value / max) * 100 }))
+
+  const tierLast: number[] = []
+  const tier: Record<string, number> = {}
+  for (const m of [...withP].sort((a, b) => a.p - b.p)) {
+    let t = 0
+    while (tierLast[t] !== undefined && m.p - tierLast[t] < MIN_GAP) t++
+    tierLast[t] = m.p
+    tier[m.key] = t
+  }
+  const maxTier = Math.max(0, ...Object.values(tier))
+
   return (
-    <div className="fc-bars" style={{ marginTop: 12 }}>
-      {bars.map((b) => (
-        <div className="fc-barrow" key={b.key} style={{ gridTemplateColumns: '230px 1fr 66px' }}>
-          <span className="fc-bname">
-            {b.label}
-            <span style={{ display: 'block', fontWeight: 400, fontSize: '0.7rem', color: 'var(--c-text-muted)' }}>{b.sub}</span>
-          </span>
-          <span className="fc-track"><span className="fc-fill" style={{ width: `${Math.max(1.5, (b.value / max) * 100)}%`, background: b.color }} /></span>
-          <span className="fc-bval fc-num">{fmt(b.value)}</span>
-        </div>
-      ))}
+    <div className="tri-wrap">
+      <div className="tri-track">
+        <div className="tri-seg current" style={{ left: 0, width: pct(current) }} />
+        {needHi > current && <div className="tri-seg gap" style={{ left: pct(current), width: pct(needHi - current) }} />}
+        {withP.map((m) => {
+          const align = m.p > 86 ? 'right' : m.p < 12 ? 'left' : 'center'
+          const t = tier[m.key]
+          const lineH = 42 + t * TIER_H
+          return (
+            <div key={m.key} className={`tri-mark ${align}`} style={{ left: pct(m.value), height: lineH }}>
+              <div className="tri-mark-line" style={{ background: m.color, height: lineH }} />
+              <div className="tri-mark-label" style={{ top: 44 + t * TIER_H }}>
+                <span style={{ color: m.color }}>{m.label}</span>
+                <b>{fmt(m.value)}</b>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+      <div className="legend-row" style={{ marginTop: 60 + maxTier * TIER_H }}>
+        {marks.map((m) => (
+          <span key={m.key}><span className="legend-dot" style={{ background: m.color }} />{m.label}</span>
+        ))}
+      </div>
     </div>
   )
 }
@@ -62,12 +91,12 @@ export default function Comparison({ m1, m2, m3 }: Props) {
   const coverage = needMid > 0 ? active.guid / needMid : 0
   const scopeName = sel ? sel.state : 'India (national)'
 
-  const bars: Bar[] = [
-    { key: 'guid', label: 'Guidelines-based · current demand', sub: 'existing SNCU network × FBNC norm', value: active.guid, color: 'var(--c-asis)' },
-    { key: 'rds', label: 'Epidemiological need · RDS prevalence', sub: 'RDS × correction, public share', value: active.rds, color: 'var(--c-primary-bright)' },
-    { key: 'fac', label: 'Epidemiological need · facility-based', sub: 'public deliveries × FBNC norm', value: active.fac, color: 'var(--c-primary-dark)' },
+  const marks: Mark[] = [
+    { key: 'guid', label: 'Current (guidelines)', value: active.guid, color: 'var(--c-asis)' },
+    { key: 'rds', label: 'RDS need', value: active.rds, color: 'var(--c-primary-bright)' },
+    { key: 'fac', label: 'Facility-based need', value: active.fac, color: 'var(--c-primary-dark)' },
     ...(active.installed != null && active.installed > 0
-      ? [{ key: 'installed', label: 'Installed (actual)', sub: sel ? 'reported for this state' : 'reported states only — partial', value: active.installed, color: INSTALLED_COLOR }]
+      ? [{ key: 'installed', label: 'Installed (actual)', value: active.installed, color: INSTALLED_COLOR }]
       : []),
   ]
 
@@ -94,7 +123,7 @@ export default function Comparison({ m1, m2, m3 }: Props) {
           (guidelines-based) and two independent readings of epidemiological need — with the actual installed count where
           it has been reported. (Private-sector demand is on its own tab and excluded here.)
         </p>
-        <Bars bars={bars} />
+        <MarkerBar marks={marks} current={active.guid} needHi={needHi} />
 
         <div className="kpi-row" style={{ marginTop: 16 }}>
           <div className="kpi accent-teal">
