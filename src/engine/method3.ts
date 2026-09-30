@@ -128,3 +128,71 @@ export function computeM3(state: M3Norms): Computed3 {
     maxBar: Math.max(1, ...bars.map((b) => b.devices)),
   }
 }
+
+// ── State-wise decomposition ──────────────────────────────────────────────
+// Distributes the (editable) national facility counts across states in proportion
+// to a sourced per-state facility distribution, then applies the SAME tier split,
+// average deliveries, FBNC norm and SDH/CHC floor per state. National = Σ states.
+
+export type FacKey = 'dh' | 'sdh' | 'chc' | 'mc'
+export type StateFacilities = Record<FacKey, number>
+
+export interface StateFacRow extends StateFacilities {
+  state: string
+  deliveries: number
+  devices: number
+  byLevel: Record<string, number> // CPAP devices per level key
+}
+
+export interface Totals3State {
+  devices: number
+  deliveries: number
+  facilities: number
+}
+
+export function computeM3ByState(
+  n: M3Norms,
+  facByState: Record<string, StateFacilities>,
+): { rows: StateFacRow[]; totals: Totals3State } {
+  const names = Object.keys(facByState)
+  // Σ of the per-state distribution for each level, used to rescale to the current national count.
+  const levelSum: Record<string, number> = {}
+  for (const l of n.levels) levelSum[l.key] = names.reduce((a, s) => a + (facByState[s]?.[l.key as FacKey] ?? 0), 0)
+
+  const rows: StateFacRow[] = names.map((name) => {
+    const fc = facByState[name]
+    const counts: StateFacilities = { dh: 0, sdh: 0, chc: 0, mc: 0 }
+    const byLevel: Record<string, number> = {}
+    let devices = 0
+    let deliveries = 0
+    for (const l of n.levels) {
+      const key = l.key as FacKey
+      const scale = levelSum[l.key] > 0 ? l.count / levelSum[l.key] : 0
+      const cnt = (fc?.[key] ?? 0) * scale
+      counts[key] = cnt
+      if (!l.inc) { byLevel[l.key] = 0; continue }
+      const norm = l.beds * l.cpapPerBed
+      const facsHigh = cnt * l.tiers.high / 100
+      const facsMed = cnt * l.tiers.med / 100
+      const facsLow = Math.max(0, cnt - facsHigh - facsMed)
+      let lDev = 0
+      for (const [f, avg] of [[facsHigh, n.avg.high], [facsMed, n.avg.med], [facsLow, n.avg.low]] as [number, number][]) {
+        if (!f) continue
+        const del = f * avg
+        const normDev = del * (norm / 1000)
+        lDev += l.floorOne ? Math.max(f, normDev) : normDev
+        deliveries += del
+      }
+      byLevel[l.key] = lDev
+      devices += lDev
+    }
+    return { state: name, ...counts, deliveries, devices, byLevel }
+  })
+
+  const totals: Totals3State = {
+    devices: rows.reduce((a, r) => a + r.devices, 0),
+    deliveries: rows.reduce((a, r) => a + r.deliveries, 0),
+    facilities: rows.reduce((a, r) => a + r.dh + r.sdh + r.chc + r.mc, 0),
+  }
+  return { rows, totals }
+}

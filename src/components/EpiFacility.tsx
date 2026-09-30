@@ -4,6 +4,7 @@ import { computeM3, DEFAULT_M3 } from '../engine/method3'
 import { fmt } from '../utils/format'
 import SourceNote from './SourceNote'
 import PanelSection from './PanelSection'
+import EpiFacilityStates from './EpiFacilityStates'
 
 interface Props {
   norms: M3Norms
@@ -219,6 +220,8 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
             <span className="g-sub fc-num">{fmt(r.totals.facilities)} facilities · {fmt(r.totals.deliveries)} public deliveries</span>
           </div>
         </div>
+
+        <EpiFacilityStates norms={norms} />
 
         <div className="card">
           <h2>Method &amp; caveats</h2>
