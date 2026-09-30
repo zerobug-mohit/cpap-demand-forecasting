@@ -213,8 +213,9 @@ button { font-family: var(--font); cursor: pointer; }
 table.data { width: 100%; border-collapse: collapse; font-size: 0.78rem; font-variant-numeric: tabular-nums; }
 table.data thead th {
   text-transform: uppercase; font-size: 0.64rem; letter-spacing: 0.04em; color: var(--c-text-muted);
-  font-weight: 700; text-align: right; padding: 8px 11px; border-bottom: 1px solid var(--c-border-strong);
-  white-space: nowrap; cursor: pointer; user-select: none; position: sticky; top: 0; background: var(--c-surface);
+  font-weight: 700; text-align: right; padding: 8px 10px; border-bottom: 1px solid var(--c-border-strong);
+  white-space: normal; line-height: 1.25; vertical-align: bottom; cursor: pointer; user-select: none;
+  position: sticky; top: 0; background: var(--c-surface);
 }
 table.data thead th:first-child { text-align: left; }
 table.data thead th.sorted { color: var(--c-primary); }

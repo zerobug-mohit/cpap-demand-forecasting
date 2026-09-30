@@ -33,15 +33,15 @@ export default function CmpTable({ rows }: { rows: CmpRow[] }) {
     { key: 'buExisting', label: 'Current infra-based' },
     { key: 'installed', label: 'Installed · actual' },
     { key: 'coverage', label: 'Coverage (infra/need)' },
-    { key: 'unmetAct', label: 'Unmet · need − installed' },
-    { key: 'unmetGuid', label: 'Unmet · need − current demand' },
+    { key: 'unmetAct', label: 'Unmet vs installed' },
+    { key: 'unmetGuid', label: 'Unmet vs current demand' },
   ]
 
   return (
     <div>
       <p className="card-note">
-        Click a column to sort · 36 states / UTs. <strong>Unmet · need − installed</strong> = epidemiological need −
-        installed actual, shown only for states that report a device count. <strong>Unmet · need − current demand</strong>{' '}
+        Click a column to sort · 36 states / UTs. <strong>Unmet vs installed</strong> = epidemiological need −
+        installed actual, shown only for states that report a device count. <strong>Unmet vs current demand</strong>{' '}
         = epidemiological need − guidelines-based current demand (the build-out gap). Coverage = current infra-based ÷
         epidemiological need.
       </p>
