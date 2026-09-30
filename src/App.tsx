@@ -61,7 +61,7 @@ function renderContent({ section, sub, m1, setM1, m2, setM2, m3, setM3, mp, setM
     if (sub === 'bu') return <EstimationBottomUp norms={m1} onChange={setM1} />
     if (sub === 'td') return <EstimationTopDown m2={m2} setM2={setM2} m3={m3} setM3={setM3} />
     if (sub === 'pvt') return <PrivateSector mp={mp} setMp={setMp} mprv={mprv} setMprv={setMprv} />
-    return <Comparison m1={m1} m2={m2} m3={m3} mp={mp} mprv={mprv} />
+    return <Comparison m1={m1} m2={m2} m3={m3} />
   }
   return FORECAST_WIP ? <ForecastWIP /> : <Forecast m1={m1} m2={m2} />
 }
