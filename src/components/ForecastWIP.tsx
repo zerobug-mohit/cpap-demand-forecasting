@@ -109,14 +109,6 @@ export default function ForecastWIP() {
           </table>
         </div>
       </div>
-
-      <div className="card">
-        <div className="callout">
-          <strong>What's next.</strong> We will turn each scenario into a year-by-year line for the number of CPAP
-          devices needed over the next five years, starting from today's estimate. For inputs, data, or to follow
-          progress, please contact <a href="mailto:mchaurasiya@wjcf.in">mchaurasiya@wjcf.in</a>.
-        </div>
-      </div>
     </div>
   )
 }
