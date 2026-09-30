@@ -25,7 +25,7 @@ export default function ForecastWIP() {
 
   return (
     <div>
-      <div className="card lens-explainer" style={{ borderTop: '3px solid var(--c-accent)' }}>
+      <div className="card lens-explainer">
         <div className="flex-between">
           <h2 style={{ marginBottom: 0 }}>CPAP Demand Forecasting</h2>
           <span className="badge entered">In development</span>
