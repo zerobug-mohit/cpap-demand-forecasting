@@ -4,7 +4,7 @@ import type { M2Norms } from '../engine/method2'
 import type { M3Norms } from '../engine/method3'
 import { compare } from '../engine/compare'
 import type { CmpRow } from '../engine/compare'
-import { fmt, fmtPct } from '../utils/format'
+import { fmt } from '../utils/format'
 import CmpScatter from './CmpScatter'
 import CmpMap from './CmpMap'
 import CmpTable from './CmpTable'
@@ -93,10 +93,6 @@ export default function Comparison({ m1, m2, m3 }: Props) {
     fac: sel ? sel.tdFacility : nat.tdFacility,
     installed: sel ? (sel.installed ?? null) : null, // installed shown per-state only, never a national total
   }
-  const needLo = Math.min(active.rds, active.fac)
-  const needHi = Math.max(active.rds, active.fac)
-  const needMid = (active.rds + active.fac) / 2
-  const coverage = needMid > 0 ? active.guid / needMid : 0
   const scopeName = sel ? sel.state : 'India (national)'
 
   const marks: Mark[] = [
@@ -133,30 +129,6 @@ export default function Comparison({ m1, m2, m3 }: Props) {
           own tab and is not included here.
         </p>
         <MarkerBar marks={marks} />
-
-        <div className="kpi-row" style={{ marginTop: 16 }}>
-          <div className="kpi accent-teal">
-            <div className="kpi-label">Current demand</div>
-            <div className="kpi-value">{fmt(active.guid)}</div>
-            <div className="kpi-sub">guidelines-based, today's SNCUs</div>
-          </div>
-          <div className="kpi accent-navy">
-            <div className="kpi-label">Epidemiological need</div>
-            <div className="kpi-value" style={{ fontSize: '1.35rem' }}>{needLo === needHi ? fmt(needLo) : `${fmt(needLo)} – ${fmt(needHi)}`}</div>
-            <div className="kpi-sub">RDS-based ↔ facility-based</div>
-          </div>
-          <div className="kpi accent-good">
-            <div className="kpi-label">Installed (actual)</div>
-            <div className="kpi-value">{active.installed != null && active.installed > 0 ? fmt(active.installed) : '—'}</div>
-            <div className="kpi-sub">{sel ? (active.installed != null && active.installed > 0 ? 'reported for this state' : 'not reported') : 'shown per state only'}</div>
-          </div>
-          <div className="kpi accent-bad">
-            <div className="kpi-label">Coverage of need</div>
-            <div className="kpi-value">{fmtPct(coverage)}</div>
-            <div className="kpi-sub">current demand ÷ average of the two need estimates</div>
-          </div>
-        </div>
-
       </div>
 
       {(() => {
