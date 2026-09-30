@@ -28,8 +28,8 @@ interface Tab {
 
 const SUBS: Record<Section, Tab[]> = {
   estimation: [
-    { key: 'bu', label: 'Guidelines-based current demand' },
     { key: 'td', label: 'Epidemiological Need' },
+    { key: 'bu', label: 'Guidelines-based current demand' },
     { key: 'pvt', label: 'Private sector Demand' },
     { key: 'cmp', label: 'Compare estimates' },
   ],
@@ -68,7 +68,7 @@ function renderContent({ section, sub, m1, setM1, m2, setM2, m3, setM3, mp, setM
 
 export default function App() {
   const [section, setSection] = useState<Section>('estimation')
-  const [sub, setSub] = useState<Record<Section, string>>({ estimation: 'bu', forecasting: 'fc' })
+  const [sub, setSub] = useState<Record<Section, string>>({ estimation: 'td', forecasting: 'fc' })
   const [m1, setM1] = useState<Norms>(DEFAULT_NORMS)
   const [m2, setM2] = useState<M2Norms>(DEFAULT_M2)
   const [m3, setM3] = useState<M3Norms>(DEFAULT_M3)
