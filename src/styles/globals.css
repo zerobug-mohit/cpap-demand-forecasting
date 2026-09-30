@@ -580,8 +580,8 @@ select:focus { outline: 2px solid var(--c-primary-bright); outline-offset: 1px; 
 /* sub-approach switcher — matches the secondary-nav tab pills */
 .epi-switch { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 4px; }
 .epi-switch button {
-  background: none; border: 1px solid transparent; border-radius: 999px; padding: 5px 13px;
+  background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 999px; padding: 5px 13px;
   font-size: 0.81rem; font-weight: 600; color: var(--c-text-muted); cursor: pointer; transition: all 0.12s;
 }
-.epi-switch button:hover { color: var(--c-primary); }
+.epi-switch button:hover { color: var(--c-primary); border-color: var(--c-border-strong); }
 .epi-switch button.active { color: var(--c-primary-dark); background: var(--c-primary-light); border-color: #bcdde3; }
