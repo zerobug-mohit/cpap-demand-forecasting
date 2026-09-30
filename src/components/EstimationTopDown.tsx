@@ -15,20 +15,20 @@ interface Props {
 }
 
 const APPROACHES: { key: Approach; label: string }[] = [
-  { key: 'facility', label: 'Deliveries × FBNC norms' },
   { key: 'rds', label: 'RDS prevalence' },
+  { key: 'facility', label: 'Deliveries × FBNC norms' },
 ]
 
 export default function EstimationTopDown({ m2, setM2, m3, setM3 }: Props) {
-  const [approach, setApproach] = useState<Approach>('facility')
+  const [approach, setApproach] = useState<Approach>('rds')
 
   return (
     <div>
       <div className="card lens-explainer" style={{ marginBottom: 16 }}>
         <h2>Epidemiological need · two approaches</h2>
         <p className="card-note" style={{ marginTop: 4 }}>
-          Two ways to estimate the epidemiological CPAP need — one based on <strong>deliveries in public facilities and
-          FBNC norms</strong>, the other based on <strong>RDS prevalence</strong>:
+          Two ways to estimate the epidemiological CPAP need — one based on <strong>RDS prevalence</strong>, the other
+          based on <strong>deliveries in public facilities and FBNC norms</strong>:
         </p>
         <div className="epi-switch" role="tablist" aria-label="Epidemiological need approach">
           {APPROACHES.map((a) => (
