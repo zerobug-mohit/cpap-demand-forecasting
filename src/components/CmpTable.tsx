@@ -1,19 +1,23 @@
 import { useState } from 'react'
 import type { CmpRow } from '../engine/compare'
-import { classify, CLS_LABEL, CLS_COLOR } from '../engine/compare'
 import { fmt } from '../utils/format'
 
-type SortKey = 'state' | 'td' | 'buExisting' | 'installed' | 'coverage' | 'unmet'
+type SortKey = 'state' | 'td' | 'buExisting' | 'installed' | 'coverage' | 'unmetAct' | 'unmetGuid'
 
 const coverage = (r: CmpRow) => (r.td > 0 ? r.buExisting / r.td : 0)
-const unmet = (r: CmpRow) => Math.max(0, r.td - r.buExisting)
+const unmetGuid = (r: CmpRow) => Math.max(0, r.td - r.buExisting) // need − current demand
+const unmetAct = (r: CmpRow): number | null => (r.installed != null ? Math.max(0, r.td - r.installed) : null) // need − installed
 
 export default function CmpTable({ rows }: { rows: CmpRow[] }) {
-  const [sortKey, setSortKey] = useState<SortKey>('unmet')
+  const [sortKey, setSortKey] = useState<SortKey>('unmetGuid')
   const [asc, setAsc] = useState(false)
 
   const val = (r: CmpRow, k: SortKey): number =>
-    k === 'coverage' ? coverage(r) : k === 'unmet' ? unmet(r) : k === 'installed' ? (r.installed ?? -1) : (r[k as 'td' | 'buExisting'] as number)
+    k === 'coverage' ? coverage(r)
+      : k === 'unmetGuid' ? unmetGuid(r)
+        : k === 'unmetAct' ? (unmetAct(r) ?? Number.NEGATIVE_INFINITY)
+          : k === 'installed' ? (r.installed ?? Number.NEGATIVE_INFINITY)
+            : (r[k as 'td' | 'buExisting'] as number)
 
   const sorted = [...rows].sort((a, b) => {
     const cmp = sortKey === 'state' ? a.state.localeCompare(b.state) : val(a, sortKey) - val(b, sortKey)
@@ -29,14 +33,17 @@ export default function CmpTable({ rows }: { rows: CmpRow[] }) {
     { key: 'buExisting', label: 'Current infra-based' },
     { key: 'installed', label: 'Installed · actual' },
     { key: 'coverage', label: 'Coverage (infra/need)' },
-    { key: 'unmet', label: 'Unmet need' },
+    { key: 'unmetAct', label: 'Unmet · need − installed' },
+    { key: 'unmetGuid', label: 'Unmet · need − current demand' },
   ]
 
   return (
     <div>
       <p className="card-note">
-        Click a column to sort · 36 states / UTs. Coverage = current infra-based ÷ epidemiological need; unmet =
-        epidemiological need − current infra-based. Status classifies current infra-based vs need.
+        Click a column to sort · 36 states / UTs. <strong>Unmet · need − installed</strong> = epidemiological need −
+        installed actual, shown only for states that report a device count. <strong>Unmet · need − current demand</strong>{' '}
+        = epidemiological need − guidelines-based current demand (the build-out gap). Coverage = current infra-based ÷
+        epidemiological need.
       </p>
       <div className="table-scroll">
         <table className="data">
@@ -47,12 +54,11 @@ export default function CmpTable({ rows }: { rows: CmpRow[] }) {
                   {c.label}{sortKey === c.key ? (asc ? ' ▲' : ' ▼') : ''}
                 </th>
               ))}
-              <th>Status</th>
             </tr>
           </thead>
           <tbody>
             {sorted.map((r) => {
-              const cls = classify(r.buExisting, r.td)
+              const ua = unmetAct(r)
               return (
                 <tr key={r.state}>
                   <td>{r.state}</td>
@@ -60,8 +66,8 @@ export default function CmpTable({ rows }: { rows: CmpRow[] }) {
                   <td>{fmt(r.buExisting)}</td>
                   <td className="cell-strong">{r.installed != null ? fmt(r.installed) : '—'}</td>
                   <td>{r.td > 0 ? `${Math.round(coverage(r) * 100)}%` : 'NA'}</td>
-                  <td className="cell-gap">{fmt(unmet(r))}</td>
-                  <td style={{ color: CLS_COLOR[cls], fontWeight: 700, textAlign: 'left' }}>{CLS_LABEL[cls]}</td>
+                  <td className="cell-gap">{ua != null ? fmt(ua) : '—'}</td>
+                  <td className="cell-gap">{fmt(unmetGuid(r))}</td>
                 </tr>
               )
             })}
@@ -73,8 +79,8 @@ export default function CmpTable({ rows }: { rows: CmpRow[] }) {
               <td>{fmt(tot.e)}</td>
               <td>—</td>
               <td>{tot.td > 0 ? `${Math.round((tot.e / tot.td) * 100)}%` : 'NA'}</td>
+              <td className="cell-gap">—</td>
               <td className="cell-gap">{fmt(Math.max(0, tot.td - tot.e))}</td>
-              <td></td>
             </tr>
           </tfoot>
         </table>
