@@ -1,21 +1,26 @@
-/** Temporary placeholder for the Forecasting tab while the methodology is finalised. */
+/** Forecasting tab: the factors that will drive the 5-year CPAP forecast, and the three
+ *  scenarios we will model from them. The numeric year-on-year projection is still being built. */
 export default function ForecastWIP() {
-  const drivers: { label: string; note: string }[] = [
-    { label: 'Growth in SNCUs', note: 'the number of SNCUs has grown about 6.6% a year, based on the published 2014–2024 figures.' },
-    { label: 'Number of births', note: 'from the official population projections and birth rate. It is slowly falling, by about 1.3% a year.' },
-    { label: 'Share of births in facilities', note: 'the share of births that happen in a health facility, trended from NFHS-5 to NFHS-6 and capped at 100%.' },
-    { label: 'Public vs private share', note: 'the share of facility births that happen in public (government) facilities, which is slowly shifting toward private.' },
-    { label: 'How common breathing problems are', note: 'kept steady for now, because there are very few Indian data points to show a trend.' },
+  const scenarios: { name: string; tag: string; note: string }[] = [
+    {
+      name: 'Scenario 1', tag: 'Baseline',
+      note: 'The system carries on as it is. SNCUs and NICUs keep growing at the current rate. There are no policy or guideline changes, and no CPAPs are added in transport or at lower-level facilities.',
+    },
+    {
+      name: 'Scenario 2', tag: 'Moderate expansion',
+      note: 'Infrastructure grows a little faster than today, there is some policy or guideline change, and the busiest (high-load) NBSUs are equipped with CPAP.',
+    },
+    {
+      name: 'Scenario 3', tag: 'Accelerated',
+      note: 'Infrastructure grows faster still, with broader policy change — including new mother–newborn care units (MNCUs) that also carry CPAP. Staffing and training are strengthened.',
+    },
   ]
 
-  const factors: { label: string; note: string }[] = [
-    { label: 'Machines wearing out', note: 'CPAP machines last about 5–7 years and then need replacing, which adds to the demand for new ones.' },
-    { label: 'Better referral and transport', note: 'as newborn-care units and transport improve, more sick babies reach a facility that has CPAP, so demand rises.' },
-    { label: 'Shift between public and private', note: 'the public share of facility births is changing, and government demand follows that share, not just the total number of births.' },
-    { label: 'Changes in treatment and technology', note: 'wider use of early CPAP, and changes in the mix of machines and treatments, change how many machines each case needs.' },
-    { label: 'Policy targets and budget cycles', note: 'changes to government norms and buying rounds cause sudden jumps rather than smooth growth.' },
-    { label: 'How machines are used', note: 'how busy units are and how long babies stay on CPAP change how many machines a given caseload ties up.' },
-    { label: 'Changes in the babies being born', note: 'changes in low birth weight, premature birth and maternal health change how many babies need CPAP over time.' },
+  const matrix: { factor: string; s1: string; s2: string; s3: string }[] = [
+    { factor: 'Growth in SNCUs / NICUs', s1: 'Same as now', s2: 'A little higher', s3: 'Higher' },
+    { factor: 'Policy / guideline change', s1: 'None', s2: 'Some', s3: 'Broad' },
+    { factor: 'CPAP at new facility levels', s1: 'None', s2: 'High-load NBSUs', s3: 'NBSUs + new MNCUs' },
+    { factor: 'Staffing & training', s1: 'As now', s2: 'As now', s3: 'Strengthened' },
   ]
 
   return (
@@ -23,51 +28,93 @@ export default function ForecastWIP() {
       <div className="card lens-explainer" style={{ borderTop: '3px solid var(--c-accent)' }}>
         <div className="flex-between">
           <h2 style={{ marginBottom: 0 }}>CPAP Demand Forecasting</h2>
-          <span className="badge entered">Work in progress</span>
+          <span className="badge entered">In development</span>
         </div>
         <p className="card-note" style={{ marginTop: 8 }}>
-          This part of the tool is still being built and checked before release. The estimation tabs
-          (<strong>Guidelines-based current demand</strong> and <strong>Epidemiological need</strong>) show the demand
-          today. The forecast will take that starting point and show how the demand — and the gap between demand and what
-          exists — is likely to change over the <strong>next 5 to 7 years</strong>, so machines can be bought in phases
-          instead of all at once.
+          This will project how many CPAP devices India needs over the <strong>next five years</strong>, year by year.
+          The projection depends on the factors below. We group them into two kinds — what changes how many devices are
+          <strong> available</strong> in the system, and what changes how much they are <strong>used</strong> — and we
+          model <strong>three scenarios</strong> from different mixes of these factors. The numeric year-on-year lines
+          are still being built.
         </p>
       </div>
 
       <div className="card">
-        <h2>How the forecast will work</h2>
-        <p className="card-note" style={{ marginTop: 0 }}>
-          Each line grows from today's estimate using its own drivers. Most of these are already sourced and built in:
-        </p>
-        <ul className="src-list" style={{ paddingLeft: 18 }}>
-          {drivers.map((d) => (
-            <li key={d.label}><strong>{d.label}:</strong> {d.note}</li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="card">
-        <h2>Other things that change demand over time</h2>
-        <p className="card-note" style={{ marginTop: 0 }}>
-          A good forecast is more than scaling up births. We are still working through the points below. Each one changes
-          how demand grows from year to year, and several cause sudden jumps rather than smooth growth:
-        </p>
+        <h2>What affects the forecast</h2>
         <div className="wip-grid">
-          {factors.map((f) => (
-            <div key={f.label} className="wip-factor">
-              <div className="wip-factor-title">{f.label}</div>
-              <div className="wip-factor-note">{f.note}</div>
+          <div className="wip-factor">
+            <div className="wip-factor-title">Availability — how many devices are in the system</div>
+            <ul className="src-list" style={{ paddingLeft: 18, marginTop: 8 }}>
+              <li>Annual growth in the number of SNCUs (and NICUs).</li>
+              <li>
+                Policy or clinical guideline changes, such as:
+                <ul className="src-list" style={{ paddingLeft: 18, marginTop: 4 }}>
+                  <li>CPAPs placed at NBSUs — moving some newborn care to a lower level of facility.</li>
+                  <li>Portable CPAPs added to the system — for use in ambulances and at facilities.</li>
+                </ul>
+              </li>
+              <li>CPAP pricing.</li>
+              <li>Training and capacity-building.</li>
+            </ul>
+          </div>
+          <div className="wip-factor">
+            <div className="wip-factor-title">Utilisation — how much the available devices are used</div>
+            <ul className="src-list" style={{ paddingLeft: 18, marginTop: 8 }}>
+              <li>Training and capacity-building.</li>
+              <li>Availability of consumables.</li>
+            </ul>
+            <p className="card-note" style={{ margin: '10px 0 0', fontSize: '0.78rem' }}>
+              Training and capacity-building appears in both groups because it raises both the number of facilities that
+              can offer CPAP and how fully the machines already in place are used.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="card">
+        <h2>Three scenarios we will model</h2>
+        <p className="card-note" style={{ marginTop: 0 }}>
+          Each scenario is a different mix of the factors above, from a steady baseline to a faster build-out with policy
+          change. Each will give its own five-year line for the number of CPAP devices needed.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 18 }}>
+          {scenarios.map((s) => (
+            <div key={s.name} className="wip-factor">
+              <div className="wip-factor-title">{s.name} · {s.tag}</div>
+              <div className="wip-factor-note" style={{ marginTop: 4 }}>{s.note}</div>
             </div>
           ))}
+        </div>
+
+        <div className="table-scroll">
+          <table className="data">
+            <thead>
+              <tr>
+                <th>Factor</th>
+                <th style={{ textAlign: 'left' }}>Scenario 1 · Baseline</th>
+                <th style={{ textAlign: 'left' }}>Scenario 2 · Moderate</th>
+                <th style={{ textAlign: 'left' }}>Scenario 3 · Accelerated</th>
+              </tr>
+            </thead>
+            <tbody>
+              {matrix.map((r) => (
+                <tr key={r.factor}>
+                  <td>{r.factor}</td>
+                  <td style={{ textAlign: 'left' }}>{r.s1}</td>
+                  <td style={{ textAlign: 'left' }}>{r.s2}</td>
+                  <td style={{ textAlign: 'left', fontWeight: 600, color: 'var(--c-primary-dark)' }}>{r.s3}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 
       <div className="card">
         <div className="callout">
-          <strong>Why it isn't shown yet.</strong> Projecting several of these factors on very little Indian data risks a
-          line that looks confident but is not reliable. We would rather release the forecast once each driver is backed
-          by evidence and the assumptions are clear — the same standard as the estimation tabs. For inputs, data, or to
-          follow progress, please contact <a href="mailto:mchaurasiya@wjcf.in">mchaurasiya@wjcf.in</a>.
+          <strong>What's next.</strong> We will turn each scenario into a year-by-year line for the number of CPAP
+          devices needed over the next five years, starting from today's estimate. For inputs, data, or to follow
+          progress, please contact <a href="mailto:mchaurasiya@wjcf.in">mchaurasiya@wjcf.in</a>.
         </div>
       </div>
     </div>
