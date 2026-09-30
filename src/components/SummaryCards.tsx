@@ -13,7 +13,7 @@ export default function SummaryCards({ totals }: Props) {
       <div className="kpi accent-teal">
         <div className="kpi-label">CPAP devices needed</div>
         <div className="kpi-value">{fmt(totals.asisCpap)}</div>
-        <div className="kpi-sub">for the SNCUs that exist today, per the FBNC guideline</div>
+        <div className="kpi-sub">today's SNCUs, per FBNC, plus the planning buffer</div>
       </div>
       <div className="kpi accent-navy">
         <div className="kpi-label">SNCU beds</div>
@@ -28,7 +28,7 @@ export default function SummaryCards({ totals }: Props) {
       <div className="kpi accent-good">
         <div className="kpi-label">Average CPAP per SNCU</div>
         <div className="kpi-value">{perSncu.toFixed(1)}</div>
-        <div className="kpi-sub">beds per SNCU × the CPAP-per-bed norm</div>
+        <div className="kpi-sub">devices per SNCU, including the buffer</div>
       </div>
     </div>
   )

@@ -42,6 +42,8 @@ export interface Norms {
   /** Facility scope: restrict normative sizing to public (NHM) institutional births. */
   publicOnly: boolean
   publicShareOverride: number | null // null = per-state NFHS share; else one fraction for all states
+  /** Planning buffer applied to the total device estimate (peak use, attrition, lead-time/spares). */
+  buffer: number
   nbsu: FacilityExt
   transport: TransportExt
   /** Per-state NBSU percentage overrides (fraction 0..1). */
@@ -55,6 +57,7 @@ export const DEFAULT_NORMS: Norms = {
   normBedsPer1000: 4,
   publicOnly: true,
   publicShareOverride: null,
+  buffer: 0.25, // 25% planning buffer on the total, matching the epidemiological methods
   nbsu: { pct: 0.25, bedsPerFacility: 4, cpapPerBed: 0.30 },
   transport: { perSncu: 1, perNbsu: 0 },
   overrides: {},
@@ -122,7 +125,7 @@ export function computeRow(s: StateRow, n: Norms, idr = 1, pubFactor = 1): Compu
     : 0
   const extraCpap = nbsuCpap + transportCpap
 
-  const asisCpap = asisSncuCpap + extraCpap
+  const asisCpap = Math.round((asisSncuCpap + extraCpap) * (1 + n.buffer)) // + planning buffer
   const normCpap = normSncuCpap + extraCpap
 
   return {

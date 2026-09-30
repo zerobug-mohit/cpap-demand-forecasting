@@ -85,6 +85,21 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
           machine each (marked <span className="fc-tag">≥1/fac</span> below).
         </p>
 
+        <PanelSection
+          title="Planning buffer"
+          defaultOpen={false}
+          badge={norms.buffer !== DEFAULT_M3.buffer ? <span className="badge entered">edited</span> : <span className="badge preset">preset</span>}
+        >
+          <div style={{ maxWidth: 150 }}>
+            <NumField label="Buffer on total %" value={Math.round(norms.buffer * 100)} max={100} step={5}
+              onChange={(v) => onChange({ ...norms, buffer: Math.min(100, v) / 100 })} />
+          </div>
+          <p className="hint" style={{ marginTop: 6 }}>
+            Added to the final device total for busy periods, machines wearing out and the time needed to order
+            replacements — the same 25% the other methods use.
+          </p>
+        </PanelSection>
+
         <PanelSection title="Average deliveries / facility" defaultOpen={false}>
           <div className="fc-row3">
             <NumField label="High >3k/yr" value={norms.avg.high} step={250} onChange={(v) => setAvg('high', v)} />
@@ -123,7 +138,7 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
           <div className="kpi accent-navy">
             <div className="kpi-label">CPAP devices · public need</div>
             <div className="kpi-value">{fmt(r.totals.devices)}</div>
-            <div className="kpi-sub">included public levels (private on its own tab)</div>
+            <div className="kpi-sub">included public levels, plus the planning buffer</div>
           </div>
           <div className="kpi accent-teal">
             <div className="kpi-label">Institutional deliveries modelled</div>
@@ -219,7 +234,7 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
           <div className="fc-grand">
             <span className="g-lab">Public total · CPAP devices</span>
             <span className="g-val fc-num">{fmt(r.totals.devices)}</span>
-            <span className="g-sub fc-num">{fmt(r.totals.facilities)} facilities · {fmt(r.totals.deliveries)} public deliveries</span>
+            <span className="g-sub fc-num">{fmt(r.totals.rawDevices)} per the norm + {Math.round(norms.buffer * 100)}% planning buffer · {fmt(r.totals.facilities)} facilities</span>
           </div>
         </div>
 

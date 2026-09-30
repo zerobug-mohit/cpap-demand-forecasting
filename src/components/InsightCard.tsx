@@ -8,7 +8,8 @@ export default function InsightCard({ totals }: { totals: Totals }) {
       <div className="recommend">
         Using the FBNC 2025 guidelines, the SNCUs that exist today (including NICUs) should have about{' '}
         <strong>{fmt(totals.asisCpap)} CPAP devices</strong>. This is spread across <strong>{fmt(totals.sncu)}</strong>{' '}
-        SNCUs and <strong>{fmt(totals.asisBeds)}</strong> beds.
+        SNCUs and <strong>{fmt(totals.asisBeds)}</strong> beds, and includes a <strong>25% planning buffer</strong> for
+        busy periods, machines wearing out, and the time needed to order replacements.
       </div>
       {totals.extraCpap > 0 && (
         <p style={{ fontSize: '0.85rem', marginTop: 12, marginBottom: 0 }}>

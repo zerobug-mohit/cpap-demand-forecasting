@@ -100,6 +100,28 @@ export default function NormsPanel({ norms, onChange, onReset }: Props) {
         })}
       </PanelSection>
 
+      <PanelSection
+        title="Planning buffer"
+        ids={['m1-buffer']}
+        badge={norms.buffer !== DEFAULT_NORMS.buffer ? <span className="badge entered">edited</span> : <span className="badge preset">preset</span>}
+      >
+        <div className="field" id="m1-buffer">
+          <label>
+            <span>Buffer on total devices</span>
+            <span className="range-val">{Math.round(norms.buffer * 100)}%</span>
+          </label>
+          <div className="range-row">
+            <input type="range" min={0} max={1} step={0.05} value={norms.buffer}
+              onChange={(e) => onChange({ ...norms, buffer: parseFloat(e.target.value) })} />
+          </div>
+          <span className="hint">
+            A single uplift added to the final device total to cover busy periods, machines wearing out, and the time
+            needed to order replacements. It is applied to every state and to the national total (the same 25% the
+            epidemiological methods use).
+          </span>
+        </div>
+      </PanelSection>
+
       {norms.scope !== 'sncu' && (
         <PanelSection title="NBSU / Transport add-on">
           <ExtendedNormsSection norms={norms} onChange={onChange} />

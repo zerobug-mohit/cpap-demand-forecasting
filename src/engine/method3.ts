@@ -23,6 +23,8 @@ export interface FacilityLevel {
 export interface M3Norms {
   levels: FacilityLevel[]
   avg: Record<Burden, number> // average annual deliveries per facility, by burden tier
+  /** Planning buffer applied to the total device estimate (peak use, attrition, lead-time/spares). */
+  buffer: number
 }
 
 // Burden cutoffs (annual deliveries): High > 3,000 · Medium 1,000–3,000 · Low < 1,000 (FBNC).
@@ -34,6 +36,7 @@ export const DEFAULT_M3: M3Norms = {
     { key: 'chc', name: 'Community Health Centres', count: 6359, tiers: { high: 5, med: 15, low: 80 }, beds: 4, cpapPerBed: 0.3, fbnc: false, lock: false, floorOne: true, inc: true },
   ],
   avg: { high: 5000, med: 2000, low: 500 },
+  buffer: 0.25, // 25% planning buffer on the total, matching the other methods
 }
 
 export const BURDEN_LABEL: Record<Burden, string> = {
@@ -64,7 +67,8 @@ export interface Section {
 }
 
 export interface Totals3 {
-  devices: number
+  devices: number // norm-based subtotal × (1 + buffer)
+  rawDevices: number // norm-based subtotal before the planning buffer
   deliveries: number
   facilities: number
 }
@@ -123,7 +127,7 @@ export function computeM3(state: M3Norms): Computed3 {
 
   return {
     sections,
-    totals: { devices: tDev, deliveries: tDel, facilities: tFac },
+    totals: { devices: Math.round(tDev * (1 + state.buffer)), rawDevices: tDev, deliveries: tDel, facilities: tFac },
     bars,
     maxBar: Math.max(1, ...bars.map((b) => b.devices)),
   }
@@ -186,7 +190,7 @@ export function computeM3ByState(
       byLevel[l.key] = lDev
       devices += lDev
     }
-    return { state: name, ...counts, deliveries, devices, byLevel }
+    return { state: name, ...counts, deliveries, devices: devices * (1 + n.buffer), byLevel }
   })
 
   const totals: Totals3State = {

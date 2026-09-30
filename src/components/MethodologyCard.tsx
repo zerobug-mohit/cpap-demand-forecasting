@@ -23,8 +23,9 @@ export default function MethodologyCard() {
       <p style={{ fontSize: '0.86rem', marginTop: 0 }}>
         For each state we take the number of SNCUs, multiply it by the average number of beds per SNCU to get the total
         beds, and then apply the FBNC norm for how many of those beds should have a CPAP machine (about 30%). We add this
-        up across all 36 states and union territories to get the national total. Under FBNC, NBSUs and NBCCs do not carry
-        CPAP machines unless you turn on the optional add-on scope.
+        up across all 36 states and union territories to get the national total. We then add a 25% planning buffer for
+        busy periods, machines wearing out, and the time needed to order replacements. Under FBNC, NBSUs and NBCCs do not
+        carry CPAP machines unless you turn on the optional add-on scope.
         <br /><br />
         This tab shows what the network that <strong>exists today</strong> should have. To estimate how many machines
         newborns actually <em>need</em>, including in areas that have no SNCU yet, use the{' '}

@@ -82,7 +82,8 @@ export default function EpiFacilityStates({ norms }: { norms: M3Norms }) {
           <p className="card-note" style={{ margin: 0 }}>
             This shows the facility-based need for each state. It depends on how many District Hospitals, Sub-District
             Hospitals, CHCs and government medical colleges the state has. The group split, average deliveries and FBNC
-            norm from the left are the same for every state, so the differences come from the facility counts.
+            norm from the left are the same for every state, so the differences come from the facility counts. The
+            device figures include the 25% planning buffer.
           </p>
         </div>
       </div>
