@@ -1,55 +1,56 @@
 // Pure calculation engine for the PRIVATE-SECTOR CPAP estimate.
-// Private maternity homes / nursing homes are sized separately from the public
-// facility network: a base count of delivering private facilities is split by
-// facility size, and each size tier is equipped to a normative CPAP-per-facility
-// level. Kept fully modular and independent of the public (NHM) cascades. No React.
+// Private maternity homes are counted by SIZE TIER (an absolute number of homes per
+// tier), and each tier is equipped to a normative CPAP-per-facility level. A single
+// "% conducting deliveries" factor scales all tiers. Independent of the public (NHM)
+// cascades. No React.
 
 export interface PrivateTier {
   name: string
-  share: number // % of delivering private facilities in this size tier
-  cpap: number // CPAP devices per facility (normative for the tier)
+  count: number // number of private maternity homes in this size tier
+  cpap: number // CPAP devices per facility (normative for the tier; may be fractional)
 }
 
 export interface PrivateNorms {
-  homes: number // private nursing homes <30 beds
-  deliveryPct: number // % conducting deliveries
+  deliveryPct: number // % of homes conducting deliveries (scales every tier)
   tiers: PrivateTier[]
 }
 
 export const DEFAULT_PRIVATE: PrivateNorms = {
-  homes: 37500,
   deliveryPct: 100,
   tiers: [
-    { name: 'High · 3+ bed SNCU', share: 10, cpap: 4 },
-    { name: 'Medium · 1–2 bed SNCU', share: 10, cpap: 2 },
-    { name: 'Small · basic setup', share: 80, cpap: 1 },
+    { name: 'High · 3+ bed SNCU', count: 2500, cpap: 3 },
+    { name: 'Medium · 1–2 bed SNCU', count: 5000, cpap: 1.5 },
+    { name: 'Small · basic setup', count: 30000, cpap: 0 },
   ],
 }
 
 export interface PrivateTierRow {
   name: string
-  facilities: number
+  count: number // maternity homes in the tier
+  facilities: number // homes × % conducting deliveries
   cpapPer: number
   devices: number
 }
 
 export interface PrivateComputed {
-  delivering: number // private facilities conducting deliveries
+  homesTotal: number // total maternity homes across tiers
+  delivering: number // total facilities conducting deliveries
   tiers: PrivateTierRow[]
   devices: number // total private-sector CPAP devices
-  shareTotal: number // sum of tier shares (should be 100)
 }
 
 export function computePrivate(n: PrivateNorms): PrivateComputed {
-  const delivering = Math.round(n.homes * n.deliveryPct / 100)
+  const f = n.deliveryPct / 100
   let devices = 0
-  let shareTotal = 0
+  let delivering = 0
+  let homesTotal = 0
   const tiers = n.tiers.map((t) => {
-    const facilities = Math.round(delivering * t.share / 100)
+    const facilities = Math.round(t.count * f)
     const dev = facilities * t.cpap
     devices += dev
-    shareTotal += t.share
-    return { name: t.name, facilities, cpapPer: t.cpap, devices: dev }
+    delivering += facilities
+    homesTotal += t.count
+    return { name: t.name, count: t.count, facilities, cpapPer: t.cpap, devices: dev }
   })
-  return { delivering, tiers, devices, shareTotal }
+  return { homesTotal, delivering, tiers, devices }
 }

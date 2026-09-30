@@ -40,31 +40,30 @@ export default function PrivateHomes({ norms, onChange, onReset }: Props) {
           <h2>Private inputs</h2>
           <button className="btn link" onClick={onReset} disabled={!dirty} style={{ opacity: dirty ? 1 : 0.4 }}>Reset</button>
         </div>
-        <p className="card-note" style={{ marginTop: 2 }}>Facility-count cascade — split by facility size, not deliveries.</p>
-
-        <div className="fc-row2" style={{ marginBottom: 8 }}>
-          <NumField label="Nursing homes <30 beds" value={norms.homes} step={500} onChange={(v) => onChange({ ...norms, homes: Math.round(v) })} />
-          <NumField label="% doing deliveries" value={norms.deliveryPct} max={100} onChange={(v) => onChange({ ...norms, deliveryPct: Math.min(100, v) })} />
-        </div>
-        <p className="hint" style={{ margin: '0 0 10px' }}>→ delivering private facilities ≈ <strong>{fmt(r.delivering)}</strong></p>
+        <p className="card-note" style={{ marginTop: 2 }}>
+          Private maternity homes counted by size tier — a number of homes and a normative CPAP-per-facility for each.
+        </p>
 
         <div className="section-label" style={{ marginTop: 4 }}>Size tiers</div>
         {norms.tiers.map((t, i) => (
           <div className="field" key={t.name} style={{ marginBottom: 8 }}>
             <div className="fc-mini" style={{ marginBottom: 4, color: 'var(--c-primary-dark)', fontSize: '0.72rem' }}>{t.name}</div>
             <div className="fc-row2">
-              <NumField label="Share %" value={t.share} max={100} onChange={(v) => setTier(i, { share: v })} />
-              <NumField label="CPAP / facility" value={t.cpap} onChange={(v) => setTier(i, { cpap: v })} />
+              <NumField label="Maternity homes" value={t.count} step={500} onChange={(v) => setTier(i, { count: Math.round(v) })} />
+              <NumField label="CPAP / facility" value={t.cpap} step={0.5} onChange={(v) => setTier(i, { cpap: v })} />
             </div>
           </div>
         ))}
-        {r.shareTotal !== 100 && (
-          <p className="hint" style={{ color: 'var(--c-accent)' }}>⚠ Size shares sum to {r.shareTotal}% (not 100%).</p>
-        )}
+        <p className="hint" style={{ margin: '2px 0 10px' }}>Total maternity homes ≈ <strong>{fmt(r.homesTotal)}</strong></p>
+
+        <div className="fc-row2" style={{ marginBottom: 8 }}>
+          <NumField label="% doing deliveries" value={norms.deliveryPct} max={100} onChange={(v) => onChange({ ...norms, deliveryPct: Math.min(100, v) })} />
+        </div>
+        <p className="hint" style={{ margin: '0 0 10px' }}>→ delivering private facilities ≈ <strong>{fmt(r.delivering)}</strong></p>
 
         <SourceNote
           refs={[{ key: 'indiaHospEco', page: 'nursing homes <30 beds' }, { key: 'manyata', page: 'size mix' }]}
-          note="~35,000–40,000 private nursing homes × % conducting deliveries (default 100%, adjustable); size split assumed — no registry"
+          note="~35,000–40,000 private nursing homes <30 beds; per-tier counts and CPAP/facility are assumptions (no registry) — adjust as needed"
         />
       </div>
 
@@ -74,17 +73,17 @@ export default function PrivateHomes({ norms, onChange, onReset }: Props) {
           <div className="kpi accent-navy">
             <div className="kpi-label">CPAP devices · private sector</div>
             <div className="kpi-value">{fmt(r.devices)}</div>
-            <div className="kpi-sub">normative — every delivering facility equipped to its tier</div>
+            <div className="kpi-sub">normative — each delivering facility equipped to its tier</div>
           </div>
           <div className="kpi accent-teal">
-            <div className="kpi-label">Delivering facilities</div>
-            <div className="kpi-value">{fmt(r.delivering)}</div>
-            <div className="kpi-sub">nursing homes × % conducting deliveries</div>
+            <div className="kpi-label">Maternity homes</div>
+            <div className="kpi-value">{fmt(r.homesTotal)}</div>
+            <div className="kpi-sub">total across size tiers</div>
           </div>
           <div className="kpi accent-good">
-            <div className="kpi-label">Avg CPAP / facility</div>
-            <div className="kpi-value">{r.delivering > 0 ? (r.devices / r.delivering).toFixed(2) : '—'}</div>
-            <div className="kpi-sub">blended across size tiers</div>
+            <div className="kpi-label">Delivering facilities</div>
+            <div className="kpi-value">{fmt(r.delivering)}</div>
+            <div className="kpi-sub">homes × % conducting deliveries</div>
           </div>
         </div>
 
@@ -108,7 +107,8 @@ export default function PrivateHomes({ norms, onChange, onReset }: Props) {
             <thead>
               <tr>
                 <th>Size tier</th>
-                <th className="fc-num">Facilities</th>
+                <th className="fc-num">Maternity homes</th>
+                <th className="fc-num">Delivering</th>
                 <th className="fc-num">CPAP/fac</th>
                 <th className="fc-num">Devices</th>
               </tr>
@@ -117,12 +117,22 @@ export default function PrivateHomes({ norms, onChange, onReset }: Props) {
               {r.tiers.map((t) => (
                 <tr key={t.name}>
                   <td>{t.name}</td>
+                  <td className="fc-num">{fmt(t.count)}</td>
                   <td className="fc-num">{fmt(t.facilities)}</td>
                   <td className="fc-num">{t.cpapPer}</td>
                   <td className="fc-num">{fmt(t.devices)}</td>
                 </tr>
               ))}
             </tbody>
+            <tfoot>
+              <tr>
+                <td>Total</td>
+                <td className="fc-num">{fmt(r.homesTotal)}</td>
+                <td className="fc-num">{fmt(r.delivering)}</td>
+                <td className="fc-num">—</td>
+                <td className="fc-num">{fmt(r.devices)}</td>
+              </tr>
+            </tfoot>
           </table>
 
           <div className="fc-grand">
@@ -136,7 +146,7 @@ export default function PrivateHomes({ norms, onChange, onReset }: Props) {
           <h2>Method &amp; caveats</h2>
           <ul className="src-list" style={{ paddingLeft: 18 }}>
             <li>Kept <strong>outside</strong> the public (NHM) estimates — this is not part of government procurement scope, but sizes the total market / private demand.</li>
-            <li>No registry of delivering private maternity homes exists: the base (~35,000–40,000 nursing homes &lt;30 beds) and the % conducting deliveries are adjustable, and the size split is assumed (majority small).</li>
+            <li>No registry of private maternity homes exists: the per-tier counts (~2.5k high / 5k medium / 30k small) and CPAP-per-facility are assumptions — small "basic-setup" homes carry no CPAP by default.</li>
             <li>Normative by tier — assumes every delivering facility is equipped to its size level; lower "% doing deliveries" or the per-tier CPAP to model partial coverage.</li>
           </ul>
         </div>
