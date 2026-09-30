@@ -158,18 +158,6 @@ export default function Comparison({ m1, m2, m3 }: Props) {
           </div>
         </div>
 
-        <div className="lens-gap-note" style={{ marginTop: 16 }}>
-          In <strong>{scopeName}</strong>, the SNCUs that exist today should have about <strong>{fmt(active.guid)}</strong>{' '}
-          CPAP devices (the guidelines-based figure). The two estimates of what newborns actually need come to{' '}
-          <strong>{needLo === needHi ? fmt(needLo) : `${fmt(needLo)}–${fmt(needHi)}`}</strong>. That is a gap of about{' '}
-          <strong>{fmt(Math.max(0, needHi - active.guid))}</strong> more than the current network provides.{' '}
-          {!sel
-            ? 'The number of machines actually installed is reported for only a few states — pick a state above to see its count.'
-            : active.installed != null && active.installed > 0
-              ? <>Machines actually installed: <strong style={{ color: INSTALLED_COLOR }}>{fmt(active.installed)}</strong>.</>
-              : 'No installed count has been reported for this state.'}
-        </div>
-
         <hr className="divider" />
         <SourceNote refs={[{ key: 'mohfwAR', page: 'p. 62' }, { key: 'fbnc2025', page: 'p. 28, 57–60' }, { key: 'healthDynamics', page: 'Tables 6–7' }]} note="guidelines-based · facility-based (facilities · FBNC norm)" />
         <SourceNote refs={[{ key: 'rdsRecent', page: '25.3/1,000' }, { key: 'nfhs6', page: 'inst. delivery · public share' }, { key: 'srs2024', page: 'NMR · CBR' }]} note="RDS-based epidemiological need" />

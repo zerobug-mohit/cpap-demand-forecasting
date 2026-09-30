@@ -8,7 +8,6 @@ import NormsPanel from './NormsPanel'
 import LensExplainer from './LensExplainer'
 import SummaryCards from './SummaryCards'
 import DataExplorer from './DataExplorer'
-import InsightCard from './InsightCard'
 import MethodologyCard from './MethodologyCard'
 
 interface Props {
@@ -36,7 +35,6 @@ export default function EstimationBottomUp({ norms, onChange }: Props) {
         <div style={{ marginTop: 16 }}>
           <SummaryCards totals={totals} />
         </div>
-        <InsightCard totals={totals} />
         <DataExplorer rows={rows} totals={totals} showExt={norms.scope !== 'sncu'} />
         <MethodologyCard />
       </div>
