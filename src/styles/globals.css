@@ -465,14 +465,12 @@ select:focus { outline: 2px solid var(--c-primary-bright); outline-offset: 1px; 
   position: relative; height: 26px; background: var(--c-surface-alt);
   border: 1px solid var(--c-border); border-radius: 5px;
 }
-.tri-seg { position: absolute; top: 0; height: 100%; }
-.tri-seg.current { background: var(--c-primary); border-radius: 5px 0 0 5px; }
-.tri-seg.gap { background: var(--c-accent); opacity: 0.85; }
-.tri-seg.head { background: var(--c-primary-dark); opacity: 0.45; border-radius: 0 5px 5px 0; }
-.tri-mark { position: absolute; top: -8px; height: 42px; }
-.tri-mark-line { width: 2px; height: 42px; }
+.tri-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--c-primary-light); border-radius: 4px 0 0 4px; }
+.tri-mark { position: absolute; top: -8px; height: 42px; color: var(--c-primary); }
+.tri-mark-line { position: relative; width: 2px; height: 42px; background: currentColor; border-radius: 1px; }
+.tri-mark-line::before { content: ""; position: absolute; top: -5px; left: 50%; transform: translateX(-50%); width: 9px; height: 9px; border-radius: 50%; background: currentColor; border: 2px solid var(--c-surface); }
 .tri-mark-label { position: absolute; top: 44px; font-size: 0.72rem; white-space: nowrap; line-height: 1.15; }
-.tri-mark-label span { display: block; font-weight: 700; }
+.tri-mark-label span { display: block; font-weight: 700; color: currentColor; }
 .tri-mark-label b { font-variant-numeric: tabular-nums; color: var(--c-text); }
 .tri-mark.center .tri-mark-label { transform: translateX(-50%); text-align: center; }
 .tri-mark.center .tri-mark-line { margin-left: -1px; }

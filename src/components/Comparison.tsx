@@ -24,8 +24,9 @@ const INSTALLED_COLOR = '#2e8b57'
 interface Mark { key: string; label: string; value: number; color: string }
 
 /** Single horizontal axis with a marker (line + label + value) for each approach, like the old triangulation bar. */
-function MarkerBar({ marks, current, needHi }: { marks: Mark[]; current: number; needHi: number }) {
-  const max = Math.max(1, ...marks.map((m) => m.value))
+function MarkerBar({ marks, current }: { marks: Mark[]; current: number }) {
+  const rawMax = Math.max(1, ...marks.map((m) => m.value))
+  const max = rawMax * 1.08 // headroom so the largest marker never sits on the edge
   const pct = (v: number) => `${(Math.min(v, max) / max) * 100}%`
   const TIER_H = 34
   const MIN_GAP = 19 // % of width below which two labels collide → stagger onto a new tier
@@ -44,17 +45,16 @@ function MarkerBar({ marks, current, needHi }: { marks: Mark[]; current: number;
   return (
     <div className="tri-wrap">
       <div className="tri-track">
-        <div className="tri-seg current" style={{ left: 0, width: pct(current) }} />
-        {needHi > current && <div className="tri-seg gap" style={{ left: pct(current), width: pct(needHi - current) }} />}
+        <div className="tri-fill" style={{ width: pct(current) }} />
         {withP.map((m) => {
           const align = m.p > 86 ? 'right' : m.p < 12 ? 'left' : 'center'
           const t = tier[m.key]
           const lineH = 42 + t * TIER_H
           return (
-            <div key={m.key} className={`tri-mark ${align}`} style={{ left: pct(m.value), height: lineH }}>
-              <div className="tri-mark-line" style={{ background: m.color, height: lineH }} />
+            <div key={m.key} className={`tri-mark ${align}`} style={{ left: pct(m.value), height: lineH, color: m.color }}>
+              <div className="tri-mark-line" style={{ height: lineH }} />
               <div className="tri-mark-label" style={{ top: 44 + t * TIER_H }}>
-                <span style={{ color: m.color }}>{m.label}</span>
+                <span>{m.label}</span>
                 <b>{fmt(m.value)}</b>
               </div>
             </div>
@@ -93,7 +93,7 @@ export default function Comparison({ m1, m2, m3 }: Props) {
 
   const marks: Mark[] = [
     { key: 'guid', label: 'Current (guidelines)', value: active.guid, color: 'var(--c-asis)' },
-    { key: 'rds', label: 'RDS need', value: active.rds, color: 'var(--c-primary-bright)' },
+    { key: 'rds', label: 'RDS need', value: active.rds, color: 'var(--c-opt)' },
     { key: 'fac', label: 'Facility-based need', value: active.fac, color: 'var(--c-primary-dark)' },
     ...(active.installed != null && active.installed > 0
       ? [{ key: 'installed', label: 'Installed (actual)', value: active.installed, color: INSTALLED_COLOR }]
@@ -124,7 +124,7 @@ export default function Comparison({ m1, m2, m3 }: Props) {
           shows the number of machines actually installed, where that has been reported. Private-sector demand is on its
           own tab and is not included here.
         </p>
-        <MarkerBar marks={marks} current={active.guid} needHi={needHi} />
+        <MarkerBar marks={marks} current={active.guid} />
 
         <div className="kpi-row" style={{ marginTop: 16 }}>
           <div className="kpi accent-teal">
