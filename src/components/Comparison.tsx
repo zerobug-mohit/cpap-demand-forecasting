@@ -92,8 +92,8 @@ export default function Comparison({ m1, m2, m3, mp, mprv }: Props) {
       title: 'Public (NHM) demand',
       bars: [
         { label: 'Guidelines-based · current demand', sub: 'existing SNCU network × FBNC norm', value: est.guidCurrent, color: 'var(--c-asis)' },
-        { label: 'Ideal demand · facility-based', sub: 'public deliveries × FBNC norm', value: est.idealFacility, color: 'var(--c-primary-dark)' },
-        { label: 'Ideal demand · RDS prevalence', sub: 'RDS × correction, public share', value: est.idealRds, color: 'var(--c-primary-bright)' },
+        { label: 'Epidemiological need · facility-based', sub: 'public deliveries × FBNC norm', value: est.idealFacility, color: 'var(--c-primary-dark)' },
+        { label: 'Epidemiological need · RDS prevalence', sub: 'RDS × correction, public share', value: est.idealRds, color: 'var(--c-primary-bright)' },
       ],
     },
     {
@@ -119,7 +119,7 @@ export default function Comparison({ m1, m2, m3, mp, mprv }: Props) {
         <h2>All current estimates compared</h2>
         <p className="card-note">
           Every method now in the tool, at national scale — what the <strong>existing</strong> public network is equipped
-          for, two independent <strong>ideal-demand</strong> estimates for the public system, and the <strong>private</strong>
+          for, two independent <strong>epidemiological-need</strong> estimates for the public system, and the <strong>private</strong>
           market (two ways), plus reported installed devices as a reality check.
         </p>
         <BarChart groups={groups} max={max} />
@@ -131,7 +131,7 @@ export default function Comparison({ m1, m2, m3, mp, mprv }: Props) {
             <div className="kpi-sub">guidelines-based, today's SNCUs</div>
           </div>
           <div className="kpi accent-navy">
-            <div className="kpi-label">Public · ideal demand</div>
+            <div className="kpi-label">Public · epidemiological need</div>
             <div className="kpi-value" style={{ fontSize: '1.35rem' }}>{range(pubNeedLo, pubNeedHi)}</div>
             <div className="kpi-sub">RDS-based ↔ facility-based</div>
           </div>
@@ -143,13 +143,13 @@ export default function Comparison({ m1, m2, m3, mp, mprv }: Props) {
           <div className="kpi accent-good">
             <div className="kpi-label">Total system demand</div>
             <div className="kpi-value" style={{ fontSize: '1.35rem' }}>{range(totalLo, totalHi)}</div>
-            <div className="kpi-sub">public ideal + private</div>
+            <div className="kpi-sub">public need + private</div>
           </div>
         </div>
 
         <div className="lens-gap-note" style={{ marginTop: 16 }}>
           India's current public SNCU network is equipped for about <strong>{fmt(est.guidCurrent)}</strong> CPAP devices
-          (guidelines-based, current infra). The two independent ideal-demand estimates put public need at{' '}
+          (guidelines-based, current infra). The two independent epidemiological-need estimates put public need at{' '}
           <strong>{range(pubNeedLo, pubNeedHi)}</strong> — a build-out gap of roughly{' '}
           <strong>{fmt(Math.max(0, pubNeedHi - est.guidCurrent))}</strong> above what exists today. The private sector adds
           another <strong>{range(privLo, privHi)}</strong> (outside NHM procurement), so total system demand is about{' '}
@@ -168,8 +168,8 @@ export default function Comparison({ m1, m2, m3, mp, mprv }: Props) {
           <div>
             <h2 style={{ marginBottom: 2 }}>By state · public methods</h2>
             <p className="card-note" style={{ margin: 0 }}>
-              The two state-resolved public estimates — <strong>current infra-based</strong> vs <strong>RDS-based ideal
-              need</strong> — by state, with installed actuals where reported. (Facility-based and private estimates are
+              The two state-resolved public estimates — <strong>current infra-based</strong> vs <strong>RDS-based
+              epidemiological need</strong> — by state, with installed actuals where reported. (Facility-based and private estimates are
               national, so they aren't split by state here.)
             </p>
           </div>
@@ -192,8 +192,8 @@ export default function Comparison({ m1, m2, m3, mp, mprv }: Props) {
       <div className="card">
         <h2>How to read it</h2>
         <ul className="src-list" style={{ paddingLeft: 18 }}>
-          <li><strong>Current infra vs ideal demand:</strong> the gap between what the existing network is equipped for and what need implies is the public build-out headroom.</li>
-          <li><strong>Two ideal-demand estimates:</strong> facility-based (deliveries × FBNC norm) and RDS-based (prevalence) are independent — treat their spread as an uncertainty band, not a single point.</li>
+          <li><strong>Current infra vs epidemiological need:</strong> the gap between what the existing network is equipped for and what need implies is the public build-out headroom.</li>
+          <li><strong>Two epidemiological-need estimates:</strong> facility-based (deliveries × FBNC norm) and RDS-based (prevalence) are independent — treat their spread as an uncertainty band, not a single point.</li>
           <li><strong>Public vs private:</strong> only the public estimates are in NHM procurement scope; the private figures size the wider market and are shown separately.</li>
           <li><strong>Installed (actual):</strong> reported for only a few states — a reality check on the current-infra estimate, not a national number.</li>
         </ul>
