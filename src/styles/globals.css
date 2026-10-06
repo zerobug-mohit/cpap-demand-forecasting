@@ -33,7 +33,11 @@ a { color: var(--c-primary); }
   border-top: 3px solid var(--c-primary-dark);
   border-bottom: 1px solid var(--c-border-strong);
 }
-.app-header-inner { max-width: var(--maxw); margin: 0 auto; padding: 18px 26px 14px; }
+.app-header-inner {
+  max-width: var(--maxw); margin: 0 auto; padding: 20px 26px 18px;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px 48px; align-items: center;
+}
+@media (max-width: 820px) { .app-header-inner { grid-template-columns: 1fr; gap: 6px; } }
 .app-header h1 {
   font-size: 25px;
   color: var(--c-primary-dark);
@@ -44,7 +48,7 @@ a { color: var(--c-primary); }
   font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.14em;
   color: var(--c-primary); font-weight: 700; margin-bottom: 2px;
 }
-.app-header .subtitle { color: var(--c-text-muted); font-size: 0.9rem; max-width: 860px; }
+.app-header .subtitle { color: var(--c-text-muted); font-size: 0.9rem; margin: 0; }
 .app-header .tagchips { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
 
 /* ---------------- two-level navigation ---------------- */
