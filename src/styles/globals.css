@@ -588,3 +588,7 @@ select:focus { outline: 2px solid var(--c-primary-bright); outline-offset: 1px; 
 }
 .epi-switch button:hover { color: var(--c-primary); border-color: var(--c-border-strong); }
 .epi-switch button.active { color: var(--c-primary-dark); background: var(--c-primary-light); border-color: #bcdde3; }
+
+/* forecast drill-down: derived outputs under the calculation flow */
+.fc-derived { margin-top: 16px; border-top: 1px dashed var(--c-border-strong); padding-top: 12px; display: grid; gap: 9px; font-size: 0.84rem; line-height: 1.5; }
+.fc-derived strong { color: var(--c-primary-dark); font-variant-numeric: tabular-nums; }

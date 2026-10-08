@@ -7,8 +7,23 @@ import { STATES } from '../data/states'
 import { SCENARIOS, scenarioParams, computeForecast, DEFAULT_HORIZON } from '../engine/methodForecast'
 import type { ForecastParams, ForecastBase } from '../engine/methodForecast'
 import { fmt } from '../utils/format'
+import FactorPill from './FactorPill'
 
 const AxisTick = { fontSize: 11, fill: '#52616d', fontFamily: '"Trebuchet MS", "Segoe UI", sans-serif' }
+
+type Tone = 'grey' | 'teal' | 'out'
+function Node({ tone, title, val, sub }: { tone: Tone; title: string; val: string; sub?: string }) {
+  return (
+    <div className={`flow-node ${tone}`}>
+      {title}
+      <span className="flow-val">{val}</span>
+      {sub && <small>{sub}</small>}
+    </div>
+  )
+}
+const Op = ({ children }: { children: React.ReactNode }) => (
+  <div className="flow-op">{children}<span className="op-arrow">↓</span></div>
+)
 const COMP = [
   { key: 'sncuCore', label: 'SNCU network', color: '#0e7e92' },
   { key: 'nbsu', label: 'CPAP at NBSUs', color: '#c2912a' },
@@ -16,11 +31,11 @@ const COMP = [
   { key: 'portable', label: 'Portable / transport', color: '#2f8f6b' },
 ] as const
 
-function Range({ label, value, min, max, step, suffix, onChange }: {
-  label: string; value: number; min: number; max: number; step: number; suffix?: string; onChange: (v: number) => void
+function Range({ id, label, value, min, max, step, suffix, onChange }: {
+  id?: string; label: string; value: number; min: number; max: number; step: number; suffix?: string; onChange: (v: number) => void
 }) {
   return (
-    <div className="field" style={{ marginBottom: 12 }}>
+    <div className="field" id={id} style={{ marginBottom: 12 }}>
       <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontSize: '0.84rem', fontWeight: 600, marginBottom: 5 }}>
         <span>{label}</span>
         <span className="fc-normv">{value}{suffix}</span>
@@ -31,11 +46,11 @@ function Range({ label, value, min, max, step, suffix, onChange }: {
   )
 }
 
-function Num({ label, value, min, max, step, onChange }: {
-  label: string; value: number; min: number; max: number; step: number; onChange: (v: number) => void
+function Num({ id, label, value, min, max, step, onChange }: {
+  id?: string; label: string; value: number; min: number; max: number; step: number; onChange: (v: number) => void
 }) {
   return (
-    <div>
+    <div id={id}>
       <div className="fc-mini">{label}</div>
       <input type="number" value={value} min={min} max={max} step={step}
         onChange={(e) => onChange(Math.max(min, Math.min(max, e.target.value === '' ? min : parseFloat(e.target.value) || 0)))} />
@@ -121,28 +136,28 @@ export default function Forecast({ m1 }: { m1: Norms }) {
         <p className="card-note" style={{ marginTop: 8, fontSize: '0.78rem' }}>{selScn.blurb}</p>
 
         <div className="section-label" style={{ marginTop: 8 }}>Horizon</div>
-        <Range label="Years to project" value={horizon} min={3} max={7} step={1} suffix=" yr" onChange={setHorizon} />
+        <Range id="fc-horizon" label="Years to project" value={horizon} min={3} max={7} step={1} suffix=" yr" onChange={setHorizon} />
 
         <div className="section-label">Infrastructure growth</div>
-        <Range label="SNCU / NICU growth per year" value={p.sncuGrowthPct} min={0} max={20} step={0.5} suffix="%" onChange={(v) => setP({ sncuGrowthPct: v })} />
+        <Range id="fc-growth" label="SNCU / NICU growth per year" value={p.sncuGrowthPct} min={0} max={20} step={0.5} suffix="%" onChange={(v) => setP({ sncuGrowthPct: v })} />
 
         <div className="section-label">Policy — new CPAP placements</div>
-        <Range label={`NBSUs with CPAP by ${endYear}`} value={p.nbsuCpapSharePct} min={0} max={100} step={5} suffix="%" onChange={(v) => setP({ nbsuCpapSharePct: v })} />
-        <Range label={`Portable / transport CPAP by ${endYear}`} value={p.portableSharePct} min={0} max={50} step={5} suffix="% of SNCUs" onChange={(v) => setP({ portableSharePct: v })} />
+        <Range id="fc-nbsu" label={`NBSUs with CPAP by ${endYear}`} value={p.nbsuCpapSharePct} min={0} max={100} step={5} suffix="%" onChange={(v) => setP({ nbsuCpapSharePct: v })} />
+        <Range id="fc-portable" label={`Portable / transport CPAP by ${endYear}`} value={p.portableSharePct} min={0} max={50} step={5} suffix="% of SNCUs" onChange={(v) => setP({ portableSharePct: v })} />
         <div className="fc-row2" style={{ marginBottom: 12 }}>
-          <Num label={`New MNCUs by ${endYear}`} value={p.mncuByEnd} min={0} max={1000} step={10} onChange={(v) => setP({ mncuByEnd: v })} />
-          <Num label="CPAP / MNCU" value={p.cpapPerMncu} min={1} max={8} step={1} onChange={(v) => setP({ cpapPerMncu: v })} />
+          <Num id="fc-mncu" label={`New MNCUs by ${endYear}`} value={p.mncuByEnd} min={0} max={1000} step={10} onChange={(v) => setP({ mncuByEnd: v })} />
+          <Num id="fc-cpapMncu" label="CPAP / MNCU" value={p.cpapPerMncu} min={1} max={8} step={1} onChange={(v) => setP({ cpapPerMncu: v })} />
         </div>
         <div className="fc-row2" style={{ marginBottom: 12 }}>
-          <Num label="CPAP / NBSU" value={p.cpapPerNbsu} min={1} max={4} step={0.5} onChange={(v) => setP({ cpapPerNbsu: v })} />
-          <Num label="CPAP / portable unit" value={p.cpapPerPortable} min={1} max={3} step={0.5} onChange={(v) => setP({ cpapPerPortable: v })} />
+          <Num id="fc-cpapNbsu" label="CPAP / NBSU" value={p.cpapPerNbsu} min={1} max={4} step={0.5} onChange={(v) => setP({ cpapPerNbsu: v })} />
+          <Num id="fc-cpapPortable" label="CPAP / portable unit" value={p.cpapPerPortable} min={1} max={3} step={0.5} onChange={(v) => setP({ cpapPerPortable: v })} />
         </div>
 
         <div className="section-label">Utilisation &amp; procurement</div>
-        <Range label="Utilisation (training + consumables)" value={p.utilisationPct} min={50} max={100} step={5} suffix="%" onChange={(v) => setP({ utilisationPct: v })} />
+        <Range id="fc-util" label="Utilisation (training + consumables)" value={p.utilisationPct} min={50} max={100} step={5} suffix="%" onChange={(v) => setP({ utilisationPct: v })} />
         <div className="fc-row2">
-          <Num label="Device lifespan (yrs)" value={p.replacementYears} min={3} max={12} step={1} onChange={(v) => setP({ replacementYears: v })} />
-          <Num label="Unit price (₹ lakh)" value={p.unitPriceLakh} min={0.5} max={5} step={0.1} onChange={(v) => setP({ unitPriceLakh: v })} />
+          <Num id="fc-life" label="Device lifespan (yrs)" value={p.replacementYears} min={3} max={12} step={1} onChange={(v) => setP({ replacementYears: v })} />
+          <Num id="fc-price" label="Unit price (₹ lakh)" value={p.unitPriceLakh} min={0.5} max={5} step={0.1} onChange={(v) => setP({ unitPriceLakh: v })} />
         </div>
 
         <p className="source-note" style={{ marginTop: 14 }}>
@@ -221,6 +236,34 @@ export default function Forecast({ m1 }: { m1: Norms }) {
           <div className="legend-row">
             {COMP.map((c) => (<span key={c.key}><span className="legend-dot" style={{ background: c.color }} />{c.label}</span>))}
           </div>
+        </div>
+
+        <div className="card">
+          <details className="fc-lvl" open style={{ marginBottom: 0 }}>
+            <summary>
+              <span className="fc-lvl-name">Drill down — how {selScn.tag}'s {endYear} total is built</span>
+              <span className="fc-lvl-meta">yellow pills are editable — click one to adjust it</span>
+            </summary>
+            <div style={{ padding: '16px', background: 'var(--c-surface)' }}>
+              <div className="flow">
+                <Node tone="grey" title="SNCUs today" val={fmt(base.sncu)} sub={String(baseYear)} />
+                <Op>× grow <FactorPill target="fc-growth">{p.sncuGrowthPct}%</FactorPill> / yr for <FactorPill target="fc-horizon">{horizon} yr</FactorPill></Op>
+                <Node tone="grey" title={`SNCUs in ${endYear}`} val={fmt(end.sncu)} />
+                <Op>× {base.cpapPerSncu.toFixed(1)} CPAP per SNCU <span className="muted" style={{ fontSize: '0.72rem' }}>(from the guidelines inputs)</span></Op>
+                <Node tone="teal" title="SNCU network devices" val={fmt(end.sncuCore)} sub="the core of the requirement" />
+                <Op>+ CPAP at NBSUs = {fmt(base.nbsu)} NBSUs × <FactorPill target="fc-nbsu">{p.nbsuCpapSharePct}%</FactorPill> × <FactorPill target="fc-cpapNbsu">{p.cpapPerNbsu}</FactorPill> = +{fmt(end.nbsu)}</Op>
+                <Op>+ new MNCUs = <FactorPill target="fc-mncu">{fmt(p.mncuByEnd)}</FactorPill> × <FactorPill target="fc-cpapMncu">{p.cpapPerMncu}</FactorPill> = +{fmt(end.mncu)}</Op>
+                <Op>+ portable / transport = <FactorPill target="fc-portable">{p.portableSharePct}%</FactorPill> of {fmt(end.sncu)} SNCUs × <FactorPill target="fc-cpapPortable">{p.cpapPerPortable}</FactorPill> = +{fmt(end.portable)}</Op>
+                <Node tone="out" title={`Total devices required · ${endYear}`} val={fmt(end.total)} sub="all four components added up" />
+              </div>
+
+              <div className="fc-derived">
+                <div>Effectively in service at <FactorPill target="fc-util">{p.utilisationPct}%</FactorPill> utilisation: <strong>{fmt(end.effective)}</strong> <span className="muted">— the rest sit idle for want of trained staff or consumables.</span></div>
+                <div>New devices to procure over {horizon} yrs (yearly growth + replacements, lifespan <FactorPill target="fc-life">{p.replacementYears} yr</FactorPill>): <strong>{fmt(end.cumAdded)}</strong></div>
+                <div>Procurement cost at <FactorPill target="fc-price">₹{p.unitPriceLakh} lakh</FactorPill> per device: <strong>₹{fmt(Math.round(end.cumCostCr))} crore</strong></div>
+              </div>
+            </div>
+          </details>
         </div>
 
         <div className="card">
