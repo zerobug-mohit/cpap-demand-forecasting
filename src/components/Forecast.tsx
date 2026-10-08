@@ -1,194 +1,268 @@
 import { useMemo, useState } from 'react'
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts'
+import {
+  LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+} from 'recharts'
 import type { Norms } from '../engine/method1'
-import type { M2Norms } from '../engine/method2'
-import { computeForecast } from '../engine/forecast'
-import type { YearPoint } from '../engine/forecast'
-import { GROWTH, SNCU_HISTORY } from '../data/forecastData'
 import { STATES } from '../data/states'
-import { fmt, fmtPct } from '../utils/format'
-import SourceNote from './SourceNote'
+import { SCENARIOS, scenarioParams, computeForecast, DEFAULT_HORIZON } from '../engine/methodForecast'
+import type { ForecastParams, ForecastBase } from '../engine/methodForecast'
+import { fmt } from '../utils/format'
 
-const EX = '#0e7e92' // existing
-const EP = '#c2562b' // epidemiological
-const NO = '#123a5e' // normative
 const AxisTick = { fontSize: 11, fill: '#52616d', fontFamily: '"Trebuchet MS", "Segoe UI", sans-serif' }
-const BASE = 2025
-const YEARS = [2025, 2026, 2027, 2028, 2029, 2030, 2031]
+const COMP = [
+  { key: 'sncuCore', label: 'SNCU network', color: '#0e7e92' },
+  { key: 'nbsu', label: 'CPAP at NBSUs', color: '#c2912a' },
+  { key: 'mncu', label: 'New MNCUs', color: '#123a5e' },
+  { key: 'portable', label: 'Portable / transport', color: '#2f8f6b' },
+] as const
 
-interface Props {
-  m1: Norms
-  m2: M2Norms
-}
-
-function Tip({ active, payload, label }: any) {
-  if (!active || !payload?.length) return null
+function Range({ label, value, min, max, step, suffix, onChange }: {
+  label: string; value: number; min: number; max: number; step: number; suffix?: string; onChange: (v: number) => void
+}) {
   return (
-    <div className="chart-tip">
-      <div style={{ fontWeight: 700, marginBottom: 4 }}>{label}</div>
-      {payload.map((p: any) => (
-        <div key={p.name} style={{ color: p.color }}>{p.name}: <strong>{fmt(p.value)}</strong></div>
-      ))}
+    <div className="field" style={{ marginBottom: 12 }}>
+      <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontSize: '0.84rem', fontWeight: 600, marginBottom: 5 }}>
+        <span>{label}</span>
+        <span className="fc-normv">{value}{suffix}</span>
+      </label>
+      <input type="range" min={min} max={max} step={step} value={value} style={{ width: '100%', accentColor: 'var(--c-primary)' }}
+        onChange={(e) => onChange(parseFloat(e.target.value))} />
     </div>
   )
 }
 
-export default function Forecast({ m1, m2 }: Props) {
-  const [sncuRate, setSncuRate] = useState(GROWTH.nationalSncuCagr)
-  const [rdsChange, setRdsChange] = useState(0)
-  const [idrTrend, setIdrTrend] = useState(true)
-  const [geo, setGeo] = useState('National')
-
-  const { national, byState } = useMemo(
-    () => computeForecast(m1, m2, GROWTH, {
-      baseYear: BASE, years: YEARS, rdsAnnualChange: rdsChange, applyIdrTrend: idrTrend, idrCap: 1.0, sncuRateOverride: sncuRate,
-    }),
-    [m1, m2, rdsChange, idrTrend, sncuRate],
+function Num({ label, value, min, max, step, onChange }: {
+  label: string; value: number; min: number; max: number; step: number; onChange: (v: number) => void
+}) {
+  return (
+    <div>
+      <div className="fc-mini">{label}</div>
+      <input type="number" value={value} min={min} max={max} step={step}
+        onChange={(e) => onChange(Math.max(min, Math.min(max, e.target.value === '' ? min : parseFloat(e.target.value) || 0)))} />
+    </div>
   )
+}
 
-  const raw: YearPoint[] = geo === 'National' ? national : byState[geo] ?? []
-  const series = raw.map((p) => ({
-    year: p.year,
-    Existing: Math.round(p.existing),
-    Epidemiological: Math.round(p.epidemiological),
-    Normative: Math.round(p.normative),
+export default function Forecast({ m1 }: { m1: Norms }) {
+  const base: ForecastBase = useMemo(() => ({
+    sncu: STATES.reduce((a, s) => a + s.sncu, 0),
+    nbsu: STATES.reduce((a, s) => a + s.nbsu, 0),
+    cpapPerSncu: m1.avgSncuBeds * m1.cpapPerBed * (1 + m1.buffer),
+  }), [m1])
+
+  const [horizon, setHorizon] = useState(DEFAULT_HORIZON)
+  const [params, setParams] = useState<Record<string, ForecastParams>>(
+    () => Object.fromEntries(SCENARIOS.map((s) => [s.key, { ...s.params }])),
+  )
+  const [sel, setSel] = useState('s1')
+
+  const results = useMemo(
+    () => SCENARIOS.map((s) => ({ ...s, years: computeForecast(base, { ...params[s.key], horizon }) })),
+    [base, params, horizon],
+  )
+  const selScn = results.find((r) => r.key === sel)!
+  const selYears = selScn.years
+  const p = params[sel]
+  const setP = (patch: Partial<ForecastParams>) => setParams((prev) => ({ ...prev, [sel]: { ...prev[sel], ...patch } }))
+  const resetSel = () => setParams((prev) => ({ ...prev, [sel]: scenarioParams(sel) }))
+  const dirty = JSON.stringify(p) !== JSON.stringify({ ...scenarioParams(sel), horizon: p.horizon })
+
+  const baseYear = new Date().getFullYear()
+  const endYear = baseYear + horizon
+  const yr = (t: number) => baseYear + t
+
+  const lineData = Array.from({ length: horizon + 1 }, (_, t) => {
+    const row: Record<string, number> = { year: yr(t) }
+    results.forEach((r) => { row[r.key] = Math.round(r.years[t].total) })
+    return row
+  })
+  const breakdownData = selYears.map((y) => ({
+    year: yr(y.year),
+    sncuCore: Math.round(y.sncuCore), nbsu: Math.round(y.nbsu), mncu: Math.round(y.mncu), portable: Math.round(y.portable),
   }))
-  const first = series[0]
-  const last = series[series.length - 1]
-  const growth = (a: number, b: number) => (a > 0 ? (b - a) / a : 0)
+
+  const today = selYears[0]
+  const end = selYears[horizon]
+
+  const LineTip = ({ active, payload, label }: any) => active && payload?.length ? (
+    <div className="chart-tip">
+      <div style={{ fontWeight: 700, marginBottom: 4 }}>{label}</div>
+      {results.map((r) => (
+        <div key={r.key} style={{ color: r.color }}>{r.tag}: <strong>{fmt(r.years[label - baseYear].total)}</strong></div>
+      ))}
+    </div>
+  ) : null
+
+  const BarTip = ({ active, payload, label }: any) => active && payload?.length ? (
+    <div className="chart-tip">
+      <div style={{ fontWeight: 700, marginBottom: 4 }}>{label}</div>
+      {[...COMP].reverse().filter((c) => payload.find((pl: any) => pl.dataKey === c.key)?.value > 0).map((c) => (
+        <div key={c.key} style={{ color: c.color }}>{c.label}: <strong>{fmt(payload.find((pl: any) => pl.dataKey === c.key).value)}</strong></div>
+      ))}
+      <div style={{ borderTop: '1px solid #e4ebef', marginTop: 4, paddingTop: 4 }}>Total: <strong>{fmt(COMP.reduce((a, c) => a + (payload.find((pl: any) => pl.dataKey === c.key)?.value ?? 0), 0))}</strong></div>
+    </div>
+  ) : null
 
   return (
     <div className="layout-grid">
-      <div className="card card-tight sticky-col">
-        <h2>Growth assumptions</h2>
-        <p className="card-note">Base-year values come from your current settings on the Guidelines-based &amp; Epidemiological tabs; each line grows by its own driver.</p>
+      {/* ---------------- controls ---------------- */}
+      <div className="card card-tight sticky-col fc-panel">
+        <div className="flex-between">
+          <h2>Scenario &amp; factors</h2>
+          <button className="btn link" onClick={resetSel} disabled={!dirty} style={{ opacity: dirty ? 1 : 0.4, background: 'none', border: 0, color: 'var(--c-primary)', fontWeight: 600, cursor: 'pointer', fontSize: '0.78rem' }}>Reset scenario</button>
+        </div>
+        <p className="card-note" style={{ marginTop: 2 }}>Pick a scenario, then change any factor and watch every output update.</p>
 
-        <div className="field">
-          <label><span>SNCU network growth / yr</span><span className="range-val">{fmtPct(sncuRate, 1)}</span></label>
-          <div className="range-row"><input type="range" min={0} max={0.15} step={0.005} value={sncuRate} onChange={(e) => setSncuRate(parseFloat(e.target.value))} /></div>
-          <span className="hint">
-            Drives the Current-network line. Fitted (log-linear) to the published SNCU series below — <strong>≈ 6.6%/yr, R²≈0.95</strong>.
-            The older 7.2% mixed a 2015 <em>functional</em> count with a 2024 <em>set-up</em> count and over-stated growth. Per-state
-            historical counts aren't reliably published, so one national rate is applied to every state.
-          </span>
-          <table className="data" style={{ marginTop: 8, fontSize: '0.78rem' }}>
-            <thead><tr><th>Year</th><th style={{ textAlign: 'right' }}>SNCUs (set-up)</th></tr></thead>
-            <tbody>
-              {SNCU_HISTORY.map((h) => (
-                <tr key={h.label}><td>{h.label}</td><td style={{ textAlign: 'right' }}>{fmt(h.count)}</td></tr>
-              ))}
-            </tbody>
-          </table>
-          <SourceNote refs={SNCU_HISTORY.map((h) => ({ key: h.sourceKey, page: h.page }))} note="published SNCU counts · established/set-up basis" />
-          <span className="hint" style={{ marginTop: 6 }}>
-            The 2024 <em>functional</em> count is 979 (vs 1,056 set-up) — ~7% of established units not currently functional, so growth is
-            unlikely to accelerate. Range if you prefer a more conservative view: ~5.9–6.6%/yr.
-          </span>
+        <div className="epi-switch" style={{ marginTop: 8 }}>
+          {SCENARIOS.map((s) => (
+            <button key={s.key} className={sel === s.key ? 'active' : ''} onClick={() => setSel(s.key)}>{s.tag}</button>
+          ))}
+        </div>
+        <p className="card-note" style={{ marginTop: 8, fontSize: '0.78rem' }}>{selScn.blurb}</p>
+
+        <div className="section-label" style={{ marginTop: 8 }}>Horizon</div>
+        <Range label="Years to project" value={horizon} min={3} max={7} step={1} suffix=" yr" onChange={setHorizon} />
+
+        <div className="section-label">Infrastructure growth</div>
+        <Range label="SNCU / NICU growth per year" value={p.sncuGrowthPct} min={0} max={20} step={0.5} suffix="%" onChange={(v) => setP({ sncuGrowthPct: v })} />
+
+        <div className="section-label">Policy — new CPAP placements</div>
+        <Range label={`NBSUs with CPAP by ${endYear}`} value={p.nbsuCpapSharePct} min={0} max={100} step={5} suffix="%" onChange={(v) => setP({ nbsuCpapSharePct: v })} />
+        <Range label={`Portable / transport CPAP by ${endYear}`} value={p.portableSharePct} min={0} max={50} step={5} suffix="% of SNCUs" onChange={(v) => setP({ portableSharePct: v })} />
+        <div className="fc-row2" style={{ marginBottom: 12 }}>
+          <Num label={`New MNCUs by ${endYear}`} value={p.mncuByEnd} min={0} max={1000} step={10} onChange={(v) => setP({ mncuByEnd: v })} />
+          <Num label="CPAP / MNCU" value={p.cpapPerMncu} min={1} max={8} step={1} onChange={(v) => setP({ cpapPerMncu: v })} />
+        </div>
+        <div className="fc-row2" style={{ marginBottom: 12 }}>
+          <Num label="CPAP / NBSU" value={p.cpapPerNbsu} min={1} max={4} step={0.5} onChange={(v) => setP({ cpapPerNbsu: v })} />
+          <Num label="CPAP / portable unit" value={p.cpapPerPortable} min={1} max={3} step={0.5} onChange={(v) => setP({ cpapPerPortable: v })} />
         </div>
 
-        <div className="field">
-          <label><span>RDS prevalence change / yr</span><span className="range-val">{fmtPct(rdsChange, 1)}</span></label>
-          <div className="range-row"><input type="range" min={-0.02} max={0.04} step={0.005} value={rdsChange} onChange={(e) => setRdsChange(parseFloat(e.target.value))} /></div>
-          <span className="hint">Applied to the Epidemiological line. Held at 0 by default (only two national data points exist: 1.2% in 2002, 2.5% in 2024).</span>
+        <div className="section-label">Utilisation &amp; procurement</div>
+        <Range label="Utilisation (training + consumables)" value={p.utilisationPct} min={50} max={100} step={5} suffix="%" onChange={(v) => setP({ utilisationPct: v })} />
+        <div className="fc-row2">
+          <Num label="Device lifespan (yrs)" value={p.replacementYears} min={3} max={12} step={1} onChange={(v) => setP({ replacementYears: v })} />
+          <Num label="Unit price (₹ lakh)" value={p.unitPriceLakh} min={0.5} max={5} step={0.1} onChange={(v) => setP({ unitPriceLakh: v })} />
         </div>
 
-        <label className="switch-row" style={{ marginTop: 6 }}>
-          <input type="checkbox" checked={idrTrend} onChange={(e) => setIdrTrend(e.target.checked)} />
-          <span>Trend institutional-delivery rate (NFHS-5 → 6), capped at 100%</span>
-        </label>
-        <SourceNote refs={[{ key: 'nfhs5', page: 'FR375' }, { key: 'nfhs6', page: 'fact sheet' }]} note="institutional-delivery trend (NFHS-5 → 6)" />
-
-        <hr className="divider" />
-        <span className="hint">Births: NCP projections (declining ~1.3%/yr nationally) drive the Normative &amp; Epidemiological lines.</span>
-        <SourceNote refs={[{ key: 'ncpProj', page: 'Tables 17 / 17A' }]} note="projected births" />
+        <p className="source-note" style={{ marginTop: 14 }}>
+          <span className="src-prefix">Base:</span> {fmt(base.sncu)} SNCUs and {fmt(base.nbsu)} NBSUs today (RHS 2022-23); {base.cpapPerSncu.toFixed(1)} CPAP per SNCU from the guidelines inputs. Scenario values are editable assumptions, not fixed projections.
+        </p>
       </div>
 
+      {/* ---------------- results ---------------- */}
       <div>
-        <div className="card">
-          <div className="flex-between">
-            <h2>CPAP demand forecast · {geo} · 2025–2031</h2>
-            <label className="ctrl-inline">
-              <span className="muted">Geography</span>
-              <select value={geo} onChange={(e) => setGeo(e.target.value)}>
-                <option value="National">National</option>
-                {STATES.map((s) => <option key={s.state} value={s.state}>{s.state}</option>)}
-              </select>
-            </label>
+        <div className="kpi-row">
+          <div className="kpi">
+            <div className="kpi-label">Devices required · {endYear}</div>
+            <div className="kpi-value">{fmt(end.total)}</div>
+            <div className="kpi-sub">{selScn.tag}, up from {fmt(today.total)} today</div>
           </div>
-          <p className="card-note">
-            Three trajectories, each from today's estimate: <strong style={{ color: EX }}>Current infra-based</strong> grows with the SNCU
-            network; <strong style={{ color: EP }}>Epidemiological</strong> with births × institutional delivery (× RDS);{' '}
-            <strong style={{ color: NO }}>Normative</strong> with institutional births (delivery rate held at current level). The gaps show how procurement need diverges.
-          </p>
-          <div className="chart-box" style={{ height: 380 }}>
+          <div className="kpi">
+            <div className="kpi-label">Growth over {horizon} years</div>
+            <div className="kpi-value">+{fmt(end.total - today.total)}</div>
+            <div className="kpi-sub">more devices than today's requirement</div>
+          </div>
+          <div className="kpi">
+            <div className="kpi-label">New devices to procure</div>
+            <div className="kpi-value">{fmt(end.cumAdded)}</div>
+            <div className="kpi-sub">cumulative, incl. replacements over {horizon} yrs</div>
+          </div>
+          <div className="kpi">
+            <div className="kpi-label">Procurement cost</div>
+            <div className="kpi-value">₹{fmt(Math.round(end.cumCostCr))} Cr</div>
+            <div className="kpi-sub">at ₹{p.unitPriceLakh.toFixed(1)} lakh per device</div>
+          </div>
+        </div>
+
+        <div className="card">
+          <h2>Devices required by year — the three scenarios</h2>
+          <p className="card-note">Each line is a scenario's total CPAP devices required, year by year. The one you are editing ({selScn.tag}) is drawn bold.</p>
+          <div className="chart-box" style={{ height: 340 }}>
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={series} margin={{ top: 8, right: 24, bottom: 4, left: 8 }}>
-                <CartesianGrid stroke="#e4ebef" />
+              <LineChart data={lineData} margin={{ top: 8, right: 20, bottom: 4, left: 8 }}>
+                <CartesianGrid stroke="#e4ebef" vertical={false} />
                 <XAxis dataKey="year" tick={AxisTick} />
                 <YAxis tick={AxisTick} tickFormatter={(v) => fmt(v)} width={54} />
-                <Tooltip content={<Tip />} />
-                <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Line type="monotone" dataKey="Existing" name="Current infra-based" stroke={EX} strokeWidth={2.5} dot={{ r: 2 }} />
-                <Line type="monotone" dataKey="Epidemiological" stroke={EP} strokeWidth={2.5} dot={{ r: 2 }} />
-                <Line type="monotone" dataKey="Normative" stroke={NO} strokeWidth={2.5} dot={{ r: 2 }} />
+                <Tooltip content={<LineTip />} />
+                {results.map((r) => (
+                  <Line key={r.key} type="monotone" dataKey={r.key} name={r.tag} stroke={r.color}
+                    strokeWidth={r.key === sel ? 3 : 1.6} strokeOpacity={r.key === sel ? 1 : 0.55}
+                    dot={{ r: r.key === sel ? 3 : 0 }} activeDot={{ r: 4 }} />
+                ))}
               </LineChart>
             </ResponsiveContainer>
           </div>
+          <div className="legend-row">
+            {results.map((r) => (
+              <span key={r.key} style={{ fontWeight: r.key === sel ? 700 : 400 }}>
+                <span className="legend-dot" style={{ background: r.color }} />{r.tag}
+              </span>
+            ))}
+          </div>
         </div>
 
-        {first && last && (
-          <div className="kpi-row">
-            <div className="kpi accent-teal">
-              <div className="kpi-label">Current infra-based · 2031</div>
-              <div className="kpi-value">{fmt(last.Existing)}</div>
-              <div className="kpi-sub">{fmtPct(growth(first.Existing, last.Existing))} vs 2025</div>
-            </div>
-            <div className="kpi accent-bad">
-              <div className="kpi-label">Epidemiological · 2031</div>
-              <div className="kpi-value">{fmt(last.Epidemiological)}</div>
-              <div className="kpi-sub">{fmtPct(growth(first.Epidemiological, last.Epidemiological))} vs 2025</div>
-            </div>
-            <div className="kpi accent-navy">
-              <div className="kpi-label">Normative · 2031</div>
-              <div className="kpi-value">{fmt(last.Normative)}</div>
-              <div className="kpi-sub">{fmtPct(growth(first.Normative, last.Normative))} vs 2025</div>
-            </div>
-            <div className="kpi accent-good">
-              <div className="kpi-label">Current-infra ÷ Epidemiological</div>
-              <div className="kpi-value">{last.Epidemiological > 0 ? fmtPct(last.Existing / last.Epidemiological) : '—'}</div>
-              <div className="kpi-sub">network coverage of need, 2031</div>
-            </div>
+        <div className="card">
+          <h2>What drives {selScn.tag} — by component</h2>
+          <p className="card-note">How the total for the scenario you are editing splits across the SNCU network and the new policy placements, each year.</p>
+          <div className="chart-box" style={{ height: 300 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={breakdownData} margin={{ top: 8, right: 20, bottom: 4, left: 8 }}>
+                <CartesianGrid stroke="#e4ebef" vertical={false} />
+                <XAxis dataKey="year" tick={AxisTick} />
+                <YAxis tick={AxisTick} tickFormatter={(v) => fmt(v)} width={54} />
+                <Tooltip content={<BarTip />} cursor={{ fill: 'rgba(14,126,146,0.06)' }} />
+                {COMP.map((c) => (
+                  <Bar key={c.key} dataKey={c.key} name={c.label} stackId="a" fill={c.color} />
+                ))}
+              </BarChart>
+            </ResponsiveContainer>
           </div>
-        )}
+          <div className="legend-row">
+            {COMP.map((c) => (<span key={c.key}><span className="legend-dot" style={{ background: c.color }} />{c.label}</span>))}
+          </div>
+        </div>
 
         <div className="card">
-          <h2>Year-by-year</h2>
+          <h2>{selScn.tag} — year by year</h2>
           <div className="table-scroll">
             <table className="data">
               <thead>
-                <tr><th>Year</th><th style={{ color: EX }}>Current infra-based</th><th style={{ color: EP }}>Epidemiological</th><th style={{ color: NO }}>Normative</th></tr>
+                <tr>
+                  <th>Year</th><th>SNCUs</th><th>SNCU devices</th><th>NBSU</th><th>MNCU</th><th>Portable</th>
+                  <th>Total required</th><th>In service</th><th>New this year</th>
+                </tr>
               </thead>
               <tbody>
-                {series.map((p) => (
-                  <tr key={p.year}>
-                    <td>{p.year}</td>
-                    <td>{fmt(p.Existing)}</td>
-                    <td>{fmt(p.Epidemiological)}</td>
-                    <td>{fmt(p.Normative)}</td>
+                {selYears.map((y) => (
+                  <tr key={y.year}>
+                    <td>{yr(y.year)}{y.year === 0 ? ' (now)' : ''}</td>
+                    <td>{fmt(y.sncu)}</td>
+                    <td>{fmt(y.sncuCore)}</td>
+                    <td>{fmt(y.nbsu)}</td>
+                    <td>{fmt(y.mncu)}</td>
+                    <td>{fmt(y.portable)}</td>
+                    <td className="cell-strong">{fmt(y.total)}</td>
+                    <td>{fmt(y.effective)}</td>
+                    <td className="cell-gap">{fmt(y.added)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+          <p className="card-note" style={{ marginTop: 10, marginBottom: 0 }}>
+            <strong>In service</strong> is the total scaled by utilisation ({p.utilisationPct}%); the shortfall reflects devices idle for want of trained staff or consumables.
+            <strong> New this year</strong> is what must be procured — the year's growth plus replacements (lifespan {p.replacementYears} yrs).
+          </p>
         </div>
 
         <div className="card">
-          <h2>How to read it</h2>
+          <h2>How this works &amp; caveats</h2>
           <ul className="src-list" style={{ paddingLeft: 18 }}>
-            <li><strong>Current infra-based</strong> rises with the SNCU network (~6.6%/yr, fitted to the 2014–2024 published series) — the deliverable capacity if build-out continues at its historical pace.</li>
-            <li><strong>Epidemiological</strong> tracks epidemiological need: births are projected to fall while institutional delivery rises, so it stays broadly flat.</li>
-            <li><strong>Normative</strong> is sized from institutional births (live births × delivery rate, held at the current level), so it declines gently as the birth cohort shrinks.</li>
-            <li>Where the current infra-based line rises toward Epidemiological, the infrastructure gap narrows; the distance to Normative is the full build-out headroom.</li>
+            <li>The forecast starts from today's guidelines-based requirement ({fmt(Math.round(today.total))} devices) and grows the SNCU network at the chosen rate. Policy placements (NBSU, MNCU, portable) phase in evenly from now to {endYear}.</li>
+            <li>The three scenarios are just preset factor values — Baseline, Moderate and Accelerated. Every value on the left is an editable assumption, so you can build your own scenario.</li>
+            <li>This projects the number of devices <strong>required</strong>. "New this year" turns that into a procurement plan by adding replacements; multiply by the unit price for cost.</li>
+            <li>Growth rates, prices and policy coverage are planning assumptions, not official targets. The published ~6.6%/yr SNCU growth (2014–2024) sets the baseline.</li>
           </ul>
         </div>
       </div>

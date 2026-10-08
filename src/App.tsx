@@ -5,11 +5,7 @@ import EstimationTopDown from './components/EstimationTopDown'
 import PrivateSector from './components/PrivateSector'
 import Comparison from './components/Comparison'
 import Forecast from './components/Forecast'
-import ForecastWIP from './components/ForecastWIP'
 
-// Forecasting tab is masked with a WIP placeholder until the methodology is finalised.
-// Flip to false to re-enable the interactive Forecast module.
-const FORECAST_WIP = true
 import { DEFAULT_NORMS } from './engine/method1'
 import type { Norms } from './engine/method1'
 import { DEFAULT_M2, DEFAULT_M2_PRIVATE } from './engine/method2'
@@ -63,7 +59,7 @@ function renderContent({ section, sub, m1, setM1, m2, setM2, m3, setM3, mp, setM
     if (sub === 'pvt') return <PrivateSector mp={mp} setMp={setMp} mprv={mprv} setMprv={setMprv} />
     return <Comparison m1={m1} m2={m2} m3={m3} />
   }
-  return FORECAST_WIP ? <ForecastWIP /> : <Forecast m1={m1} m2={m2} />
+  return <Forecast m1={m1} />
 }
 
 export default function App() {
