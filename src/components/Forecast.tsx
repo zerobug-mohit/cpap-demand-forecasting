@@ -119,48 +119,6 @@ export default function Forecast({ m1 }: { m1: Norms }) {
     </div>
   ) : null
 
-  // The step-by-step calculation for one scenario, shown inside its collapsible box.
-  const renderCascade = (rp: ForecastParams, rYears: typeof selYears) => {
-    const e = rYears[horizon]
-    return (
-      <>
-        <div className="section-label" style={{ marginTop: 6 }}>1 · The SNCU network (the core)</div>
-        <p className="hint" style={{ marginTop: 0 }}>As the number of SNCUs grows, so does the CPAP they need. This is the largest part of the total.</p>
-        <div className="flow">
-          <Node tone="grey" title="SNCUs today" val={fmt(base.sncu)} sub={String(baseYear)} />
-          <Op>grow <FactorPill target="fc-growth">{rp.sncuGrowthPct}%</FactorPill> / yr for <FactorPill target="fc-horizon">{horizon} yr</FactorPill></Op>
-          <Node tone="grey" title={`SNCUs in ${endYear}`} val={fmt(e.sncu)} />
-          <Op>× {base.cpapPerSncu.toFixed(1)} CPAP per SNCU <span className="muted" style={{ fontSize: '0.72rem' }}>(from the guidelines inputs)</span></Op>
-          <Node tone="teal" title="SNCU network devices" val={fmt(e.sncuCore)} />
-        </div>
-
-        <div className="section-label">2 · Policy placements (phased in by {endYear})</div>
-        <p className="hint" style={{ marginTop: 0 }}>If policy changes, CPAP is added at lower-level facilities and in transport. These are zero in the baseline.</p>
-        <div className="fc-addlist">
-          <div><span className="fc-add-lab"><span className="comp-dot" style={{ background: '#c2912a' }} />CPAP at NBSUs</span>
-            <span className="fc-add-calc">{fmt(base.nbsu)} NBSUs × <FactorPill target="fc-nbsu">{rp.nbsuCpapSharePct}%</FactorPill> × <FactorPill target="fc-cpapNbsu">{rp.cpapPerNbsu}</FactorPill> = <strong>{fmt(e.nbsu)}</strong></span></div>
-          <div><span className="fc-add-lab"><span className="comp-dot" style={{ background: '#123a5e' }} />New MNCUs</span>
-            <span className="fc-add-calc"><FactorPill target="fc-mncu">{fmt(rp.mncuByEnd)}</FactorPill> × <FactorPill target="fc-cpapMncu">{rp.cpapPerMncu}</FactorPill> = <strong>{fmt(e.mncu)}</strong></span></div>
-          <div><span className="fc-add-lab"><span className="comp-dot" style={{ background: '#2f8f6b' }} />Portable / transport</span>
-            <span className="fc-add-calc"><FactorPill target="fc-portable">{rp.portableSharePct}%</FactorPill> of {fmt(e.sncu)} SNCUs × <FactorPill target="fc-cpapPortable">{rp.cpapPerPortable}</FactorPill> = <strong>{fmt(e.portable)}</strong></span></div>
-        </div>
-
-        <div className="fc-grand" style={{ marginTop: 14 }}>
-          <span className="g-lab">Total devices required · {endYear}</span>
-          <span className="g-val fc-num">{fmt(e.total)}</span>
-          <span className="g-sub fc-num">{fmt(e.sncuCore)} SNCU network + {fmt(e.nbsu + e.mncu + e.portable)} from policy placements</span>
-        </div>
-
-        <div className="section-label">3 · From required to in-service, procurement and cost</div>
-        <div className="fc-derived">
-          <div>Of those, <strong>{fmt(e.effective)}</strong> are effectively in service at <FactorPill target="fc-util">{rp.utilisationPct}%</FactorPill> utilisation <span className="muted">— the rest sit idle for want of trained staff or consumables.</span></div>
-          <div>To get there you procure <strong>{fmt(e.cumAdded)}</strong> devices over {horizon} years — the yearly growth plus replacements as devices wear out (lifespan <FactorPill target="fc-life">{rp.replacementYears} yr</FactorPill>).</div>
-          <div>At <FactorPill target="fc-price">₹{rp.unitPriceLakh} lakh</FactorPill> per device, that is a procurement cost of <strong>₹{fmt(Math.round(e.cumCostCr))} crore</strong>.</div>
-        </div>
-      </>
-    )
-  }
-
   return (
     <div>
       {/* ---------------- scenario chooser (explained) ---------------- */}
@@ -171,31 +129,21 @@ export default function Forecast({ m1 }: { m1: Norms }) {
           from three — a steady baseline, a moderate expansion, and an accelerated build-out. Pick one to explore and
           fine-tune; all three stay on the chart so you can compare them. Everything here is an assumption you can change.
         </p>
-        <div className="scn-boxes">
+        <div className="scn-cards">
           {results.map((r) => {
             const rp = params[r.key]
-            const open = sel === r.key
             return (
-              <details className="scn-box" key={r.key} open={open} style={{ ['--scn' as string]: r.color }}>
-                <summary onClick={(ev) => { ev.preventDefault(); setSel(r.key) }}>
-                  <span className="scn-dot" />
-                  <span className="scn-box-title">{r.name} · {r.tag}</span>
-                  <span className="scn-box-chips">
-                    <span>Growth {rp.sncuGrowthPct}%/yr</span>
-                    <span>NBSU {rp.nbsuCpapSharePct ? `${rp.nbsuCpapSharePct}%` : '—'}</span>
-                    <span>MNCU {rp.mncuByEnd ? fmt(rp.mncuByEnd) : '—'}</span>
-                    <span>Portable {rp.portableSharePct ? `${rp.portableSharePct}%` : '—'}</span>
-                  </span>
-                  <span className="scn-box-out">{fmt(r.years[horizon].total)} <small>by {endYear}</small></span>
-                  <span className="scn-chev" aria-hidden>▸</span>
-                </summary>
-                {open && (
-                  <div className="scn-box-body">
-                    <p className="scn-card-desc" style={{ marginBottom: 10 }}>{r.blurb}</p>
-                    {renderCascade(rp, r.years)}
-                  </div>
-                )}
-              </details>
+              <button key={r.key} className={`scn-card ${sel === r.key ? 'on' : ''}`} style={{ ['--scn' as string]: r.color }} onClick={() => setSel(r.key)}>
+                <div className="scn-card-head"><span className="scn-dot" />{r.name} · {r.tag}</div>
+                <p className="scn-card-desc">{r.blurb}</p>
+                <div className="scn-card-rows">
+                  <div><span>SNCU growth</span><b>{rp.sncuGrowthPct}% / yr</b></div>
+                  <div><span>CPAP at NBSUs</span><b>{rp.nbsuCpapSharePct ? `${rp.nbsuCpapSharePct}%` : 'none'}</b></div>
+                  <div><span>New MNCUs</span><b>{rp.mncuByEnd ? fmt(rp.mncuByEnd) : 'none'}</b></div>
+                  <div><span>Portable / transport</span><b>{rp.portableSharePct ? `${rp.portableSharePct}%` : 'none'}</b></div>
+                </div>
+                <div className="scn-card-out">Devices needed by {endYear} <b>{fmt(r.years[horizon].total)}</b></div>
+              </button>
             )
           })}
         </div>
@@ -319,6 +267,48 @@ export default function Forecast({ m1 }: { m1: Norms }) {
             </div>
             <div className="legend-row">
               {COMP.map((c) => (<span key={c.key}><span className="legend-dot" style={{ background: c.color }} />{c.label}</span>))}
+            </div>
+          </div>
+
+          <div className="card">
+            <h2>Step by step — how {endYear}'s total is built</h2>
+            <p className="card-note">
+              Every yellow value is a factor you can change — click one to jump to its control. Each part of the
+              requirement is worked out below, then added together.
+            </p>
+
+            <div className="section-label" style={{ marginTop: 6 }}>1 · The SNCU network (the core)</div>
+            <p className="hint" style={{ marginTop: 0 }}>As the number of SNCUs grows, so does the CPAP they need. This is the largest part of the total.</p>
+            <div className="flow">
+              <Node tone="grey" title="SNCUs today" val={fmt(base.sncu)} sub={String(baseYear)} />
+              <Op>grow <FactorPill target="fc-growth">{p.sncuGrowthPct}%</FactorPill> / yr for <FactorPill target="fc-horizon">{horizon} yr</FactorPill></Op>
+              <Node tone="grey" title={`SNCUs in ${endYear}`} val={fmt(end.sncu)} />
+              <Op>× {base.cpapPerSncu.toFixed(1)} CPAP per SNCU <span className="muted" style={{ fontSize: '0.72rem' }}>(from the guidelines inputs)</span></Op>
+              <Node tone="teal" title="SNCU network devices" val={fmt(end.sncuCore)} />
+            </div>
+
+            <div className="section-label">2 · Policy placements (phased in by {endYear})</div>
+            <p className="hint" style={{ marginTop: 0 }}>If policy changes, CPAP is added at lower-level facilities and in transport. These are zero in the baseline.</p>
+            <div className="fc-addlist">
+              <div><span className="fc-add-lab"><span className="comp-dot" style={{ background: '#c2912a' }} />CPAP at NBSUs</span>
+                <span className="fc-add-calc">{fmt(base.nbsu)} NBSUs × <FactorPill target="fc-nbsu">{p.nbsuCpapSharePct}%</FactorPill> × <FactorPill target="fc-cpapNbsu">{p.cpapPerNbsu}</FactorPill> = <strong>{fmt(end.nbsu)}</strong></span></div>
+              <div><span className="fc-add-lab"><span className="comp-dot" style={{ background: '#123a5e' }} />New MNCUs</span>
+                <span className="fc-add-calc"><FactorPill target="fc-mncu">{fmt(p.mncuByEnd)}</FactorPill> × <FactorPill target="fc-cpapMncu">{p.cpapPerMncu}</FactorPill> = <strong>{fmt(end.mncu)}</strong></span></div>
+              <div><span className="fc-add-lab"><span className="comp-dot" style={{ background: '#2f8f6b' }} />Portable / transport</span>
+                <span className="fc-add-calc"><FactorPill target="fc-portable">{p.portableSharePct}%</FactorPill> of {fmt(end.sncu)} SNCUs × <FactorPill target="fc-cpapPortable">{p.cpapPerPortable}</FactorPill> = <strong>{fmt(end.portable)}</strong></span></div>
+            </div>
+
+            <div className="fc-grand" style={{ marginTop: 14 }}>
+              <span className="g-lab">Total devices required · {endYear}</span>
+              <span className="g-val fc-num">{fmt(end.total)}</span>
+              <span className="g-sub fc-num">{fmt(end.sncuCore)} SNCU network + {fmt(end.nbsu + end.mncu + end.portable)} from policy placements</span>
+            </div>
+
+            <div className="section-label">3 · From required to in-service, procurement and cost</div>
+            <div className="fc-derived">
+              <div>Of those, <strong>{fmt(end.effective)}</strong> are effectively in service at <FactorPill target="fc-util">{p.utilisationPct}%</FactorPill> utilisation <span className="muted">— the rest sit idle for want of trained staff or consumables.</span></div>
+              <div>To get there you procure <strong>{fmt(end.cumAdded)}</strong> devices over {horizon} years — the yearly growth plus replacements as devices wear out (lifespan <FactorPill target="fc-life">{p.replacementYears} yr</FactorPill>).</div>
+              <div>At <FactorPill target="fc-price">₹{p.unitPriceLakh} lakh</FactorPill> per device, that is a procurement cost of <strong>₹{fmt(Math.round(end.cumCostCr))} crore</strong>.</div>
             </div>
           </div>
 
