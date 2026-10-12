@@ -141,6 +141,9 @@ export default function Forecast({ m1 }: { m1: Norms }) {
                   <div><span>CPAP at NBSUs</span><b>{rp.nbsuCpapSharePct ? `${rp.nbsuCpapSharePct}%` : 'none'}</b></div>
                   <div><span>New MNCUs</span><b>{rp.mncuByEnd ? fmt(rp.mncuByEnd) : 'none'}</b></div>
                   <div><span>Portable / transport</span><b>{rp.portableSharePct ? `${rp.portableSharePct}%` : 'none'}</b></div>
+                  <div><span>Utilisation (training + consumables)</span><b>{rp.utilisationPct}%</b></div>
+                  <div><span>Device lifespan</span><b>{rp.replacementYears} yr</b></div>
+                  <div><span>Unit price</span><b>₹{rp.unitPriceLakh} lakh</b></div>
                 </div>
                 <div className="scn-card-out">Devices needed by {endYear} <b>{fmt(r.years[horizon].total)}</b></div>
               </button>
