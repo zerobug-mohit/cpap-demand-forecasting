@@ -6,6 +6,7 @@ import type { Norms } from '../engine/method1'
 import { STATES } from '../data/states'
 import { SCENARIOS, scenarioParams, computeForecast, DEFAULT_HORIZON } from '../engine/methodForecast'
 import type { ForecastParams, ForecastBase } from '../engine/methodForecast'
+import { FORECAST_EVIDENCE } from '../data/forecastEvidence'
 import { fmt } from '../utils/format'
 import FactorPill from './FactorPill'
 
@@ -155,6 +156,28 @@ export default function Forecast({ m1 }: { m1: Norms }) {
           devices over {horizon} years (the yearly growth plus replacements), costing roughly{' '}
           <strong>₹{fmt(Math.round(end.cumCostCr))} crore</strong> at today's unit price.
         </div>
+      </div>
+
+      <div className="card">
+        <details className="fc-lvl">
+          <summary>
+            <span className="fc-lvl-name">Why these assumptions — evidence &amp; sources</span>
+            <span className="fc-lvl-meta">what each factor and value is based on</span>
+          </summary>
+          <div style={{ padding: '6px 16px 14px' }}>
+            {FORECAST_EVIDENCE.map((e) => (
+              <div className="ev-item" key={e.factor}>
+                <div className="ev-head"><span>{e.factor}</span>{e.values && <span className="ev-values">{e.values}</span>}</div>
+                <p className="ev-note">{e.note}</p>
+                <div className="ev-src">
+                  {e.sources.map((s, i) => s.url
+                    ? <a key={i} href={s.url} target="_blank" rel="noopener noreferrer">{s.label} ↗</a>
+                    : <span key={i}>{s.label}</span>)}
+                </div>
+              </div>
+            ))}
+          </div>
+        </details>
       </div>
 
       <div className="layout-grid">

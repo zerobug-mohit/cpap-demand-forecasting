@@ -609,6 +609,17 @@ select:focus { outline: 2px solid var(--c-primary-bright); outline-offset: 1px; 
 .scn-card-out { margin-top: auto; padding-top: 9px; border-top: 1px solid var(--c-border); font-size: 0.78rem; color: var(--c-text-muted); display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .scn-card-out b { color: var(--scn); font-variant-numeric: tabular-nums; font-size: 1.15rem; }
 
+/* forecast evidence & sources list */
+.ev-item { padding: 13px 0; border-bottom: 1px solid var(--c-border); }
+.ev-item:last-child { border-bottom: none; }
+.ev-head { font-weight: 700; color: var(--c-primary-dark); font-size: 0.9rem; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline; }
+.ev-values { font-weight: 600; font-size: 0.74rem; color: var(--c-primary); background: var(--c-primary-light); border: 1px solid #bcdde3; border-radius: 999px; padding: 2px 10px; font-variant-numeric: tabular-nums; }
+.ev-note { font-size: 0.83rem; color: var(--c-text); line-height: 1.5; margin: 6px 0 8px; }
+.ev-src { display: flex; flex-direction: column; gap: 3px; font-size: 0.74rem; }
+.ev-src a { color: var(--c-primary); text-decoration: none; font-weight: 600; }
+.ev-src a:hover { text-decoration: underline; }
+.ev-src span { color: var(--c-text-faint); }
+
 /* forecast drill-down: policy add-ons list */
 .fc-addlist { display: grid; gap: 8px; margin-top: 4px; }
 .fc-addlist > div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; font-size: 0.84rem; padding: 8px 11px; background: var(--c-surface-alt); border: 1px solid var(--c-border); border-radius: var(--radius-sm); }

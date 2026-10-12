@@ -58,25 +58,25 @@ const BASELINE: ForecastParams = {
   portableSharePct: 0,
   cpapPerPortable: 1,
   replacementYears: 7,
-  utilisationPct: 100,
-  unitPriceLakh: 1.5,
+  utilisationPct: 60, // India public-facility reality: ~37% of DHs use CPAP, half lack blenders/trained staff (Dewez 2020)
+  unitPriceLakh: 2.5, // complete bubble-CPAP unit in recent Indian tenders (Gujarat ~2.5L, Jharkhand ~3L)
 }
 
 export const SCENARIOS: Scenario[] = [
   {
     key: 's1', name: 'Scenario 1', tag: 'Baseline', color: '#0e7e92',
-    blurb: 'The system carries on as it is — SNCUs keep growing at the current rate, no policy change, no CPAP at transport or lower-level facilities.',
+    blurb: 'Continues the growth India actually achieved over 2014–2024 (about 6.6% a year), with no policy change and CPAP only where it sits today — the honest "nothing new" path.',
     params: { ...BASELINE },
   },
   {
     key: 's2', name: 'Scenario 2', tag: 'Moderate expansion', color: '#c2912a',
-    blurb: 'Infrastructure grows a little faster, there is some policy change, and the busiest (high-load) NBSUs are equipped with CPAP.',
-    params: { ...BASELINE, sncuGrowthPct: 8.5, nbsuCpapSharePct: 20, portableSharePct: 5 },
+    blurb: 'Matches the fastest decade India has reached (about 8.5% a year) and takes a first policy step — low-cost CPAP reaches about 1 in 5 NBSUs, with a modest lift in utilisation.',
+    params: { ...BASELINE, sncuGrowthPct: 8.5, nbsuCpapSharePct: 20, portableSharePct: 5, utilisationPct: 68 },
   },
   {
     key: 's3', name: 'Scenario 3', tag: 'Accelerated', color: '#123a5e',
-    blurb: 'Infrastructure grows faster still, with broader policy change — including new MNCUs that also carry CPAP — and staffing and training are strengthened.',
-    params: { ...BASELINE, sncuGrowthPct: 11, nbsuCpapSharePct: 40, mncuByEnd: 150, portableSharePct: 15 },
+    blurb: 'An above-historical, upgrade-driven push — CPAP at about 2 in 5 NBSUs plus new Mother-Newborn Care Units — that depends on funded training, consumables and maintenance raising utilisation.',
+    params: { ...BASELINE, sncuGrowthPct: 10, nbsuCpapSharePct: 40, mncuByEnd: 150, portableSharePct: 15, utilisationPct: 80 },
   },
 ]
 
