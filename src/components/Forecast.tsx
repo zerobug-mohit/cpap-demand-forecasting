@@ -138,10 +138,10 @@ export default function Forecast({ m1 }: { m1: Norms }) {
                 <p className="scn-card-desc">{r.blurb}</p>
                 <div className="scn-card-rows">
                   <div><span>SNCU growth</span><b>{rp.sncuGrowthPct}% / yr</b></div>
-                  <div><span>CPAP at NBSUs</span><b>{rp.nbsuCpapSharePct ? `${rp.nbsuCpapSharePct}%` : 'none'}</b></div>
-                  <div><span>New MNCUs</span><b>{rp.mncuByEnd ? fmt(rp.mncuByEnd) : 'none'}</b></div>
-                  <div><span>Portable / transport</span><b>{rp.portableSharePct ? `${rp.portableSharePct}%` : 'none'}</b></div>
-                  <div><span>Utilisation (training + consumables)</span><b>{rp.utilisationPct}%</b></div>
+                  <div><span>CPAP at NBSUs</span><b>{rp.nbsuCpapSharePct ? `${rp.nbsuCpapSharePct}% of NBSUs` : 'none'}</b></div>
+                  <div><span>New MNCUs</span><b>{rp.mncuByEnd ? `${fmt(rp.mncuByEnd)} units` : 'none'}</b></div>
+                  <div><span>Portable / transport</span><b>{rp.portableSharePct ? `${rp.portableSharePct}% of SNCUs` : 'none'}</b></div>
+                  <div><span>Utilisation (training + consumables)</span><b>{rp.utilisationPct}% in use</b></div>
                   <div><span>Device lifespan</span><b>{rp.replacementYears} yr</b></div>
                   <div><span>Unit price</span><b>₹{rp.unitPriceLakh} lakh</b></div>
                 </div>
@@ -178,7 +178,7 @@ export default function Forecast({ m1 }: { m1: Norms }) {
 
           <div className="section-label">Policy — new CPAP placements</div>
           <p className="hint" style={{ marginTop: 0 }}>Policy change puts CPAP at lower-level facilities and in transport. Each target below is reached gradually, from now to {endYear}.</p>
-          <Range id="fc-nbsu" label={`NBSUs with CPAP by ${endYear}`} value={p.nbsuCpapSharePct} min={0} max={100} step={5} suffix="%" onChange={(v) => setP({ nbsuCpapSharePct: v })} />
+          <Range id="fc-nbsu" label={`Share of NBSUs with CPAP by ${endYear}`} value={p.nbsuCpapSharePct} min={0} max={100} step={5} suffix="% of NBSUs" onChange={(v) => setP({ nbsuCpapSharePct: v })} />
           <Range id="fc-portable" label={`Portable / transport CPAP by ${endYear}`} value={p.portableSharePct} min={0} max={50} step={5} suffix="% of SNCUs" onChange={(v) => setP({ portableSharePct: v })} />
           <div className="fc-row2" style={{ marginBottom: 12 }}>
             <Num id="fc-mncu" label={`New MNCUs by ${endYear}`} value={p.mncuByEnd} min={0} max={1000} step={10} onChange={(v) => setP({ mncuByEnd: v })} />
@@ -191,7 +191,7 @@ export default function Forecast({ m1 }: { m1: Norms }) {
 
           <div className="section-label">Utilisation &amp; procurement</div>
           <p className="hint" style={{ marginTop: 0 }}>How fully the devices are actually used, how often they wear out, and what they cost.</p>
-          <Range id="fc-util" label="Utilisation (training + consumables)" value={p.utilisationPct} min={50} max={100} step={5} suffix="%" onChange={(v) => setP({ utilisationPct: v })} />
+          <Range id="fc-util" label="Devices in effective use (utilisation)" value={p.utilisationPct} min={50} max={100} step={5} suffix="% of devices" onChange={(v) => setP({ utilisationPct: v })} />
           <div className="fc-row2">
             <Num id="fc-life" label="Device lifespan (yrs)" value={p.replacementYears} min={3} max={12} step={1} onChange={(v) => setP({ replacementYears: v })} />
             <Num id="fc-price" label="Unit price (₹ lakh)" value={p.unitPriceLakh} min={0.5} max={5} step={0.1} onChange={(v) => setP({ unitPriceLakh: v })} />
