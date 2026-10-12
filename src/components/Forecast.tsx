@@ -205,7 +205,7 @@ export default function Forecast({ m1 }: { m1: Norms }) {
         {/* ---------------- results ---------------- */}
         <div>
           <div className="card">
-            <details className="fc-lvl" open>
+            <details className="fc-lvl">
               <summary>
                 <span className="fc-lvl-name">Calculation cascade for forecasting</span>
                 <span className="fc-lvl-meta">{selScn.tag} · how {endYear}'s total is built — yellow values are editable</span>
