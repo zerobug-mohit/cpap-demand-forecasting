@@ -689,10 +689,6 @@ button.fc-line-card:hover { border-color: var(--c-border-strong); }
 }
 
 /* ---------------- design switcher (masthead) ---------------- */
-.design-switch { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 4px 10px; max-width: 360px; }
-.design-switch label { font-size: 0.72rem; font-weight: 700; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
-.design-switch select { font-weight: 700; color: var(--c-primary-dark); min-width: 0; }
-.design-note { grid-column: 1 / -1; margin: 0; font-size: 0.72rem; color: var(--c-text-muted); line-height: 1.4; }
 
 /* ---------------- explainers (light-bulb buttons) ---------------- */
 .explain-head { display: flex; align-items: flex-start; gap: 10px; }

@@ -1,0 +1,56 @@
+/* The tool's look: a Swiss grid (one grotesk, thin navy rules, square corners, large figures) in CHAI
+   navy and teal, with a pale saffron highlighter for whatever is selected. Turned on by
+   <html data-design="swiss-chai"> in index.html; the attribute makes these rules one step more specific
+   than globals.css, which they restyle. Chart series colours match the original palette, so a colour
+   means the same thing everywhere. Schibsted Grotesk is loaded in index.html. */
+:root[data-design="swiss-chai"] {
+  --marker: #f7e2a4; --marker-ink: #123a5e;
+  --c-bg: #e6ecef; --c-surface: #ffffff; --c-surface-alt: #f1f5f7; --c-surface-3: #e1e8ec;
+  --c-text: #123a5e; --c-text-muted: #3b5268; --c-text-faint: #546779;
+  --c-primary: #0e7e92; --c-primary-bright: #16a6be; --c-primary-dark: #123a5e;
+  --c-primary-light: #dcf0f3; --c-primary-light-2: #c6e5eb; --c-primary-line: #123a5e;
+  --c-accent: #c2562b; --c-accent-dark: #9c3f1b; --c-accent-light: #f7e4db; --c-accent-line: #c2562b;
+  --c-opt: #c2912a; --c-asis: #0e7e92; --c-norm: #123a5e; --c-entered: #0e7e92;
+  --c-best: #e4f1ee; --c-best-line: #123a5e; --c-best-line-2: #123a5e; --c-good-d: #0a5957;
+  --c-warn: #8a6416; --c-warn-soft: #fbf0d2; --c-warn-line: #123a5e; --c-warn-d: #6b4d0f;
+  --c-pill-hover: #f7e2a4; --c-pill-hover-line: #123a5e;
+  --c-border: #c3ccd3; --c-border-strong: #123a5e; --c-border-strongest: #123a5e;
+  --radius: 0; --radius-sm: 0; --shadow: none; --shadow-md: 0 8px 22px rgba(18, 58, 94, 0.2);
+  --font: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --chart-grid: #e1e8ec; --chart-axis: #3b5268; --chart-axis-line: #123a5e; --chart-cursor: #123a5e;
+  --s-baseline: #0e7e92; --s-moderate: #c2912a; --s-accelerated: #123a5e; --s-mine: #d6336c; --s-need: #0b1d30; --s-cloud: #52616d;
+  --s-sncu: #123a5e; --s-nbsu: #c2912a; --s-mncu: #0e7e92; --s-transport: #c2562b;
+  --s-current: #0e7e92; --s-installed: #2e8b57; --s-gap: #c2912a; --s-fit: #c2562b; --s-parity: #86909a;
+  --s-under: #c2562b; --s-aligned: #0e7e92; --s-over: #123a5e;
+  --map-0: #e3eef2; --map-1: #8fbcc6; --map-2: #0e7e92; --map-3: #123a5e; --map-none: #e1e6e9; --map-edge-active: #c2562b;
+}
+[data-design="swiss-chai"] .app-header { background: var(--c-surface); border-top: 0; border-bottom: 2px solid var(--c-text); }
+[data-design="swiss-chai"] .app-header-inner { padding: 26px 26px 22px; }
+[data-design="swiss-chai"] .app-header h1 { font-size: 42px; font-weight: 800; letter-spacing: -0.035em; color: var(--c-text); line-height: 1; }
+[data-design="swiss-chai"] .app-nav { box-shadow: none; border-bottom: 1px solid var(--c-text); }
+[data-design="swiss-chai"] .nav-primary button { color: var(--c-text); font-size: 1.05rem; border-bottom: 0; margin: 8px 0; padding: 8px 12px; }
+[data-design="swiss-chai"] .nav-primary button.active { background: var(--c-primary-dark); color: #ffffff; }
+@media (max-width: 640px) { [data-design="swiss-chai"] .nav-primary button { margin: 2px 0; padding: 8px 10px; } }
+[data-design="swiss-chai"] .nav-num { background: none; color: var(--c-text); border-radius: 0; padding: 0; font-weight: 500; }
+[data-design="swiss-chai"] .nav-primary button.active .nav-num { background: none; color: #ffffff; }
+[data-design="swiss-chai"] .nav-secondary { border-top: 1px solid var(--c-text); }
+[data-design="swiss-chai"] .nav-secondary button { border-radius: 0; color: var(--c-text); }
+[data-design="swiss-chai"] .nav-secondary button.active { background: var(--marker); border-color: transparent; color: var(--c-text); }
+[data-design="swiss-chai"] .card { border: 1px solid var(--c-text); }
+[data-design="swiss-chai"] .card h2 { color: var(--c-text); font-size: 1.15rem; letter-spacing: -0.01em; }
+[data-design="swiss-chai"] .kpi { border: 1px solid var(--c-text); }
+[data-design="swiss-chai"] .kpi .kpi-label { text-transform: none; letter-spacing: 0; font-weight: 500; font-size: 0.82rem; color: var(--c-text); }
+[data-design="swiss-chai"] .kpi .kpi-value { font-size: 2.8rem; font-weight: 600; letter-spacing: -0.04em; color: var(--c-text); font-variant-numeric: lining-nums proportional-nums; }
+[data-design="swiss-chai"] table.data thead th { color: var(--c-text); text-transform: none; letter-spacing: 0; font-size: 0.76rem; border-bottom: 2px solid var(--c-text); }
+[data-design="swiss-chai"] .fc-line-card { border-color: var(--c-text); }
+[data-design="swiss-chai"] .fc-line-card.on { background: var(--marker); box-shadow: none; border-color: var(--c-text); }
+[data-design="swiss-chai"] .fc-line-card.on span, [data-design="swiss-chai"] .fc-line-card.on .fc-calc { color: var(--c-text); }
+[data-design="swiss-chai"] .recommend { background: var(--c-surface); border: 1px solid var(--c-text); }
+[data-design="swiss-chai"] .epi-switch button, [data-design="swiss-chai"] .fc-reset-all, [data-design="swiss-chai"] .series-toggle button, [data-design="swiss-chai"] .fc-reset { border-radius: 0; }
+[data-design="swiss-chai"] .epi-switch button.active { background: var(--marker); border-color: var(--c-text); color: var(--c-text); }
+[data-design="swiss-chai"] .explain-btn { border-radius: 0; border-color: var(--c-text); color: var(--c-text); }
+[data-design="swiss-chai"] .explain-btn[aria-expanded="true"] { background: var(--marker); border-color: var(--c-text); color: var(--c-text); }
+[data-design="swiss-chai"] .explain-panel { background: var(--c-surface); border: 1px solid var(--c-text); }
+[data-design="swiss-chai"] .explain-panel dt { text-transform: none; letter-spacing: 0; font-size: 0.8rem; color: var(--c-text); }
+[data-design="swiss-chai"] ::selection { background: var(--marker); color: var(--marker-ink); }
+[data-design="swiss-chai"] .nav-primary button:not(.active):hover { background: var(--c-primary-light); }
