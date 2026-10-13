@@ -8,7 +8,7 @@ import { computeM3 } from '../engine/method3'
 import { STATES } from '../data/states'
 import { SCENARIOS } from '../engine/methodForecast'
 import type { ForecastBase } from '../engine/methodForecast'
-import { LEVERS, simulate, deriveStarters, leverEffects, projectLevers, inUseAt } from '../engine/forecastSim'
+import { LEVERS, simulate, deriveStarters, leverEffects, projectLevers, inUseAt, atAmbition, shareTries } from '../engine/forecastSim'
 import type { LeverKey, LeverValues } from '../engine/forecastSim'
 import { fmt } from '../utils/format'
 import { MNCU_TIERS, ALS_AMBULANCES, BLS_AMBULANCES, ALS_SOURCE, MNCU_SOURCE } from '../data/forecastInputs'
@@ -88,6 +88,8 @@ function RangeNote({ keys, after = {} }: { keys: LeverKey[]; after?: Partial<Rec
 
 const START: LeverValues = { sncuGrowthPct: 8, nbsuCpapSharePct: 50, cpapPerNbsu: 1.5, mncuSharePct: 20, cpapPerMncu: 4, alsCpapSharePct: 20, utilisationPct: 60 }
 const UTIL_NOW = LEVERS.find((l) => l.key === 'utilisationPct')!.lo // share of devices in use today
+const pctOf = (v: number) => `${+v.toFixed(1)}%`
+const TOP = Object.fromEntries(LEVERS.map((l) => [l.key, l.hi])) as LeverValues // the scenarios' top value for each factor
 const SNCU_PAST = LEVERS.find((l) => l.key === 'sncuGrowthPct')!.lo // SNCU growth a year, 2014–2024
 const UTIL_DEF = 'Utilisation is the share of devices that are actually working and in use. It depends on staff training and motivation; procurement of devices, consumables and spare parts; repairs and maintenance; the price of commodities; and upcoming innovations.'
 
@@ -130,12 +132,15 @@ function Range({ id, label, value, min, max, step, suffix = '', def, onChange }:
 }
 
 // The foot of every scenario card: devices in place → × utilisation → devices in use.
-function InUseCalc({ endYear, inPlace, util, inUse, pctNeed }: { endYear: number; inPlace: number; util: number; inUse: number; pctNeed: number }) {
+function InUseCalc({ endYear, inPlace, util, utilTop, inUse, pctNeed }: { endYear: number; inPlace: number; util: number; utilTop?: number; inUse: number; pctNeed: number }) {
   return (
     <div className="fc-calc">
       <small className="fc-calc-year">In {endYear}</small>
       <div><span>Devices in place</span><b>{fmt(inPlace)}</b></div>
-      <div><span>× Utilisation</span><b>{util}%</b></div>
+      <div className={utilTop !== undefined ? 'fc-over' : undefined}>
+        <span>× Utilisation</span><b>{util}%</b>
+        {utilTop !== undefined && <small className="fc-over-top">Top value: {utilTop}%</small>}
+      </div>
       <div className="fc-calc-out"><span>= Devices in use</span><b>{fmt(inUse)}</b></div>
       <small>This is {pctNeed}% of the public need.</small>
     </div>
@@ -181,6 +186,9 @@ export default function Forecast({ m1, m3 }: { m1: Norms; m3: M3Norms }) {
   const mineEnd = mineYears[horizon]
   const mineReach = mineYears.findIndex((y) => y.effective >= ceiling)
   const acc = starters[2]
+  const accTries = useMemo(() => shareTries(base, horizon, 's3', ceiling, 6), [base, horizon, ceiling])
+  const accRaw = atAmbition(acc.ambition) // Accelerated before rounding
+  const half = atAmbition(0.5)
 
 
   // ---------------- fan chart (devices in use) ----------------
@@ -192,7 +200,7 @@ export default function Forecast({ m1, m3 }: { m1: Norms; m3: M3Norms }) {
   }))
   // The four lines a viewer can select: the three scenarios, then their own combination.
   const lineCards = [
-    ...starters.map((s) => ({ key: s.key, name: s.tag, color: SCN_COLOR[s.key], levers: s.levers, years: s.years, beyond: s.ambition > 1.0001 })),
+    ...starters.map((s) => ({ key: s.key, name: s.tag, color: SCN_COLOR[s.key], levers: s.levers, years: s.years, beyond: LEVERS.some((l) => s.levers[l.key] > l.hi + 1e-9) })),
     { key: 'mine', name: 'Your combination', color: MINE, levers: mine, years: mineYears, beyond: false },
   ]
   const selLine = lineCards.find((c) => c.key === sel) ?? lineCards.find((c) => c.key === 's3')!
@@ -385,21 +393,29 @@ export default function Forecast({ m1, m3 }: { m1: Norms; m3: M3Norms }) {
               {lineCards.map((c) => {
                 const L = c.levers
                 const ce = c.years[horizon]
+                const past = (k: LeverKey) => c.beyond && L[k] > TOP[k] + 1e-9
+                const row = (k: LeverKey, label: string, value: string | number) => (
+                  <div className={past(k) ? 'fc-over' : undefined}>
+                    <span>{label}</span><b>{value}</b>
+                    {past(k) && <small className="fc-over-top">Top value: {show(k, TOP[k])}</small>}
+                  </div>
+                )
                 return (
                   <button key={c.key} type="button" className={`fc-line-card${sel === c.key ? ' on' : ''}`} style={{ ['--line' as string]: c.color }}
                     aria-pressed={sel === c.key} onClick={() => setSel(c.key)}>
                     <div className="fc-line-head"><span className="sim-key" style={{ background: c.color }} />{c.name}</div>
                     <div className="fc-line-rows">
-                      <div><span>SNCU growth</span><b>{L.sncuGrowthPct}% a year</b></div>
-                      <div><span>NBSUs with CPAP</span><b>{L.nbsuCpapSharePct ? `${L.nbsuCpapSharePct}%` : 'none'}</b></div>
-                      <div><span>CPAP per NBSU</span><b>{L.nbsuCpapSharePct ? L.cpapPerNbsu : '–'}</b></div>
-                      <div><span>Hospitals with an MNCU</span><b>{L.mncuSharePct ? `${L.mncuSharePct}%` : 'none'}</b></div>
-                      <div><span>CPAP per MNCU</span><b>{L.mncuSharePct ? L.cpapPerMncu : '–'}</b></div>
-                      <div><span>CPAP in transport</span><b>{L.alsCpapSharePct ? `${L.alsCpapSharePct}%` : 'none'}</b></div>
+                      {row('sncuGrowthPct', 'SNCU growth', `${L.sncuGrowthPct}% a year`)}
+                      {row('nbsuCpapSharePct', 'NBSUs with CPAP', L.nbsuCpapSharePct ? `${L.nbsuCpapSharePct}%` : 'none')}
+                      {row('cpapPerNbsu', 'CPAP per NBSU', L.nbsuCpapSharePct ? L.cpapPerNbsu : '–')}
+                      {row('mncuSharePct', 'Hospitals with an MNCU', L.mncuSharePct ? `${L.mncuSharePct}%` : 'none')}
+                      {row('cpapPerMncu', 'CPAP per MNCU', L.mncuSharePct ? L.cpapPerMncu : '–')}
+                      {row('alsCpapSharePct', 'CPAP in transport', L.alsCpapSharePct ? `${L.alsCpapSharePct}%` : 'none')}
                       <div><span>SNCUs in {endYear}</span><b>{fmt(ce.sncu)}</b></div>
                     </div>
-                    {c.beyond && <div className="sim-flag">To reach the need this soon, some factors go past the scenarios' top values.</div>}
-                    <InUseCalc endYear={endYear} inPlace={ce.total} util={L.utilisationPct} inUse={ce.effective} pctNeed={pctOfNeed(ce.effective)} />
+                    {c.beyond && <div className="sim-flag">To reach this result by {endYear}, some factors go past the scenarios' top values. These are shown in red.</div>}
+                    <InUseCalc endYear={endYear} inPlace={ce.total} util={L.utilisationPct} utilTop={past('utilisationPct') ? TOP.utilisationPct : undefined}
+                      inUse={ce.effective} pctNeed={pctOfNeed(ce.effective)} />
                   </button>
                 )
               })}
@@ -525,30 +541,85 @@ export default function Forecast({ m1, m3 }: { m1: Norms; m3: M3Norms }) {
             than needed and leave many of them unused. So we need one fair rule to choose a single combination for each scenario.
           </p>
           <p>
-            The rule is to move all the factors together. Each factor has a starting point, which is today's level, and a top
-            value, which is the most we treat as realistic. Both are in the table above. A scenario moves every factor the same
-            share of the way from its starting point to its top value. For example, moving 50% of the way means every factor
-            goes halfway.
+            The rule is to move all the factors together, by the same share of the way. Each factor has a starting point,
+            which is today's level, and a top value, which is the most we treat as realistic. Both are in the table above. For
+            any share, each factor's value is worked out the same way:
           </p>
+          <p className="fc-method-formula">value = today's level + share × (top value − today's level)</p>
+          <p>
+            For example, at a share of 50%, SNCU growth is {SNCU_PAST}% + 50% × ({show('sncuGrowthPct', TOP.sncuGrowthPct)} − {SNCU_PAST}%)
+            = {pctOf(half.sncuGrowthPct)} a year, and utilisation is {UTIL_NOW}% + 50% × ({TOP.utilisationPct}% − {UTIL_NOW}%)
+            = {pctOf(half.utilisationPct)}. So the share does not mean each factor grows by that percent of its own value. It
+            means each factor closes that part of the gap between today's level and its top value. A share of 0% leaves every
+            factor at today's level, and 100% puts every factor at its top value. A share above 100% takes factors past their
+            top values, but a share of facilities or ambulances never goes above 100%.
+          </p>
+          <p>
+            The model finds the right share by trial. It starts with a range from 0% to 100%. If even 100% does not reach the
+            target, it doubles the range first. Then it tries the middle of the range and works out the devices in use for that
+            share. If the result is too low, the right share must be in the upper half of the range. If it is enough, the right share
+            must be in the lower half. The model keeps that half and tries its middle again. Each try halves the range, so after 60
+            tries the share is exact. For <b style={{ color: 'var(--t-accelerated)' }}>Accelerated</b>, the target is the public
+            need of {fmt(ceiling)} devices in use by {endYear}, and the first tries are:
+          </p>
+          <div className="table-scroll fc-method-table">
+            <table className="data">
+              <thead>
+                <tr><th>Try</th><th>Share of the way</th><th>Devices in use in {endYear}</th><th>Result</th></tr>
+              </thead>
+              <tbody>
+                {accTries.map((t, i) => (
+                  <tr key={i}>
+                    <td>{i + 1}</td>
+                    <td>{pctOf(t.share * 100)}</td>
+                    <td>{fmt(t.inUse)}</td>
+                    <td>{t.widen ? `Too low. The range is doubled to 0% to ${pctOf(t.share * 200)}.` : t.enough ? 'Enough. The right share is this or lower, so the model keeps the lower half.' : 'Too low. The right share is higher, so the model keeps the upper half.'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p>
+            The tries continue in the same way until the share is exact: {pctOf(acc.ambition * 100)}. The table below shows each
+            factor's value for Accelerated at that share. Each value is then rounded to its slider step. Rounding moves the total a
+            little, so SNCU growth is then adjusted until the scenario lands on its target again. The last column shows the final values.
+          </p>
+          <div className="table-scroll fc-method-table">
+            <table className="data">
+              <thead>
+                <tr><th>Factor</th><th>Today's level</th><th>Top value</th><th>At a share of {pctOf(acc.ambition * 100)}</th><th>Final value</th></tr>
+              </thead>
+              <tbody>
+                {LEVERS.map((l) => (
+                  <tr key={l.key}>
+                    <td>{LABEL[l.key]}</td>
+                    <td>{show(l.key, l.lo)}</td>
+                    <td>{show(l.key, l.hi)}</td>
+                    <td>{show(l.key, +accRaw[l.key].toFixed(l.key.startsWith('cpapPer') ? 2 : 1))}</td>
+                    <td>{show(l.key, acc.levers[l.key])}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p>The other two scenarios are found in the same way, each with its own target:</p>
           <ul>
             <li>
-              <b style={{ color: 'var(--t-baseline)' }}>Baseline</b> does not move the factors. Everything stays at today's level,
-              and SNCUs keep growing at the past rate of {SNCU_PAST}% a year.
+              <b style={{ color: 'var(--t-baseline)' }}>Baseline</b> has a share of 0%. Everything stays at today's level, and
+              SNCUs keep growing at the past rate of {SNCU_PAST}% a year.
             </li>
             <li>
-              <b style={{ color: 'var(--t-moderate)' }}>Moderate expansion</b> moves every factor about {Math.round(starters[1].ambition * 100)}% of
-              the way. This closes half the gap between Baseline and the public need by {endYear}.
+              <b style={{ color: 'var(--t-moderate)' }}>Moderate expansion</b> aims for halfway between Baseline and the public
+              need by {endYear}, which is {fmt(starters[1].target)} devices in use. The share that reaches it
+              is {pctOf(starters[1].ambition * 100)}.
             </li>
             <li>
-              <b style={{ color: 'var(--t-accelerated)' }}>Accelerated</b> moves every factor about {Math.round(acc.ambition * 100)}% of
-              the way. This is the smallest move that reaches the public need of {fmt(ceiling)} devices in use by {endYear}.
+              <b style={{ color: 'var(--t-accelerated)' }}>Accelerated</b> aims for the public need of {fmt(ceiling)} devices in
+              use by {endYear}. The share that reaches it is {pctOf(acc.ambition * 100)}.
               {acc.ambition > 1.0001 && ' This is past the top values, because the need cannot be reached within them by then.'}
             </li>
           </ul>
-          <p>
-            After this, each value is rounded to its slider step, and SNCU growth is adjusted a little so that each scenario
-            still lands on its target. All three scenarios keep CPAP per MNCU at 4, the FBNC 2025 guideline.
-          </p>
+          <p>All three scenarios keep CPAP per MNCU at 4, the FBNC 2025 guideline.</p>
           <p>
             We use this rule for three reasons. It does not favour any one factor, so the scenarios avoid extreme plans. It
             spreads the effort across all the factors, which is how real programmes usually work. It is also easy to explain,

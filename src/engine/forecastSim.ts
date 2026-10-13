@@ -235,6 +235,31 @@ export interface Starter {
   years: ForecastYear[]
 }
 
+export interface ShareTry {
+  share: number // share of the way tried (0 = today, 1 = every factor at its top value)
+  inUse: number // end-year devices in use at that share
+  enough: boolean // reaches the target
+  widen: boolean // a try at the top of the range that fell short, so the range was doubled
+}
+
+/** The first `n` tries of the search deriveStarters runs to find a scenario's share of the way. Same steps, so the
+ *  methodology note can show them: widen the range until it holds the target, then halve it each time. */
+export function shareTries(base: ForecastBase, horizon: number, key: string, target: number, n: number): ShareTry[] {
+  const f = (a: number) => endInUse(base, leverParams(atAmbition(a), horizon, scenarioParams(key)))
+  const tries: ShareTry[] = []
+  let hi = 1
+  while (f(hi) < target && hi < 10) { tries.push({ share: hi, inUse: f(hi), enough: false, widen: true }); hi *= 2 }
+  let lo = 0
+  while (tries.length < n) {
+    const mid = (lo + hi) / 2
+    const v = f(mid)
+    tries.push({ share: mid, inUse: v, enough: v >= target, widen: false })
+    if (v >= target) hi = mid
+    else lo = mid
+  }
+  return tries
+}
+
 export function deriveStarters(base: ForecastBase, horizon: number, ceiling: number): Starter[] {
   const make = (key: string, tag: string, target: number | null): Starter => {
     const rest = scenarioParams(key)

@@ -661,6 +661,8 @@ button.fc-line-card:hover { border-color: var(--c-border-strong); }
 .fc-method b { color: var(--c-text); }
 .fc-method .fc-sub { margin: 18px 0 6px; }
 .fc-method-table { margin: 4px 0 12px; }
+.fc-method p.fc-method-formula { display: inline-block; margin: 0 0 8px; padding: 5px 10px; font-weight: 600; color: var(--c-text);
+  background: var(--c-primary-light); border: 1px solid color-mix(in srgb, var(--c-primary) 35%, transparent); border-radius: var(--radius-sm); }
 .fc-method-table table.data { font-variant-numeric: normal; }
 .fc-method-table table.data thead th { text-align: left; }
 .fc-method-table table.data tbody td { text-align: left; white-space: normal; vertical-align: top; }
@@ -688,6 +690,12 @@ button.fc-line-card:hover { border-color: var(--c-border-strong); }
 .sim-mine { background: var(--c-surface-alt); border: 1px solid var(--c-border); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 0.82rem; line-height: 1.5; margin-top: 4px; }
 .sim-mine strong { color: var(--c-primary-dark); font-variant-numeric: tabular-nums; }
 
+/* scenario values past their top value: red, with the top value under them (beats the selected-card colours) */
+.fc-over span, .fc-over b,
+.fc-line-card.on .fc-line-rows .fc-over span, .fc-line-card.on .fc-line-rows .fc-over b,
+.fc-line-card.on .fc-calc .fc-over span, .fc-line-card.on .fc-calc .fc-over b { color: var(--c-over); }
+.fc-calc > .fc-over { flex-wrap: wrap; }
+.fc-over-top { flex-basis: 100%; text-align: right; font-size: 0.68rem; line-height: 1.3; color: var(--c-over); }
 .sim-flag { font-size: 0.74rem; line-height: 1.4; background: var(--c-warn-soft); color: var(--c-warn); border-radius: var(--radius-sm); padding: 6px 8px; }
 .sim-trace { background: none; border: 0; padding: 0; font: inherit; font-size: 0.76rem; font-weight: 600; color: var(--c-primary); cursor: pointer; }
 .sim-trace:hover { text-decoration: underline; }

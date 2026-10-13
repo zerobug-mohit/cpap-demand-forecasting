@@ -104,6 +104,7 @@
   --t-moderate: #8a6416;
   --t-accelerated: var(--s-accelerated);
   --t-mine: #b8255a;
+  --c-over: #b42318; /* a scenario value past its top value */
   --s-under: #c2562b;
   --s-aligned: #0e7e92;
   --s-over: #123a5e;
