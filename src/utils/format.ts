@@ -1,4 +1,6 @@
-export const fmt = (n: number): string => new Intl.NumberFormat('en-IN').format(Math.round(n))
+const INR = new Intl.NumberFormat('en-IN') // built once — constructing a formatter per call is slow on busy pages
+
+export const fmt = (n: number): string => INR.format(Math.round(n))
 
 export const fmtPct = (n: number, digits = 0): string => `${(n * 100).toFixed(digits)}%`
 

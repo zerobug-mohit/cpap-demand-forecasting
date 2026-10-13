@@ -4,6 +4,7 @@ import type { M3Norms } from '../engine/method3'
 import { DEFAULT_M3 } from '../engine/method3'
 import EpiFacility from './EpiFacility'
 import EpiRds from './EpiRds'
+import { ExplainTitle, NoBulbs } from './Explain'
 
 type Approach = 'facility' | 'rds'
 
@@ -23,13 +24,13 @@ export default function EstimationTopDown({ m2, setM2, m3, setM3 }: Props) {
   const [approach, setApproach] = useState<Approach>('rds')
 
   return (
-    <div>
+    <NoBulbs>
       <div className="card lens-explainer" style={{ marginBottom: 16 }}>
-        <h2>Epidemiological need — two approaches</h2>
+        <ExplainTitle id="td-approach-switch">Epidemiological need: two approaches</ExplainTitle>
         <p className="card-note" style={{ marginTop: 4 }}>
-          This tab estimates how many CPAP machines newborns actually need, based on health data rather than on the
-          facilities that exist today. There are two ways to do this. The first uses <strong>how common newborn
-          breathing problems (RDS) are</strong>. The second counts the <strong>babies delivered in public health
+          This tab estimates how many CPAP machines newborns need, based on health data and not on the facilities
+          that exist today. There are two ways to do this. The first uses <strong>how common newborn breathing
+          problems (RDS) are</strong>. The second counts the <strong>babies delivered in public health
           facilities</strong> and applies the government (FBNC) norm for how many machines a facility should have.
           Choose an approach below.
         </p>
@@ -46,6 +47,6 @@ export default function EstimationTopDown({ m2, setM2, m3, setM3 }: Props) {
       {approach === 'facility'
         ? <EpiFacility norms={m3} onChange={setM3} onReset={() => setM3(DEFAULT_M3)} />
         : <EpiRds norms={m2} onChange={setM2} />}
-    </div>
+    </NoBulbs>
   )
 }

@@ -40,9 +40,9 @@ export const DEFAULT_M3: M3Norms = {
 }
 
 export const BURDEN_LABEL: Record<Burden, string> = {
-  high: 'High >3k/yr',
-  med: 'Medium 1–3k',
-  low: 'Low <1k',
+  high: 'High (over 3,000 a year)',
+  med: 'Medium (1,000 to 3,000)',
+  low: 'Low (under 1,000)',
 }
 
 export interface TierRow {

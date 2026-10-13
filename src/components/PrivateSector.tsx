@@ -4,6 +4,7 @@ import { DEFAULT_PRIVATE } from '../engine/methodPrivate'
 import type { M2Norms } from '../engine/method2'
 import PrivateHomes from './PrivateHomes'
 import EpiRds from './EpiRds'
+import { ExplainTitle, NoBulbs } from './Explain'
 
 type Approach = 'homes' | 'rds'
 
@@ -23,14 +24,14 @@ export default function PrivateSector({ mp, setMp, mprv, setMprv }: Props) {
   const [approach, setApproach] = useState<Approach>('homes')
 
   return (
-    <div>
+    <NoBulbs>
       <div className="card lens-explainer" style={{ marginBottom: 16 }}>
-        <h2>Private sector demand · two approaches</h2>
+        <ExplainTitle id="pvt-approach-switch">Private sector demand · two approaches</ExplainTitle>
         <p className="card-note" style={{ marginTop: 4 }}>
           The private maternity sector is estimated on its own, <strong>separate</strong> from the public (government)
-          system. There are two ways to size it. The first counts <strong>private maternity homes</strong> and how many
-          CPAP machines each should have. The second uses <strong>how common newborn breathing problems are</strong>,
-          applied to babies born in private facilities (about 35% of all facility births). Choose an approach below.
+          system. There are two ways to estimate it. The first counts <strong>private maternity homes</strong> and how many
+          CPAP machines each should have. The second takes <strong>how common newborn breathing problems are</strong> and
+          applies it to babies born in private facilities (about 35% of all facility births). Choose an approach below.
         </p>
         <div className="epi-switch" role="tablist" aria-label="Private sector approach">
           {APPROACHES.map((a) => (
@@ -45,6 +46,6 @@ export default function PrivateSector({ mp, setMp, mprv, setMprv }: Props) {
       {approach === 'homes'
         ? <PrivateHomes norms={mp} onChange={setMp} onReset={() => setMp(DEFAULT_PRIVATE)} />
         : <EpiRds norms={mprv} onChange={setMprv} />}
-    </div>
+    </NoBulbs>
   )
 }

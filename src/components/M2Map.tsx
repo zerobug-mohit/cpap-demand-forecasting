@@ -5,19 +5,11 @@ import type { Metric2 } from '../engine/metrics2'
 import { fmtMetric } from '../engine/metrics2'
 import { fmt } from '../utils/format'
 import statesGeo from '../data/india_states.json'
+import { mapColor } from '../utils/mapColor'
+import { ExplainHere } from './Explain'
 
 const W = 560
 const H = 620
-const STOPS = ['#e3eef2', '#8fbcc6', '#0e7e92', '#123a5e']
-function hexToRgb(h: string) { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255] }
-function mix(a: string, b: string, t: number) {
-  const [ar, ag, ab] = hexToRgb(a); const [br, bg, bb] = hexToRgb(b)
-  return `rgb(${Math.round(ar + (br - ar) * t)},${Math.round(ag + (bg - ag) * t)},${Math.round(ab + (bb - ab) * t)})`
-}
-function scaleColor(t: number) {
-  const c = Math.max(0, Math.min(1, t)); const seg = c * (STOPS.length - 1)
-  const i = Math.min(STOPS.length - 2, Math.floor(seg)); return mix(STOPS[i], STOPS[i + 1], seg - i)
-}
 
 interface Hover { row: Computed2; x: number; y: number; flip: boolean }
 
@@ -40,22 +32,23 @@ export default function M2Map({ rows, metric }: { rows: Computed2[]; metric: Met
 
   return (
     <div>
+      <ExplainHere id="td-rds-map" />
       <p className="card-note">
-        State-wise choropleth, shaded by the selected metric. States without a value for a metric (e.g. NMR in
-        smaller states/UTs) are shown in grey. Hover for detail.
+        Each state is shaded by the selected metric. States with no value for a metric, such as the newborn death
+        rate in smaller states and union territories, are shown in grey. Hover over a state to see more detail.
       </p>
       <div className="map-wrap" ref={wrapRef}>
-        <svg viewBox={`0 0 ${W} ${H}`} className="india-map" role="img" aria-label={`India choropleth — ${metric.label}`}>
+        <svg viewBox={`0 0 ${W} ${H}`} className="india-map" role="img" aria-label={`Map of India shaded by ${metric.label}`}>
           {geo.features.map((f: any) => {
             const name = f.properties.state as string
             const row = byState.get(name)
             if (!row) return null
             const v = metric.get(row)
             const active = hover?.row.state === name
-            const fill = isFinite(v) ? scaleColor(norm(v)) : '#e7ebee'
+            const fill = isFinite(v) ? mapColor(norm(v)) : 'var(--map-none)'
             return (
               <path key={name} d={path(f) || undefined} fill={fill}
-                stroke={active ? '#0a2740' : '#ffffff'} strokeWidth={active ? 1.4 : 0.5}
+                stroke={active ? 'var(--map-edge-active)' : 'var(--map-edge)'} strokeWidth={active ? 1.4 : 0.5}
                 className="state-path" onMouseMove={onMove(row)} onMouseLeave={() => setHover(null)} />
             )
           })}
@@ -68,7 +61,7 @@ export default function M2Map({ rows, metric }: { rows: Computed2[]; metric: Met
             <div className="mt-rows">
               <div><span>Births in facilities</span><b>{fmt(hover.row.instBirths)}</b></div>
               <div><span>Low birth weight %</span><b>{hover.row.lbw != null ? hover.row.lbw.toFixed(1) : 'NA'}</b></div>
-              <div><span>Newborn deaths /1k</span><b>{hover.row.nmr != null ? hover.row.nmr : 'NA'}</b></div>
+              <div><span>Newborn deaths per 1,000</span><b>{hover.row.nmr != null ? hover.row.nmr : 'NA'}</b></div>
               <div><span>Need score</span><b>{hover.row.index.toFixed(2)}</b></div>
               <div><span>Likely to need CPAP</span><b>{fmt(hover.row.eligible)}</b></div>
               <div><span>CPAP devices needed</span><b>{fmt(hover.row.gross)}</b></div>

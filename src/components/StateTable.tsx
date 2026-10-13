@@ -22,7 +22,7 @@ const BASE_COLS: Col[] = [
   { key: 'state', label: 'State / UT', render: (r) => r.state, foot: () => 'India total' },
   { key: 'sncu', label: 'SNCUs', render: (r) => fmt(r.sncu), foot: (t) => fmt(t.sncu) },
   { key: 'asisBeds', label: 'SNCU beds', render: (r) => fmt(r.asisBeds), foot: (t) => fmt(t.asisBeds) },
-  { key: 'asisCpap', label: 'CPAP · current-infra', render: (r) => fmt(r.asisCpap), foot: (t) => fmt(t.asisCpap), cls: 'cell-strong' },
+  { key: 'asisCpap', label: 'CPAP, current demand', render: (r) => fmt(r.asisCpap), foot: (t) => fmt(t.asisCpap), cls: 'cell-strong' },
   { key: 'births', label: 'Live births', render: (r) => fmt(r.births), foot: (t) => fmt(t.births) },
 ]
 
@@ -36,17 +36,17 @@ const EXT_COL: Col = {
 
 const INSTALLED_COL: Col = {
   key: 'installed',
-  label: 'Installed · actual',
-  render: (r) => (r.installed != null ? fmt(r.installed) : '—'),
-  foot: () => '—',
+  label: 'Installed (actual)',
+  render: (r) => (r.installed != null ? fmt(r.installed) : '–'),
+  foot: () => '–',
   cls: 'cell-strong',
 }
 
 const GAP2_COL: Col = {
   key: 'gapGuidInstalled',
-  label: 'Gap · infra−inst',
-  render: (r) => (r.gapGuidInstalled != null ? fmt(r.gapGuidInstalled) : '—'),
-  foot: () => '—',
+  label: 'Gap: current minus installed',
+  render: (r) => (r.gapGuidInstalled != null ? fmt(r.gapGuidInstalled) : '–'),
+  foot: () => '–',
   cls: 'cell-gap',
 }
 
@@ -77,20 +77,23 @@ export default function StateTable({ rows, totals, showExt }: Props) {
   return (
     <div>
       <p className="card-note">
-        Click a column heading to sort. This covers all 36 states and union territories. The current-demand figure
-        applies the FBNC norm to today's SNCU beds (the number of SNCUs times the average beds each).
-        {showExt ? ' The "Add-on" column shows the NBSU/Transport extension, which is already included in the CPAP column.' : ''}{' '}
-        <strong>Gap · infra−inst</strong> is the current-demand estimate minus the devices actually installed; a positive
-        number means fewer are installed than the estimate. <strong>Installed · actual</strong> is the number of CPAP
-        devices actually reported, which we have so far for Uttar Pradesh (211), Madhya Pradesh (282), Bihar (72),
-        Punjab (59), Rajasthan (961) and Chhattisgarh (58). It shows “—” where no count has been reported yet, so the gap and the national total are left blank there.
+        Click a column heading to sort the table. The table covers all 36 states and union territories. The current
+        demand figure applies the FBNC norm to today's SNCU beds (the number of SNCUs times the average beds in each)
+        and adds the planning buffer.
+        {showExt ? ' The "Add-on" column shows the devices from the NBSU and transport add-on. They are already included in the current demand column.' : ''}{' '}
+        <strong>Gap: current minus installed</strong> is the current demand estimate minus the devices actually
+        installed. A positive number means fewer devices are installed than the estimate.{' '}
+        <strong>Installed (actual)</strong> is the number of CPAP devices that states have reported. So far we have
+        this for Uttar Pradesh (211), Madhya Pradesh (282), Bihar (72), Punjab (59), Rajasthan (961) and Chhattisgarh
+        (58). Where no count has been reported, the table shows “–” for the installed figure and the gap. The national
+        total is also left blank for these two columns.
       </p>
       <div className="table-scroll">
         <table className="data">
           <thead>
             <tr>
               {cols.map((c) => (
-                <th key={c.key} className={sortKey === c.key ? 'sorted' : ''} onClick={() => onSort(c.key)} title="Sort">
+                <th key={c.key} className={sortKey === c.key ? 'sorted' : ''} onClick={() => onSort(c.key)} title="Click to sort">
                   {c.label}
                   {sortKey === c.key ? (asc ? ' ▲' : ' ▼') : ''}
                 </th>

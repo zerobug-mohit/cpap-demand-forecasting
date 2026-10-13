@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { Computed2, Totals2 } from '../engine/method2'
 import { fmt } from '../utils/format'
+import { ExplainHere } from './Explain'
 
 type SortKey = 'state' | 'instBirths' | 'lbw' | 'nmr' | 'index' | 'eligible' | 'gross'
 
@@ -15,8 +16,8 @@ interface Col {
 const COLS: Col[] = [
   { key: 'state', label: 'State / UT', render: (r) => r.state, foot: () => 'India total' },
   { key: 'instBirths', label: 'Facility births', render: (r) => fmt(r.instBirths), foot: (t) => fmt(t.instBirths) },
-  { key: 'lbw', label: 'Low birth wt %', render: (r) => (r.lbw != null ? r.lbw.toFixed(1) : 'NA'), foot: () => '' },
-  { key: 'nmr', label: 'Newborn deaths /1k', render: (r) => (r.nmr != null ? String(r.nmr) : 'NA'), foot: () => '' },
+  { key: 'lbw', label: 'Low birth weight %', render: (r) => (r.lbw != null ? r.lbw.toFixed(1) : 'NA'), foot: () => '' },
+  { key: 'nmr', label: 'Newborn deaths per 1,000', render: (r) => (r.nmr != null ? String(r.nmr) : 'NA'), foot: () => '' },
   { key: 'index', label: 'Need score', render: (r) => r.index.toFixed(2), foot: () => '' },
   { key: 'eligible', label: 'Likely to need CPAP', render: (r) => fmt(r.eligible), foot: (t) => fmt(t.eligible) },
   { key: 'gross', label: 'CPAP devices', render: (r) => fmt(r.gross), foot: (t) => fmt(t.gross), cls: 'cell-strong' },
@@ -44,6 +45,7 @@ export default function M2Table({ rows, totals }: { rows: Computed2[]; totals: T
 
   return (
     <div>
+      <ExplainHere id="td-rds-table" />
       <p className="card-note">
         Click a column heading to sort. This covers all 36 states and union territories. The <strong>need score</strong>{' '}
         combines each state's low-birth-weight rate and newborn death rate, compared with the national level. The national
@@ -54,7 +56,7 @@ export default function M2Table({ rows, totals }: { rows: Computed2[]; totals: T
         <table className="data">
           <thead>
             <tr>{COLS.map((c) => (
-              <th key={c.key} className={sortKey === c.key ? 'sorted' : ''} onClick={() => onSort(c.key)} title="Sort">
+              <th key={c.key} className={sortKey === c.key ? 'sorted' : ''} onClick={() => onSort(c.key)} title="Click to sort">
                 {c.label}{sortKey === c.key ? (asc ? ' ▲' : ' ▼') : ''}
               </th>
             ))}</tr>

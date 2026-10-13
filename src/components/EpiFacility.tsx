@@ -5,6 +5,7 @@ import { fmt } from '../utils/format'
 import SourceNote from './SourceNote'
 import PanelSection from './PanelSection'
 import EpiFacilityStates from './EpiFacilityStates'
+import { ExplainHere, ExplainTitle, useExplain } from './Explain'
 
 interface Props {
   norms: M3Norms
@@ -29,6 +30,7 @@ function NumField({ label, value, min = 0, max, step = 1, disabled, onChange }: 
 export default function EpiFacility({ norms, onChange, onReset }: Props) {
   const r = useMemo(() => computeM3(norms), [norms])
   const dirty = JSON.stringify(norms) !== JSON.stringify(DEFAULT_M3)
+  const tiersEx = useExplain('td-fac-tiers')
 
   const setLevel = (i: number, patch: Partial<M3Norms['levels'][number]>) => {
     const levels = norms.levels.map((l, j) => (j === i ? { ...l, ...patch } : l))
@@ -47,15 +49,19 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
       {/* ---------------- controls ---------------- */}
       <div className="card card-tight sticky-col fc-panel">
         <div className="flex-between">
-          <h2>Facility tiers</h2>
+          <div className="explain-head">
+            <h2>Facility tiers</h2>
+            {tiersEx.bulb}
+          </div>
           <button className="btn link" onClick={onReset} disabled={!dirty} style={{ opacity: dirty ? 1 : 0.4 }}>Reset</button>
         </div>
+        {tiersEx.panel}
         <p className="card-note" style={{ marginTop: 2 }}>
-          This covers the public network only. For each level, the number of CPAP machines is worked out as
+          This covers public facilities only. For each level, the number of CPAP machines is worked out as
           <strong> beds per 1,000 deliveries × CPAP machines per bed</strong> (the default 4 × 0.30 gives 1.2 machines
           per 1,000 deliveries). You can change both numbers. The <span className="fc-fbnc-tag">FBNC</span> tag marks the
           levels whose default follows the government guideline. Untick a level to leave it out. Private facilities are
-          estimated on the <strong>Private sector Demand</strong> tab.
+          estimated on the <strong>CPAP Demand Estimation (Private)</strong> tab.
         </p>
 
         {norms.levels.map((l, i) => {
@@ -72,51 +78,54 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
                 <span className="fc-normv">{norm.toFixed(2)} /1k</span>
               </div>
               <div className="fc-row2">
-                <NumField label="Beds / 1,000 del." value={l.beds} step={0.5} disabled={!l.inc} onChange={(v) => setLevel(i, { beds: v })} />
-                <NumField label="CPAP / bed" value={l.cpapPerBed} max={1} step={0.05} disabled={!l.inc} onChange={(v) => setLevel(i, { cpapPerBed: v })} />
+                <NumField label="Beds per 1,000 deliveries" value={l.beds} step={0.5} disabled={!l.inc} onChange={(v) => setLevel(i, { beds: v })} />
+                <NumField label="CPAP machines per bed" value={l.cpapPerBed} max={1} step={0.05} disabled={!l.inc} onChange={(v) => setLevel(i, { cpapPerBed: v })} />
               </div>
             </div>
           )
         })}
-        <SourceNote refs={[{ key: 'fbnc2025', page: 'p. 28, 57–60' }]} note="4 SNCU beds / 1,000 deliveries · CPAP = 30% of beds" />
+        <SourceNote refs={[{ key: 'fbnc2025', page: 'p. 28, 57–60' }]} note="4 SNCU beds per 1,000 deliveries, with CPAP for 30% of beds" />
+        <ExplainHere id="td-fac-floor" />
         <p className="hint" style={{ marginTop: 6 }}>
-          <strong>SDH &amp; CHC floor:</strong> every facility gets at least one CPAP machine. For each group we take the
-          larger of the facility count and the number worked out from deliveries, so low-volume facilities settle at one
-          machine each (marked <span className="fc-tag">≥1/fac</span> below).
+          <strong>Minimum for SDH and CHC:</strong> every SDH and CHC gets at least one CPAP machine. For each workload
+          group, we take the larger of two numbers: the number of facilities, or the machines worked out from
+          deliveries. So facilities with few deliveries end up with one machine each. These rows are
+          marked <span className="fc-tag">at least 1 each</span> in the breakdown.
         </p>
 
         <PanelSection
           title="Planning buffer"
+          explain="td-fac-buffer"
           defaultOpen={false}
           badge={norms.buffer !== DEFAULT_M3.buffer ? <span className="badge entered">edited</span> : <span className="badge preset">preset</span>}
         >
           <div style={{ maxWidth: 150 }}>
-            <NumField label="Buffer on total %" value={Math.round(norms.buffer * 100)} max={100} step={5}
+            <NumField label="Buffer on the total (%)" value={Math.round(norms.buffer * 100)} max={100} step={5}
               onChange={(v) => onChange({ ...norms, buffer: Math.min(100, v) / 100 })} />
           </div>
           <p className="hint" style={{ marginTop: 6 }}>
-            Added to the final device total for busy periods, machines wearing out and the time needed to order
-            replacements — the same 25% the other methods use.
+            This is added to the final device total. It covers busy periods, machines wearing out and the time needed
+            to order replacements. By default, the other methods also use 25%.
           </p>
         </PanelSection>
 
-        <PanelSection title="Average deliveries / facility" defaultOpen={false}>
+        <PanelSection title="Average deliveries per facility" explain="td-fac-avg" defaultOpen={false}>
           <div className="fc-row3">
             <NumField label="High >3k/yr" value={norms.avg.high} step={250} onChange={(v) => setAvg('high', v)} />
-            <NumField label="Med 1–3k" value={norms.avg.med} step={250} onChange={(v) => setAvg('med', v)} />
+            <NumField label="Medium 1–3k" value={norms.avg.med} step={250} onChange={(v) => setAvg('med', v)} />
             <NumField label="Low <1k" value={norms.avg.low} step={50} onChange={(v) => setAvg('low', v)} />
           </div>
           <SourceNote
-            refs={[{ key: 'fbnc2025', page: 'burden cutoffs' }]}
-            note="cutoffs (annual deliveries): High >3,000 · Medium 1,000–3,000 · Low <1,000 (SNCU / NBSU / NBCC)"
+            refs={[{ key: 'fbnc2025', page: 'workload cutoffs' }]}
+            note="workload groups by deliveries a year: High over 3,000, Medium 1,000 to 3,000, Low under 1,000 (SNCU / NBSU / NBCC)"
           />
-          <SourceNote refs={[{ key: 'sharmaBmj', page: 'CHC ~490/yr' }]} note="the Low-group average uses the CHC median; the High and Medium averages are assumed" />
+          <SourceNote refs={[{ key: 'sharmaBmj', page: 'CHC about 490 a year' }]} note="the Low group average is the CHC median, and the High and Medium averages are assumed" />
         </PanelSection>
 
-        <PanelSection title="Facility counts & burden split" defaultOpen={false}>
+        <PanelSection title="Facility counts and workload split" explain="td-fac-counts" defaultOpen={false}>
           <SourceNote
-            refs={[{ key: 'healthDynamics', page: 'DH 714 · SDH 1,340 · CHC 6,359' }, { key: 'nmcColleges', page: '~362 govt' }]}
-            note="facility counts; burden % splits assumed"
+            refs={[{ key: 'healthDynamics', page: 'DH 714 · SDH 1,340 · CHC 6,359' }, { key: 'nmcColleges', page: 'about 362 government' }]}
+            note="facility counts (the workload split is assumed)"
           />
           {norms.levels.map((l, i) => (
             <div className="field" key={l.key} style={{ marginTop: 8 }}>
@@ -124,9 +133,9 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
               <div className="fc-row3">
                 <NumField label="Count" value={l.count} onChange={(v) => setLevel(i, { count: Math.round(v) })} />
                 <NumField label="High %" value={l.tiers.high} max={100} disabled={l.lock} onChange={(v) => setTier(i, 'high', v)} />
-                <NumField label="Med %" value={l.tiers.med} max={100} disabled={l.lock} onChange={(v) => setTier(i, 'med', v)} />
+                <NumField label="Medium %" value={l.tiers.med} max={100} disabled={l.lock} onChange={(v) => setTier(i, 'med', v)} />
               </div>
-              {l.lock && <p className="hint" style={{ marginTop: 4 }}>Held at 100% High — a DH / Medical College is Level-3 regardless of caseload (FBNC).</p>}
+              {l.lock && <p className="hint" style={{ marginTop: 4 }}>This is held at 100% High. Under FBNC, a District Hospital or Medical College is Level-3 whatever its number of deliveries.</p>}
             </div>
           ))}
         </PanelSection>
@@ -134,6 +143,7 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
 
       {/* ---------------- results ---------------- */}
       <div>
+        <ExplainHere id="td-fac-kpis" />
         <div className="kpi-row">
           <div className="kpi accent-navy">
             <div className="kpi-label">CPAP devices · public need</div>
@@ -160,13 +170,13 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
             on its own tab.
           </p>
           <SourceNote
-            refs={[{ key: 'healthDynamics', page: 'facility counts' }, { key: 'sharmaBmj', page: 'CHC ~490/yr' }, { key: 'fbnc2025', page: 'norm & cutoffs' }]}
-            note="counts · per-tier delivery averages · device norm"
+            refs={[{ key: 'healthDynamics', page: 'facility counts' }, { key: 'sharmaBmj', page: 'CHC about 490 a year' }, { key: 'fbnc2025', page: 'norm and cutoffs' }]}
+            note="facility counts, average deliveries per workload group and the device norm"
           />
 
-          <h2 style={{ marginTop: 14 }}>Devices by level</h2>
+          <ExplainTitle id="td-fac-bars" style={{ marginTop: 14 }}>Devices by level</ExplainTitle>
           <div className="fc-bars">
-            {r.bars.length === 0 && <p className="card-note">No levels selected.</p>}
+            {r.bars.length === 0 && <p className="card-note">No levels are selected.</p>}
             {r.bars.map((b) => {
               const w = Math.max(2, (b.devices / r.maxBar) * 100)
               return (
@@ -179,9 +189,9 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
             })}
           </div>
 
-          <h2 style={{ marginTop: 4 }}>
-            Full breakdown <span className="muted" style={{ fontWeight: 400, fontSize: '0.76rem' }}>· click a level to open its tiers</span>
-          </h2>
+          <ExplainTitle id="td-fac-breakdown" style={{ marginTop: 4 }}>
+            Full breakdown <span className="muted" style={{ fontWeight: 400, fontSize: '0.76rem' }}>· click a level to see its workload groups</span>
+          </ExplainTitle>
           {r.sections.map((s) => {
             if (s.excluded) {
               return (
@@ -199,7 +209,7 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
               <details className="fc-lvl" key={s.key}>
                 <summary>
                   <span className="fc-lvl-name">{s.name}</span>
-                  <span className="fc-lvl-meta" style={{ flex: 1 }}>{fmt(s.facilities)} facs · {fmt(s.deliveries)} del</span>
+                  <span className="fc-lvl-meta" style={{ flex: 1 }}>{fmt(s.facilities)} facilities · {fmt(s.deliveries)} deliveries</span>
                   <span className="fc-lvl-dev">{fmt(s.devices)}</span>
                 </summary>
                 <table className="fc-tier-tbl">
@@ -221,7 +231,7 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
                         <td className="fc-num">{t.mid}</td>
                         <td className="fc-num">
                           {fmt(t.devices)}
-                          {t.floored && <span className="fc-tag" style={{ marginLeft: 6 }} title="Floored to one CPAP per facility (exceeds the delivery-based norm)">≥1/fac</span>}
+                          {t.floored && <span className="fc-tag" style={{ marginLeft: 6 }} title="Set to one CPAP machine per facility, which is more than the delivery-based norm gives">at least 1 each</span>}
                         </td>
                       </tr>
                     ))}
@@ -231,22 +241,23 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
             )
           })}
 
+          <ExplainHere id="td-fac-total" />
           <div className="fc-grand">
             <span className="g-lab">Public total · CPAP devices</span>
             <span className="g-val fc-num">{fmt(r.totals.devices)}</span>
-            <span className="g-sub fc-num">{fmt(r.totals.rawDevices)} per the norm + {Math.round(norms.buffer * 100)}% planning buffer · {fmt(r.totals.facilities)} facilities</span>
+            <span className="g-sub fc-num">{fmt(r.totals.rawDevices)} from the norm, plus a {Math.round(norms.buffer * 100)}% planning buffer · {fmt(r.totals.facilities)} facilities</span>
           </div>
         </div>
 
         <EpiFacilityStates norms={norms} />
 
         <div className="card">
-          <h2>Method &amp; caveats</h2>
+          <ExplainTitle id="td-fac-caveats">Method and limits</ExplainTitle>
           <ul className="src-list" style={{ paddingLeft: 18 }}>
-            <li>This is a <strong>need</strong> estimate. It works out how many machines a properly-equipped public network would require, not how many are installed today.</li>
-            <li>The facility counts and the FBNC norm come from published sources. The split of facilities into high, medium and low groups and the average deliveries for the high and medium groups are our own assumptions, because there is no published breakdown. You can change them on the left.</li>
-            <li>District Hospitals and medical colleges are all treated as high-volume, because under FBNC they are the top level of newborn care whatever their number of deliveries.</li>
-            <li><strong>SDH and CHC</strong> get at least one CPAP machine per facility: for each group we take the larger of the facility count and the number worked out from deliveries, so low-volume facilities settle at one machine each.</li>
+            <li>This is an estimate of <strong>need</strong>. It works out how many machines a fully equipped public network would need, not how many are installed today.</li>
+            <li>The facility counts and the FBNC norm come from published sources. The split of facilities into high, medium and low workload groups and the average deliveries for the high and medium groups are our own assumptions, because there is no published breakdown. You can change them on the left.</li>
+            <li>All District Hospitals and medical colleges are put in the high group, because under FBNC they are the top level of newborn care whatever their number of deliveries.</li>
+            <li>Every <strong>SDH and CHC</strong> gets at least one CPAP machine. For each group, we take the larger of the facility count and the machines worked out from deliveries, so facilities with few deliveries end up with one machine each.</li>
             <li>This covers the four public levels only (District Hospitals, medical colleges, Sub-District Hospitals and CHCs) and leaves out PHCs and sub-centres. The <strong>private sector</strong> is a separate estimate on its own tab.</li>
           </ul>
         </div>

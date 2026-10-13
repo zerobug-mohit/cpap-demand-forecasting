@@ -6,11 +6,12 @@ import { fmt } from '../utils/format'
 import M2NormsPanel from './M2NormsPanel'
 import M2Explorer from './M2Explorer'
 import M2Flow from './M2Flow'
+import { ExplainHere, ExplainTitle, useExplain } from './Explain'
 
 const DRIVER_LABEL: Record<string, string> = {
   composite: 'Low birth weight + newborn deaths',
   lbw: 'Low birth weight only',
-  volume: 'Births only (no need weighting)',
+  volume: 'Births only (need is not used)',
 }
 
 interface Props {
@@ -23,6 +24,7 @@ export default function EpiRds({ norms, onChange }: Props) {
   const [open, setOpen] = useState(false)
   const priv = norms.sector === 'private'
   const scoped = priv || norms.publicOnly
+  const ex = useExplain('td-rds-how')
 
   return (
     <div className="layout-grid">
@@ -30,17 +32,21 @@ export default function EpiRds({ norms, onChange }: Props) {
 
       <div>
         <div className="card lens-explainer">
-          <button className="lens-toggle-head" onClick={() => setOpen(!open)} aria-expanded={open}>
-            <div>
-              <h2>How the RDS-based estimate works</h2>
-              {!open && (
-                <span className="lens-summary">
-                  We start from the number of newborns, work out how many are likely to need CPAP, turn that into a number of machines, and then split it across states.
-                </span>
-              )}
-            </div>
-            <span className={`chevron ${open ? 'open' : ''}`}>▸</span>
-          </button>
+          <div className="explain-head">
+            <button className="lens-toggle-head" onClick={() => setOpen(!open)} aria-expanded={open}>
+              <div>
+                <h2>How the RDS-based estimate works</h2>
+                {!open && (
+                  <span className="lens-summary">
+                    We start from the number of newborns, work out how many are likely to need CPAP, turn that into a number of machines, and then split it across states.
+                  </span>
+                )}
+              </div>
+              <span className={`chevron ${open ? 'open' : ''}`}>▸</span>
+            </button>
+            {ex.bulb}
+          </div>
+          {ex.panel}
           {open && (
             <div style={{ marginTop: 12 }}>
               <p className="card-note">This estimate is based on how common newborn breathing problems are, not on the facilities that exist today. The steps below show how we get from the number of births to the number of machines, using the current national figures:</p>
@@ -50,18 +56,19 @@ export default function EpiRds({ norms, onChange }: Props) {
                 respiratory distress (RDS) reported in Indian studies and multiply it by a correction factor to also cover
                 other conditions that need CPAP. We then <strong>split this national number across states</strong>. States
                 with more low-birth-weight babies and higher newborn deaths get a larger share, because those are signs of
-                greater need. We use these two signals because a state-by-state RDS rate is not available. You can adjust how
+                greater need. We use these two signals because a state-by-state RDS rate is not available. You can change how
                 strongly need affects the split, and the weight given to each signal, using the controls on the left.
               </p>
             </div>
           )}
         </div>
 
+        <ExplainHere id="td-rds-kpis" />
         <div className="kpi-row">
           <div className="kpi accent-navy">
             <div className="kpi-label">CPAP devices needed · national</div>
             <div className="kpi-value">{fmt(totals.gross)}</div>
-            <div className="kpi-sub">the total this level of need implies</div>
+            <div className="kpi-sub">the total for this level of need</div>
           </div>
           <div className="kpi accent-teal">
             <div className="kpi-label">{priv ? 'Births in private facilities' : scoped ? 'Births in public facilities' : 'Births in facilities'}</div>
@@ -76,17 +83,17 @@ export default function EpiRds({ norms, onChange }: Props) {
           <div className="kpi accent-good">
             <div className="kpi-label">How the total is split</div>
             <div className="kpi-value" style={{ fontSize: '1.05rem' }}>{DRIVER_LABEL[norms.driver]}</div>
-            <div className="kpi-sub">need weighting strength: {norms.beta.toFixed(2)}</div>
+            <div className="kpi-sub">how strongly need counts: {norms.beta.toFixed(2)}</div>
           </div>
         </div>
 
         <M2Explorer rows={rows} totals={totals} />
 
         <div className="card">
-          <h2>Method &amp; caveats</h2>
+          <ExplainTitle id="td-rds-caveats">Method and limits</ExplainTitle>
           <ul className="src-list" style={{ paddingLeft: 18 }}>
             <li>We work out the national number first, then split it across states.</li>
-            <li>States are split using two signals: the share of low-birth-weight babies and the newborn death rate, each compared to the national level. The newborn death rate is not reported for smaller states and union territories, so for them we use low birth weight only.</li>
+            <li>The split across states uses two signals: the share of low-birth-weight babies and the newborn death rate, each compared with the national level. The newborn death rate is not reported for smaller states and union territories, so for them we use low birth weight only.</li>
             <li>The RDS rates come from studies in large referral hospitals, which see sicker babies than the general population. We use them only to set the national number, not to decide each state's share.</li>
             <li>There is no reliable state-by-state rate of premature birth, so we use low birth weight as the closest available substitute.</li>
           </ul>

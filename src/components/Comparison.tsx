@@ -8,6 +8,7 @@ import { fmt } from '../utils/format'
 import CmpScatter from './CmpScatter'
 import CmpMap from './CmpMap'
 import CmpTable from './CmpTable'
+import { ExplainTitle, ExplainHere, NoBulbs, useExplain } from './Explain'
 
 interface Props {
   m1: Norms
@@ -18,7 +19,7 @@ interface Props {
 type View = 'scatter' | 'map' | 'table'
 type NeedBasis = 'rds' | 'facility'
 
-const INSTALLED_COLOR = '#2e8b57'
+const INSTALLED_COLOR = 'var(--s-installed)'
 
 interface Mark { key: string; label: string; value: number; color: string }
 
@@ -111,21 +112,23 @@ export default function Comparison({ m1, m2, m3 }: Props) {
   )
   const needLabel = needBasis === 'facility' ? 'facility-based' : 'RDS-based'
 
+  const needEx = useExplain('cmp-need-basis')
   return (
-    <div>
+    <NoBulbs>
       <div className="card lens-explainer">
+        <ExplainHere id="cmp-scope" />
         <div className="cmp-scope">
-          <label htmlFor="cmp-scope-sel">Scope</label>
+          <label htmlFor="cmp-scope-sel">Area</label>
           <select id="cmp-scope-sel" value={scope} onChange={(e) => setScope(e.target.value)}>
             <option value="national">India (national)</option>
             {sortedStates.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
-        <h2>Demand by approach — {scopeName}</h2>
+        <ExplainTitle id="cmp-by-approach">Demand by approach: {scopeName}</ExplainTitle>
         <p className="card-note">
-          This shows the public CPAP estimates side by side for the area you choose. It compares what the current network
-          should have (the guidelines-based figure) with two independent estimates of what newborns actually need. It also
-          shows the number of machines actually installed, where that has been reported. Private-sector demand is on its
+          This shows the public CPAP estimates side by side for the area you choose. It compares what today's SNCUs should
+          have (the guidelines-based figure) with two separate estimates of what newborns actually need. Where
+          it has been reported, it also shows the number of machines actually installed. Private-sector demand is on its
           own tab and is not included here.
         </p>
         <MarkerBar marks={marks} />
@@ -136,10 +139,10 @@ export default function Comparison({ m1, m2, m3 }: Props) {
         if (installedRows.length === 0) return null
         return (
           <div className="card">
-            <h2>States with reported installed devices</h2>
+            <ExplainTitle id="cmp-installed-states">States with reported installed devices</ExplainTitle>
             <p className="card-note">
               For the states that have reported how many CPAP machines are actually installed, this shows how that count
-              compares with the estimates. Each bar is scaled to its own state.
+              compares with the estimates. Each state's bar uses its own scale.
             </p>
             <div className="legend-row" style={{ marginBottom: 2 }}>
               <span><span className="legend-dot" style={{ background: 'var(--c-asis)' }} />Current (guidelines)</span>
@@ -171,10 +174,10 @@ export default function Comparison({ m1, m2, m3 }: Props) {
       <div className="card">
         <div className="explorer-head">
           <div>
-            <h2 style={{ marginBottom: 2 }}>By state · current demand vs need</h2>
+            <ExplainTitle id="cmp-by-state" style={{ marginBottom: 2 }}>By state: current demand against need</ExplainTitle>
             <p className="card-note" style={{ margin: 0 }}>
-              This shows all states at once: the guidelines-based current demand against the {needLabel} estimate of need,
-              with the machines actually installed where reported.
+              This shows all states at once. It compares the guidelines-based current demand with the {needLabel} estimate
+              of need. Where states have reported it, it also shows the machines actually installed.
             </p>
           </div>
         </div>
@@ -182,18 +185,20 @@ export default function Comparison({ m1, m2, m3 }: Props) {
           <div className="toggle-group" role="tablist" aria-label="View">
             {(['scatter', 'map', 'table'] as View[]).map((v) => (
               <button key={v} role="tab" aria-selected={view === v} className={view === v ? 'active' : ''} onClick={() => setView(v)}>
-                {v === 'scatter' ? 'Bubble regression' : v === 'map' ? 'Map' : 'Table'}
+                {v === 'scatter' ? 'Visual' : v === 'map' ? 'Map' : 'Table'}
               </button>
             ))}
           </div>
           <div className="explorer-controls">
-            <span className="muted" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Need basis</span>
+            <span className="muted" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Need based on</span>
             <div className="series-toggle">
               <button className={needBasis === 'rds' ? 'on asis' : ''} onClick={() => setNeedBasis('rds')}>RDS prevalence</button>
               <button className={needBasis === 'facility' ? 'on norm' : ''} onClick={() => setNeedBasis('facility')}>Facility-based</button>
             </div>
+            {needEx.bulb}
           </div>
         </div>
+        {needEx.panel}
 
         {view === 'scatter' && <CmpScatter rows={chartRows} lens="existing" />}
         {view === 'map' && <CmpMap rows={chartRows} lens="existing" />}
@@ -201,14 +206,14 @@ export default function Comparison({ m1, m2, m3 }: Props) {
       </div>
 
       <div className="card">
-        <h2>How to read it</h2>
+        <ExplainTitle id="cmp-how-to-read">How to read it</ExplainTitle>
         <ul className="src-list" style={{ paddingLeft: 18 }}>
-          <li><strong>Current demand vs need:</strong> the gap between what the SNCUs that exist today should have and what newborns actually need is how much more the public system would have to build.</li>
-          <li><strong>Two estimates of need:</strong> the RDS-based and facility-based numbers are worked out in different ways, so treat the range between them as the likely range rather than one exact figure. Use the need-basis buttons to switch which one the chart, map and table use.</li>
-          <li><strong>Machines installed:</strong> reported for only a few states, so use it as a check on the current-demand estimate, not as a national total.</li>
-          <li>Private-sector demand is left out here on purpose. It is estimated separately on the Private sector Demand tab.</li>
+          <li><strong>Current demand against need:</strong> the gap between what today's SNCUs should have and what newborns actually need shows how much more the public system would have to add.</li>
+          <li><strong>Two estimates of need:</strong> the RDS-based and facility-based numbers are worked out in different ways, so treat the range between them as the likely range rather than one exact figure. Use the “Need based on” buttons to choose which one the chart, map and table use.</li>
+          <li><strong>Machines installed:</strong> only a few states report this, so use it to check the current-demand estimate, not as a national total.</li>
+          <li>Private-sector demand is left out here on purpose. It is estimated separately on the CPAP Demand Estimation (Private) tab.</li>
         </ul>
       </div>
-    </div>
+    </NoBulbs>
   )
 }

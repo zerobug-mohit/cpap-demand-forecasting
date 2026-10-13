@@ -26,13 +26,16 @@ export default function EstimationBottomUp({ norms, onChange }: Props) {
         <LensExplainer totals={totals} norms={norms} rows={rows} />
 
         {norms.scope !== 'sncu' && (
-          <div className="scenario-banner">
-            <strong>Scope: {SCOPE_LABEL[norms.scope]}.</strong> Add-on tiers contribute{' '}
-            <strong>{fmt(totals.extraCpap)} devices</strong> beyond the current FBNC guidance.
-          </div>
+          <>
+            <div className="scenario-banner">
+              <strong>Scope: {SCOPE_LABEL[norms.scope]}.</strong> The add-ons add{' '}
+              <strong>{fmt(totals.extraCpap)} devices</strong> beyond what the current FBNC guidelines provide.
+            </div>
+          </>
         )}
 
         <div style={{ marginTop: 16 }}>
+          <div className="section-label">Summary figures</div>
           <SummaryCards totals={totals} />
         </div>
         <DataExplorer rows={rows} totals={totals} showExt={norms.scope !== 'sncu'} />

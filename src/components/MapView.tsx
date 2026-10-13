@@ -5,6 +5,7 @@ import type { Metric } from '../engine/metrics'
 import { fmtMetric } from '../engine/metrics2'
 import { fmt } from '../utils/format'
 import statesGeo from '../data/india_states.json'
+import { mapColor } from '../utils/mapColor'
 
 interface Props {
   rows: ComputedRow[]
@@ -14,22 +15,6 @@ interface Props {
 const W = 560
 const H = 620
 
-const STOPS = ['#e3eef2', '#8fbcc6', '#0e7e92', '#123a5e']
-function hexToRgb(h: string) {
-  const n = parseInt(h.slice(1), 16)
-  return [(n >> 16) & 255, (n >> 8) & 255, n & 255]
-}
-function mix(a: string, b: string, t: number) {
-  const [ar, ag, ab] = hexToRgb(a)
-  const [br, bg, bb] = hexToRgb(b)
-  return `rgb(${Math.round(ar + (br - ar) * t)},${Math.round(ag + (bg - ag) * t)},${Math.round(ab + (bb - ab) * t)})`
-}
-function scaleColor(t: number) {
-  const c = Math.max(0, Math.min(1, t))
-  const seg = c * (STOPS.length - 1)
-  const i = Math.min(STOPS.length - 2, Math.floor(seg))
-  return mix(STOPS[i], STOPS[i + 1], seg - i)
-}
 
 interface Hover {
   row: ComputedRow
@@ -66,7 +51,7 @@ export default function MapView({ rows, metric }: Props) {
       </p>
 
       <div className="map-wrap" ref={wrapRef}>
-        <svg viewBox={`0 0 ${W} ${H}`} className="india-map" role="img" aria-label={`India state choropleth — ${metric.label}`}>
+        <svg viewBox={`0 0 ${W} ${H}`} className="india-map" role="img" aria-label={`Map of India with each state shaded by ${metric.label}`}>
           {geo.features.map((f: any) => {
             const name = f.properties.state as string
             const row = byState.get(name)
@@ -77,8 +62,8 @@ export default function MapView({ rows, metric }: Props) {
               <path
                 key={name}
                 d={path(f) || undefined}
-                fill={isFinite(v) ? scaleColor(norm(v)) : '#e9eef2'}
-                stroke={active ? '#0a2740' : '#ffffff'}
+                fill={isFinite(v) ? mapColor(norm(v)) : 'var(--map-none)'}
+                stroke={active ? 'var(--map-edge-active)' : 'var(--map-edge)'}
                 strokeWidth={active ? 1.4 : 0.5}
                 className="state-path"
                 onMouseMove={onMove(row)}
@@ -109,10 +94,10 @@ export default function MapView({ rows, metric }: Props) {
               <div><span>SNCUs</span><b>{fmt(hover.row.sncu)}</b></div>
               <div><span>NBSUs</span><b>{fmt(hover.row.nbsu)}</b></div>
               <div><span>Live births</span><b>{fmt(hover.row.births)}</b></div>
-              <div><span>Inst. births</span><b>{fmt(hover.row.instBirths)}</b></div>
-              <div><span>CPAP · current-infra</span><b>{fmt(hover.row.asisCpap)}</b></div>
+              <div><span>Births in facilities</span><b>{fmt(hover.row.instBirths)}</b></div>
+              <div><span>CPAP, current demand</span><b>{fmt(hover.row.asisCpap)}</b></div>
               <div><span>Installed (actual)</span><b>{hover.row.installed != null ? fmt(hover.row.installed) : 'NA'}</b></div>
-              <div><span>Gap · infra−inst</span><b className="mt-gap">{hover.row.gapGuidInstalled != null ? fmt(hover.row.gapGuidInstalled) : 'NA'}</b></div>
+              <div><span>Gap: current minus installed</span><b className="mt-gap">{hover.row.gapGuidInstalled != null ? fmt(hover.row.gapGuidInstalled) : 'NA'}</b></div>
             </div>
           </div>
         )}

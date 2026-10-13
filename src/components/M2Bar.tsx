@@ -2,9 +2,10 @@ import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGri
 import type { Computed2 } from '../engine/method2'
 import type { Metric2 } from '../engine/metrics2'
 import { fmtMetric } from '../engine/metrics2'
+import { ExplainHere } from './Explain'
 
-const TEAL = '#0e7e92'
-const AxisTick = { fontSize: 11, fill: '#52616d', fontFamily: '"Trebuchet MS", "Segoe UI", sans-serif' }
+const TEAL = 'var(--s-current)'
+const AxisTick = { fontSize: 11, fill: 'var(--chart-axis)', fontFamily: 'var(--font-data)' }
 
 export default function M2Bar({ rows, metric }: { rows: Computed2[]; metric: Metric2 }) {
   const top = [...rows]
@@ -23,11 +24,12 @@ export default function M2Bar({ rows, metric }: { rows: Computed2[]; metric: Met
 
   return (
     <div>
-      <p className="card-note">The 15 states with the highest {metric.label.toLowerCase()}.</p>
+      <ExplainHere id="td-rds-bar" />
+      <p className="card-note">This chart shows the 15 states with the highest {/^[A-Z][a-z]/.test(metric.label) ? metric.label[0].toLowerCase() + metric.label.slice(1) : metric.label}.</p>
       <div className="chart-box" style={{ height: 470 }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={top} layout="vertical" margin={{ top: 4, right: 28, bottom: 4, left: 8 }}>
-            <CartesianGrid horizontal={false} stroke="#e4ebef" />
+            <CartesianGrid horizontal={false} stroke="var(--chart-grid)" />
             <XAxis type="number" tick={AxisTick} tickFormatter={(v) => fmtMetric(metric.kind, v)} />
             <YAxis type="category" dataKey="state" width={120} tick={AxisTick} interval={0} />
             <Tooltip content={<Tip />} cursor={{ fill: 'rgba(14,126,146,0.07)' }} />

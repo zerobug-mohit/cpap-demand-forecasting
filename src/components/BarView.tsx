@@ -2,9 +2,9 @@ import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGri
 import type { ComputedRow } from '../engine/method1'
 import { fmt } from '../utils/format'
 
-const ASIS = '#0e7e92'
-const INST = '#2e8b57'
-const GAP_GI = '#c99700'
+const ASIS = 'var(--s-current)'
+const INST = 'var(--s-installed)'
+const GAP_GI = 'var(--s-gap)'
 
 export interface Series {
   asis: boolean
@@ -17,12 +17,12 @@ interface Props {
   series: Series
 }
 
-const AxisTick = { fontSize: 11, fill: '#52616d', fontFamily: '"Trebuchet MS", "Segoe UI", sans-serif' }
+const AxisTick = { fontSize: 11, fill: 'var(--chart-axis)', fontFamily: 'var(--font-data)' }
 
 export const SERIES_META: { flag: keyof Series; dataKey: string; name: string; btn: string; color: string }[] = [
   { flag: 'asis', dataKey: 'asisCpap', name: 'Current demand', btn: 'Current demand', color: ASIS },
   { flag: 'installed', dataKey: 'installed', name: 'Installed (actual)', btn: 'Installed', color: INST },
-  { flag: 'gapGI', dataKey: 'gapGuidInstalled', name: 'Gap: current − installed', btn: 'Gap: current − installed', color: GAP_GI },
+  { flag: 'gapGI', dataKey: 'gapGuidInstalled', name: 'Gap: current minus installed', btn: 'Gap: current minus installed', color: GAP_GI },
 ]
 
 function ChartTooltip({ active, payload, label }: any) {
@@ -53,14 +53,15 @@ export default function BarView({ rows, series }: Props) {
   return (
     <div>
       <p className="card-note">
-        This shows the top 15 states by the first series you pick. You can compare the current-demand estimate, the
-        devices actually installed, and the gap between them (current demand minus installed).
+        This chart shows the 15 states with the highest values for the first measure you pick. You can compare the
+        current demand estimate, the devices actually installed, and the gap between them (current demand minus
+        installed).
         {installedSelected && ' The installed figures appear only for states that have reported a count.'}
       </p>
       <div className="chart-box" style={{ height: 470 }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={top} layout="vertical" margin={{ top: 4, right: 24, bottom: 4, left: 8 }} barGap={1}>
-            <CartesianGrid horizontal={false} stroke="#e4ebef" />
+            <CartesianGrid horizontal={false} stroke="var(--chart-grid)" />
             <XAxis type="number" tick={AxisTick} tickFormatter={(v) => fmt(v)} />
             <YAxis type="category" dataKey="state" width={120} tick={AxisTick} interval={0} />
             <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(14,126,146,0.07)' }} />

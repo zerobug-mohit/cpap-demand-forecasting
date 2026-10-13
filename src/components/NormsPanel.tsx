@@ -38,8 +38,8 @@ const ROWS: RowDef[] = [
   },
   {
     key: 'avgSncuBeds',
-    label: 'Avg beds per SNCU',
-    hint: 'The beds per SNCU are not published, so we estimate total beds as the number of SNCUs times this average. This is the biggest single assumption.',
+    label: 'Average beds per SNCU',
+    hint: 'The number of beds in each SNCU is not published. So we estimate total beds as the number of SNCUs times this average. This is the biggest single assumption.',
     unit: 'beds',
     min: 8,
     max: 30,
@@ -55,12 +55,14 @@ export default function NormsPanel({ norms, onChange, onReset }: Props) {
   return (
     <div className="card card-tight sticky-col">
       <div className="flex-between">
-        <h2>Norms &amp; assumptions</h2>
+        <div className="explain-head">
+          <h2>Norms &amp; assumptions</h2>
+        </div>
         <button className="btn link" onClick={onReset} disabled={!anyDirty} style={{ opacity: anyDirty ? 1 : 0.4 }}>
           Reset
         </button>
       </div>
-      <p className="card-note" style={{ marginTop: 2 }}>You can change any value below. Green means you changed it; amber is the preset default.</p>
+      <p className="card-note" style={{ marginTop: 2 }}>You can change any value below. An "edited" label means you changed the value. A "preset" label means it is the default.</p>
 
       <PanelSection
         title="CPAP scope"
@@ -115,15 +117,15 @@ export default function NormsPanel({ norms, onChange, onReset }: Props) {
               onChange={(e) => onChange({ ...norms, buffer: parseFloat(e.target.value) })} />
           </div>
           <span className="hint">
-            A single uplift added to the final device total to cover busy periods, machines wearing out, and the time
-            needed to order replacements. It is applied to every state and to the national total (the same 25% the
-            epidemiological methods use).
+            This is an extra share added to the final device total. It covers busy periods, machines wearing out, and
+            the time needed to order replacements. It applies to every state and to the national total. By
+            default, the epidemiological methods also use 25%.
           </span>
         </div>
       </PanelSection>
 
       {norms.scope !== 'sncu' && (
-        <PanelSection title="NBSU / Transport add-on">
+        <PanelSection title="NBSU and transport add-on">
           <ExtendedNormsSection norms={norms} onChange={onChange} />
         </PanelSection>
       )}

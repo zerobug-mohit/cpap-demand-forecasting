@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
+import { useExplain } from './Explain'
 
 interface Props {
   title: string
@@ -7,11 +8,14 @@ interface Props {
   defaultOpen?: boolean
   /** factor ids contained in this section; a matching factor-pill click opens it. */
   ids?: string[]
+  /** explainer id; adds a light-bulb button beside the section head. */
+  explain?: string
   children: ReactNode
 }
 
-export default function PanelSection({ title, badge, defaultOpen = false, ids, children }: Props) {
+export default function PanelSection({ title, badge, defaultOpen = false, ids, explain, children }: Props) {
   const [open, setOpen] = useState(defaultOpen)
+  const ex = useExplain(explain)
 
   const idKey = ids ? ids.join(',') : ''
   useEffect(() => {
@@ -27,11 +31,15 @@ export default function PanelSection({ title, badge, defaultOpen = false, ids, c
 
   return (
     <div className="panel-section">
-      <button className="panel-section-head" onClick={() => setOpen(!open)} aria-expanded={open}>
-        <span className={`chevron ${open ? 'open' : ''}`}>▸</span>
-        <span className="panel-section-title">{title}</span>
-        {badge && <span className="panel-section-badge">{badge}</span>}
-      </button>
+      <div className="explain-head">
+        <button className="panel-section-head" onClick={() => setOpen(!open)} aria-expanded={open}>
+          <span className={`chevron ${open ? 'open' : ''}`}>▸</span>
+          <span className="panel-section-title">{title}</span>
+          {badge && <span className="panel-section-badge">{badge}</span>}
+        </button>
+        {ex.bulb}
+      </div>
+      {ex.panel}
       {open && <div className="panel-section-body">{children}</div>}
     </div>
   )

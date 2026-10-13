@@ -4,8 +4,9 @@ import {
 import type { BuLens, CmpRow } from '../engine/compare'
 import { classify, CLS_LABEL, CLS_COLOR } from '../engine/compare'
 import { fmt } from '../utils/format'
+import { ExplainHere } from './Explain'
 
-const AxisTick = { fontSize: 11, fill: '#52616d', fontFamily: '"Trebuchet MS", "Segoe UI", sans-serif' }
+const AxisTick = { fontSize: 11, fill: 'var(--chart-axis)', fontFamily: 'var(--font-data)' }
 
 export default function CmpScatter({ rows, lens }: { rows: CmpRow[]; lens: BuLens }) {
   const buOf = (r: CmpRow) => (lens === 'existing' ? r.buExisting : r.buNormative)
@@ -19,7 +20,7 @@ export default function CmpScatter({ rows, lens }: { rows: CmpRow[]; lens: BuLen
   const hi = Math.ceil(Math.max(...vals))
 
   // Best-fit on log10(x), log10(y) → a power law y = C·x^b (a straight line on log-log axes).
-  const FIT = '#8338ec'
+  const FIT = 'var(--s-fit)'
   const lx = pts.map((p) => Math.log10(p.x))
   const ly = pts.map((p) => Math.log10(p.y))
   const n = pts.length
@@ -52,30 +53,31 @@ export default function CmpScatter({ rows, lens }: { rows: CmpRow[]; lens: BuLen
 
   return (
     <div>
+      <ExplainHere id="cmp-scatter" />
       <p className="card-note">
-        Each dot is a state. The bottom axis is the epidemiological need and the side axis is the guidelines-based current
-        demand. Both axes use a log scale, and a dot is larger where the state has more births. The grey dashed line is
-        where the two are equal: dots <strong>below</strong> it are states where current demand is lower than the need, and
-        dots <strong>above</strong> it are states where it is higher.
+        Each dot is a state. The bottom axis shows the epidemiological need and the side axis shows the guidelines-based
+        current demand. On both axes the numbers grow by multiples, not by equal steps. A larger dot means the state has
+        more births. The grey dashed line marks where the two are equal. Dots <strong>below</strong> it are states where
+        current demand is lower than the need, and dots <strong>above</strong> it are states where it is higher.
         {hasFit && (
-          <> The <span style={{ color: FIT, fontWeight: 700 }}>coloured line</span> is the best-fit trend through the
+          <> The <span style={{ color: FIT, fontWeight: 700 }}>coloured line</span> is the trend line through the
           dots (<strong>{eqn}</strong>, R² = {r2.toFixed(2)}).{' '}
-          {b < 1 ? 'Its slope is below 1, so current demand rises more slowly than need, and larger states are relatively less well covered.' : b > 1 ? 'Its slope is above 1, so current demand rises faster than need.' : 'Its slope is about 1, so current demand rises in step with need.'}</>
+          {b < 1 ? 'It is flatter than the grey line, so current demand rises more slowly than need, and larger states have less of their need covered.' : b > 1 ? 'It is steeper than the grey line, so current demand rises faster than need.' : 'It runs about parallel to the grey line, so current demand rises in step with need.'}</>
         )}
         {excluded > 0 && ` ${excluded} state(s) with a zero value are left out.`}
       </p>
       <div className="chart-box" style={{ height: 460 }}>
         <ResponsiveContainer width="100%" height="100%">
           <ScatterChart margin={{ top: 8, right: 24, bottom: 28, left: 8 }}>
-            <CartesianGrid stroke="#e4ebef" />
+            <CartesianGrid stroke="var(--chart-grid)" />
             <XAxis type="number" dataKey="x" name="Epidemiological need" scale="log" domain={[lo, hi]} allowDataOverflow
               tick={AxisTick} tickFormatter={(v) => fmt(v)}
-              label={{ value: 'Epidemiological need', position: 'insideBottom', offset: -14, fontSize: 12, fill: '#52616d' }} />
+              label={{ value: 'Epidemiological need', position: 'insideBottom', offset: -14, fontSize: 12, fill: 'var(--chart-axis)' }} />
             <YAxis type="number" dataKey="y" name="Guidelines-based" scale="log" domain={[lo, hi]} allowDataOverflow
               tick={AxisTick} tickFormatter={(v) => fmt(v)} width={54}
-              label={{ value: 'Guidelines-based current demand', angle: -90, position: 'insideLeft', fontSize: 12, fill: '#52616d' }} />
+              label={{ value: 'Guidelines-based current demand', angle: -90, position: 'insideLeft', fontSize: 12, fill: 'var(--chart-axis)' }} />
             <ZAxis type="number" dataKey="z" range={[30, 380]} />
-            <ReferenceLine segment={[{ x: lo, y: lo }, { x: hi, y: hi }]} stroke="#86909a" strokeDasharray="5 4" ifOverflow="extendDomain" />
+            <ReferenceLine segment={[{ x: lo, y: lo }, { x: hi, y: hi }]} stroke="var(--s-parity)" strokeDasharray="5 4" ifOverflow="extendDomain" />
             {hasFit && (
               <ReferenceLine segment={[{ x: lo, y: fitAt(lo) }, { x: hi, y: fitAt(hi) }]} stroke={FIT} strokeWidth={2} ifOverflow="extendDomain" />
             )}
@@ -90,8 +92,8 @@ export default function CmpScatter({ rows, lens }: { rows: CmpRow[]; lens: BuLen
         {(['under', 'aligned', 'over'] as const).map((c) => (
           <span key={c}><span className="legend-dot" style={{ background: CLS_COLOR[c] }} />{CLS_LABEL[c]}</span>
         ))}
-        <span><span className="legend-dot" style={{ background: '#86909a' }} />Parity (y = x)</span>
-        {hasFit && <span><span className="legend-dot" style={{ background: FIT }} />Best fit · {eqn} · R² {r2.toFixed(2)}</span>}
+        <span><span className="legend-dot" style={{ background: 'var(--s-parity)' }} />Current demand = need</span>
+        {hasFit && <span><span className="legend-dot" style={{ background: FIT }} />Trend line · {eqn} · R² {r2.toFixed(2)}</span>}
       </div>
     </div>
   )

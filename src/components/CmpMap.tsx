@@ -3,24 +3,16 @@ import { geoMercator, geoPath } from 'd3-geo'
 import type { BuLens, CmpRow } from '../engine/compare'
 import { fmt } from '../utils/format'
 import statesGeo from '../data/india_states.json'
+import { mapColor } from '../utils/mapColor'
+import { ExplainHere } from './Explain'
 
 const W = 560
 const H = 620
-const STOPS = ['#e3eef2', '#8fbcc6', '#0e7e92', '#123a5e']
-function hexToRgb(h: string) { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255] }
-function mix(a: string, b: string, t: number) {
-  const [ar, ag, ab] = hexToRgb(a); const [br, bg, bb] = hexToRgb(b)
-  return `rgb(${Math.round(ar + (br - ar) * t)},${Math.round(ag + (bg - ag) * t)},${Math.round(ab + (bb - ab) * t)})`
-}
-function scaleColor(t: number) {
-  const c = Math.max(0, Math.min(1, t)); const seg = c * (STOPS.length - 1)
-  const i = Math.min(STOPS.length - 2, Math.floor(seg)); return mix(STOPS[i], STOPS[i + 1], seg - i)
-}
 
 type CmpMetric = 'unmet' | 'coverage' | 'td'
 const METRICS: { key: CmpMetric; label: string }[] = [
-  { key: 'unmet', label: 'Unmet need (epidemiological − guidelines-based)' },
-  { key: 'coverage', label: 'Coverage (guidelines-based ÷ epidemiological)' },
+  { key: 'unmet', label: 'Unmet need (need minus current demand)' },
+  { key: 'coverage', label: 'Coverage (current demand as % of need)' },
   { key: 'td', label: 'Epidemiological need' },
 ]
 
@@ -56,17 +48,18 @@ export default function CmpMap({ rows, lens }: { rows: CmpRow[]; lens: BuLens })
 
   return (
     <div>
+      <ExplainHere id="cmp-map" />
       <div className="explorer-controls" style={{ justifyContent: 'flex-end', marginBottom: 8 }}>
         <label className="ctrl-inline">
-          <span className="muted">Metric</span>
+          <span className="muted">Shade by</span>
           <select value={metricKey} onChange={(e) => setMetricKey(e.target.value as CmpMetric)}>
             {METRICS.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
           </select>
         </label>
       </div>
-      <p className="card-note">This map shows, for each state, how the guidelines-based current demand compares with the epidemiological need. Darker means a higher value.</p>
+      <p className="card-note">This map shows how the guidelines-based current demand compares with the epidemiological need in each state. A darker colour means a higher value.</p>
       <div className="map-wrap" ref={wrapRef}>
-        <svg viewBox={`0 0 ${W} ${H}`} className="india-map" role="img" aria-label={`Comparison choropleth — ${label}`}>
+        <svg viewBox={`0 0 ${W} ${H}`} className="india-map" role="img" aria-label={`Map of states shaded by ${label}`}>
           {geo.features.map((f: any) => {
             const name = f.properties.state as string
             const row = byState.get(name)
@@ -74,8 +67,8 @@ export default function CmpMap({ rows, lens }: { rows: CmpRow[]; lens: BuLens })
             const v = valueOf(row)
             const active = hover?.row.state === name
             return (
-              <path key={name} d={path(f) || undefined} fill={isFinite(v) ? scaleColor(norm(v)) : '#e7ebee'}
-                stroke={active ? '#0a2740' : '#ffffff'} strokeWidth={active ? 1.4 : 0.5}
+              <path key={name} d={path(f) || undefined} fill={isFinite(v) ? mapColor(norm(v)) : 'var(--map-none)'}
+                stroke={active ? 'var(--map-edge-active)' : 'var(--map-edge)'} strokeWidth={active ? 1.4 : 0.5}
                 className="state-path" onMouseMove={onMove(row)} onMouseLeave={() => setHover(null)} />
             )
           })}
@@ -86,7 +79,7 @@ export default function CmpMap({ rows, lens }: { rows: CmpRow[]; lens: BuLens })
             <div className="mt-primary"><span>{label}</span><strong>{fmtVal(valueOf(hover.row))}</strong></div>
             <div className="mt-rows">
               <div><span>Epidemiological need</span><b>{fmt(hover.row.td)}</b></div>
-              <div><span>Current infra-based</span><b>{fmt(hover.row.buExisting)}</b></div>
+              <div><span>Current demand (guidelines)</span><b>{fmt(hover.row.buExisting)}</b></div>
               {hover.row.installed != null && <div><span>Installed (actual)</span><b>{fmt(hover.row.installed)}</b></div>}
             </div>
           </div>

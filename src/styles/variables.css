@@ -34,6 +34,22 @@
   --c-danger: #c2562b;
   --c-danger-bg: #f7e4db;
 
+  /* surfaces that sit above the page, and text on filled colour */
+  --c-field: #ffffff; /* text and number inputs */
+  --c-pop: #ffffff; /* tooltips and pop-ups */
+  --c-on-primary: #ffffff;
+  --c-primary-line: #bcdde3; /* border of the pale-teal fills */
+  --c-primary-light-2: #d3ebf0;
+  --c-accent-line: #e9c3b3;
+  --c-warn-line: #e7d6a6;
+  --c-warn-d: #7a5a10;
+  --c-good-d: #0a5957;
+  --c-best-line-2: #c6e3dc;
+  --c-pill-hover: #f0dfb0;
+  --c-pill-hover-line: #d8c48a;
+  --c-scroll: rgba(120, 132, 145, 0.45);
+  --c-scroll-hover: rgba(88, 100, 112, 0.6);
+
   /* borders */
   --c-border: #d6dee3;
   --c-border-strong: #c2cbd1;
@@ -59,4 +75,45 @@
 
   /* typography — Trebuchet MS everywhere */
   --font: "Trebuchet MS", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  --font-data: var(--font); /* chart axes, ticks and other numbers drawn in SVG */
+
+  /* chart chrome */
+  --chart-grid: #e4ebef;
+  --chart-axis: #52616d;
+  --chart-axis-line: #c2cbd1;
+  --chart-cursor: #a6b1b9;
+  --chart-dot-ring: #ffffff;
+
+  /* chart series — named by what they stand for, so every chart follows the active design */
+  --s-baseline: #0e7e92;
+  --s-moderate: #c2912a;
+  --s-accelerated: #123a5e;
+  --s-mine: #d6336c; /* "your combination" */
+  --s-cloud: #52616d; /* the simulated combinations */
+  --s-need: #17212b; /* the public-need ceiling */
+  --s-sncu: #0e7e92;
+  --s-nbsu: #c2912a;
+  --s-mncu: #123a5e;
+  --s-transport: #e8a33d;
+  --s-current: #0e7e92;
+  --s-installed: #2e8b57;
+  --s-gap: #c99700;
+  --s-fit: #8338ec;
+  --s-parity: #86909a;
+  --t-baseline: var(--s-baseline); /* the line colours as text: a darker shade where the line colour is too pale to read */
+  --t-moderate: #8a6416;
+  --t-accelerated: var(--s-accelerated);
+  --t-mine: #b8255a;
+  --s-under: #c2562b;
+  --s-aligned: #0e7e92;
+  --s-over: #123a5e;
+
+  /* choropleth maps: four stops from low to high, plus no-data and outlines */
+  --map-0: #e3eef2;
+  --map-1: #8fbcc6;
+  --map-2: #0e7e92;
+  --map-3: #123a5e;
+  --map-none: #e8ecef;
+  --map-edge: #ffffff;
+  --map-edge-active: #0a2740;
 }

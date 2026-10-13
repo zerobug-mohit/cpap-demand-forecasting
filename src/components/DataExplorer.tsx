@@ -33,6 +33,7 @@ export default function DataExplorer({ rows, totals, showExt }: Props) {
 
   return (
     <div className="card">
+      <div className="section-label">State-wise results</div>
       <div className="explorer-head">
         <div className="toggle-group" role="tablist" aria-label="View">
           {(['map', 'visual', 'table'] as View[]).map((v) => (
@@ -45,7 +46,7 @@ export default function DataExplorer({ rows, totals, showExt }: Props) {
         <div className="explorer-controls">
           {view === 'map' && (
             <label className="ctrl-inline">
-              <span className="muted">Metric</span>
+              <span className="muted">Value</span>
               <select value={metricKey} onChange={(e) => setMetricKey(e.target.value)}>
                 {METRICS.map((m) => (
                   <option key={m.key} value={m.key}>{m.label}</option>
@@ -63,7 +64,7 @@ export default function DataExplorer({ rows, totals, showExt }: Props) {
                     key={s.flag}
                     onClick={() => toggleSeries(s.flag)}
                     disabled={blocked}
-                    title={blocked ? `Deselect one — up to ${MAX_SERIES} series at a time` : s.name}
+                    title={blocked ? `You can show up to ${MAX_SERIES} at a time. Turn one off first.` : s.name}
                     style={on
                       ? { background: s.color, borderColor: s.color, color: '#fff' }
                       : { background: 'var(--c-surface)', borderColor: s.color, color: s.color, opacity: blocked ? 0.4 : 1, cursor: blocked ? 'not-allowed' : 'pointer' }}
@@ -82,10 +83,11 @@ export default function DataExplorer({ rows, totals, showExt }: Props) {
       {view === 'table' && <StateTable rows={rows} totals={totals} showExt={showExt} />}
 
       <hr className="divider" />
-      <SourceNote refs={[{ key: 'mohfwAR', page: 'p. 62' }]} note="SNCU / NBSU counts (as on Oct 2024)" />
+      <div className="section-label">Sources for state figures</div>
+      <SourceNote refs={[{ key: 'mohfwAR', page: 'p. 62' }]} note="SNCU and NBSU counts (as on Oct 2024)" />
       <SourceNote
         refs={[{ key: 'srs2024', page: 'CBR' }, { key: 'ncpProj', page: 'population' }]}
-        note="live births = crude birth rate × projected population"
+        note="live births are worked out from the crude birth rate and the projected population"
       />
     </div>
   )

@@ -6,6 +6,7 @@ import M2Bar from './M2Bar'
 import M2Table from './M2Table'
 import SourceNote from './SourceNote'
 import DataCaveats from './DataCaveats'
+import { ExplainHere } from './Explain'
 
 type View = 'map' | 'visual' | 'table'
 
@@ -16,6 +17,7 @@ export default function M2Explorer({ rows, totals }: { rows: Computed2[]; totals
 
   return (
     <div className="card">
+      <ExplainHere id="td-rds-explorer" />
       <div className="explorer-head">
         <div className="toggle-group" role="tablist" aria-label="View">
           {(['map', 'visual', 'table'] as View[]).map((v) => (
@@ -41,8 +43,8 @@ export default function M2Explorer({ rows, totals }: { rows: Computed2[]; totals
       {view === 'table' && <M2Table rows={rows} totals={totals} />}
 
       <hr className="divider" />
-      <SourceNote refs={[{ key: 'nfhs6', page: 'inst. delivery' }, { key: 'nfhs5', page: 'LBW' }]} note="institutional delivery · LBW" />
-      <SourceNote refs={[{ key: 'srs2024', page: 'NMR & CBR' }, { key: 'ncpProj', page: 'population' }]} note="NMR · live births" />
+      <SourceNote refs={[{ key: 'nfhs6', page: 'institutional delivery' }, { key: 'nfhs5', page: 'LBW' }]} note="institutional delivery and LBW" />
+      <SourceNote refs={[{ key: 'srs2024', page: 'NMR and CBR' }, { key: 'ncpProj', page: 'population' }]} note="NMR and live births" />
       <DataCaveats />
     </div>
   )

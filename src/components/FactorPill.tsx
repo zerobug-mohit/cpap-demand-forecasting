@@ -10,7 +10,7 @@ export default function FactorPill({ target, children }: { target: string; child
     window.setTimeout(() => scrollToFactor(target), 90) // then scroll once it has mounted
   }
   return (
-    <button type="button" className="factor-pill" onClick={go} title="Adjust this on the left">
+    <button type="button" className="factor-pill" onClick={go} title="Change this value in the panel on the left.">
       {children}
     </button>
   )

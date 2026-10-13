@@ -60,11 +60,11 @@ export function classify(bu: number, td: number): Cls {
 
 export const CLS_LABEL: Record<Cls, string> = {
   under: 'Under-served',
-  aligned: 'Aligned',
-  over: 'Potentially over-provisioned',
+  aligned: 'Close to need',
+  over: 'Possibly over-supplied',
 }
 export const CLS_COLOR: Record<Cls, string> = {
-  under: '#c2562b',
-  aligned: '#0e7e92',
-  over: '#123a5e',
+  under: 'var(--s-under)',
+  aligned: 'var(--s-aligned)',
+  over: 'var(--s-over)',
 }

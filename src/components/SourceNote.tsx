@@ -16,7 +16,7 @@ export default function SourceNote({ refs, prefix = 'Source', note }: Props) {
   return (
     <div className="source-note">
       <span className="src-prefix">{prefix}:</span>{' '}
-      {note && <span>{note} — </span>}
+      {note && <span>{note}{/[.!?]$/.test(note.trim()) ? '' : '.'} </span>}
       {refs.map((r, i) => {
         const s = SOURCES[r.key]
         return (

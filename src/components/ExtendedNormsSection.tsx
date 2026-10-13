@@ -21,7 +21,7 @@ function NbsuControls({ ext, onExt }: { ext: FacilityExt; onExt: (e: FacilityExt
       </div>
       <div className="field" style={{ marginBottom: 10 }}>
         <label>
-          <span>% carrying CPAP</span>
+          <span>% with CPAP</span>
           <span className="range-val">{Math.round(ext.pct * 100)}%</span>
         </label>
         <input
@@ -35,7 +35,7 @@ function NbsuControls({ ext, onExt }: { ext: FacilityExt; onExt: (e: FacilityExt
       </div>
       <div className="ext-grid">
         <label className="mini-field">
-          <span>Beds / unit</span>
+          <span>Beds per unit</span>
           <input
             type="number"
             min={0}
@@ -45,7 +45,7 @@ function NbsuControls({ ext, onExt }: { ext: FacilityExt; onExt: (e: FacilityExt
           />
         </label>
         <label className="mini-field">
-          <span>CPAP / bed</span>
+          <span>CPAP per bed</span>
           <input
             type="number"
             min={0}
@@ -68,7 +68,7 @@ function TransportControls({ norms, onChange }: Props) {
       </div>
       <div className="ext-grid">
         <label className="mini-field">
-          <span>Units / SNCU</span>
+          <span>Units per SNCU</span>
           <input
             type="number"
             min={0}
@@ -78,7 +78,7 @@ function TransportControls({ norms, onChange }: Props) {
           />
         </label>
         <label className="mini-field">
-          <span>Units / NBSU</span>
+          <span>Units per NBSU</span>
           <input
             type="number"
             min={0}
@@ -89,7 +89,8 @@ function TransportControls({ norms, onChange }: Props) {
         </label>
       </div>
       <p className="mini-hint">
-        Proxied by facility counts ({fmt(SNCU_TOTAL)} SNCUs, {fmt(NBSU_TOTAL)} NBSUs) — no transfer-volume data yet.
+        This is based on facility counts ({fmt(SNCU_TOTAL)} SNCUs, {fmt(NBSU_TOTAL)} NBSUs) because there is no data yet
+        on the number of transfers.
       </p>
       <SourceNote refs={[{ key: 'mohfwAR', page: 'p. 62' }]} note="facility counts" />
     </div>
@@ -109,15 +110,17 @@ function StateOverrides({ norms, onChange }: Props) {
 
   return (
     <div className="collapse nested">
-      <button className="collapse-head sub" onClick={() => setOpen(!open)} aria-expanded={open}>
-        <span className={`chevron ${open ? 'open' : ''}`}>▸</span>
-        Adjust NBSU % by state
-        {ovrCount > 0 && <span className="collapse-tag active">{ovrCount} set</span>}
-      </button>
+      <div className="explain-head">
+        <button className="collapse-head sub" onClick={() => setOpen(!open)} aria-expanded={open}>
+          <span className={`chevron ${open ? 'open' : ''}`}>▸</span>
+          Adjust NBSU % by state
+          {ovrCount > 0 && <span className="collapse-tag active">{ovrCount} set</span>}
+        </button>
+      </div>
       {open && (
         <div className="collapse-body">
           <div className="flex-between" style={{ marginBottom: 6 }}>
-            <span className="muted" style={{ fontSize: '0.72rem' }}>Blank = overall default (%)</span>
+            <span className="muted" style={{ fontSize: '0.72rem' }}>Leave a box blank to use the overall default.</span>
             <button className="btn link" onClick={() => onChange({ ...norms, overrides: {} })} disabled={ovrCount === 0}>
               Clear
             </button>
@@ -166,10 +169,10 @@ export default function ExtendedNormsSection({ norms, onChange }: Props) {
   return (
     <div className="scope-params">
       <p className="ext-note">
-        ⚠ Current FBNC guidelines do <strong>not</strong> provide for CPAP at NBSUs or during transport. The tiers
-        below are what-if add-ons — included in the totals so you can test their effect.
+        ⚠ The current FBNC guidelines do <strong>not</strong> provide for CPAP at NBSUs or during transport. The
+        settings below are optional add-ons. They are included in the totals so you can test their effect.
       </p>
-      <SourceNote refs={[{ key: 'fbnc2025', page: 'p. 57' }]} note="NBSU/NBCC equipment package (no CPAP)" />
+      <SourceNote refs={[{ key: 'fbnc2025', page: 'p. 57' }]} note="NBSU and NBCC equipment package (no CPAP)" />
 
       <NbsuControls ext={norms.nbsu} onExt={(nbsu) => onChange({ ...norms, nbsu })} />
       {hasTransport(norms) && <TransportControls norms={norms} onChange={onChange} />}

@@ -19,7 +19,7 @@ export const DEFAULT_PRIVATE: PrivateNorms = {
   deliveryPct: 100,
   tiers: [
     { name: 'High · 3+ bed SNCU', count: 2500, cpap: 3 },
-    { name: 'Medium · 1–2 bed SNCU', count: 5000, cpap: 1.5 },
+    { name: 'Medium · 1 to 2 bed SNCU', count: 5000, cpap: 1.5 },
     { name: 'Small · basic setup', count: 30000, cpap: 0 },
   ],
 }

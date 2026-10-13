@@ -7,8 +7,8 @@ export type Scope = 'sncu' | 'sncu_nbsu' | 'sncu_nbsu_transport'
 
 export const SCOPE_LABEL: Record<Scope, string> = {
   sncu: 'SNCUs only',
-  sncu_nbsu: 'SNCUs + NBSUs',
-  sncu_nbsu_transport: 'SNCUs + NBSUs + Transport',
+  sncu_nbsu: 'SNCUs and NBSUs',
+  sncu_nbsu_transport: 'SNCUs, NBSUs and transport',
 }
 
 export const hasNbsu = (n: Norms) => n.scope !== 'sncu'

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { CmpRow } from '../engine/compare'
 import { fmt } from '../utils/format'
+import { ExplainHere } from './Explain'
 
 type SortKey = 'state' | 'td' | 'buExisting' | 'installed' | 'coverage' | 'unmetAct' | 'unmetGuid'
 
@@ -30,27 +31,29 @@ export default function CmpTable({ rows }: { rows: CmpRow[] }) {
   const cols: { key: SortKey; label: string }[] = [
     { key: 'state', label: 'State / UT' },
     { key: 'td', label: 'Epidemiological need' },
-    { key: 'buExisting', label: 'Current infra-based' },
-    { key: 'installed', label: 'Installed · actual' },
-    { key: 'coverage', label: 'Coverage (infra/need)' },
-    { key: 'unmetAct', label: 'Unmet vs installed' },
-    { key: 'unmetGuid', label: 'Unmet vs current demand' },
+    { key: 'buExisting', label: 'Current demand (guidelines)' },
+    { key: 'installed', label: 'Installed (actual)' },
+    { key: 'coverage', label: 'Coverage (% of need)' },
+    { key: 'unmetAct', label: 'Need minus installed' },
+    { key: 'unmetGuid', label: 'Need minus current demand' },
   ]
 
   return (
     <div>
+      <ExplainHere id="cmp-table" />
       <p className="card-note">
-        Click a column to sort · 36 states / UTs. <strong>Unmet vs installed</strong> = epidemiological need −
-        installed actual, shown only for states that report a device count. <strong>Unmet vs current demand</strong>{' '}
-        = epidemiological need − guidelines-based current demand (the build-out gap). Coverage = current infra-based ÷
-        epidemiological need.
+        The table lists 36 states and UTs. Click a column heading to sort by it. <strong>Need minus installed</strong> is
+        the epidemiological need minus the machines actually installed. It is shown only for states that report a device
+        count. <strong>Need minus current demand</strong> is the epidemiological need minus the guidelines-based current
+        demand. It shows how much more the public system would have to add. <strong>Coverage</strong> is the
+        guidelines-based current demand as a % of the epidemiological need.
       </p>
       <div className="table-scroll">
         <table className="data">
           <thead>
             <tr>
               {cols.map((c) => (
-                <th key={c.key} className={sortKey === c.key ? 'sorted' : ''} onClick={() => onSort(c.key)} title="Sort">
+                <th key={c.key} className={sortKey === c.key ? 'sorted' : ''} onClick={() => onSort(c.key)} title="Click to sort">
                   {c.label}{sortKey === c.key ? (asc ? ' ▲' : ' ▼') : ''}
                 </th>
               ))}
@@ -64,9 +67,9 @@ export default function CmpTable({ rows }: { rows: CmpRow[] }) {
                   <td>{r.state}</td>
                   <td>{fmt(r.td)}</td>
                   <td>{fmt(r.buExisting)}</td>
-                  <td className="cell-strong">{r.installed != null ? fmt(r.installed) : '—'}</td>
+                  <td className="cell-strong">{r.installed != null ? fmt(r.installed) : '–'}</td>
                   <td>{r.td > 0 ? `${Math.round(coverage(r) * 100)}%` : 'NA'}</td>
-                  <td className="cell-gap">{ua != null ? fmt(ua) : '—'}</td>
+                  <td className="cell-gap">{ua != null ? fmt(ua) : '–'}</td>
                   <td className="cell-gap">{fmt(unmetGuid(r))}</td>
                 </tr>
               )
@@ -77,9 +80,9 @@ export default function CmpTable({ rows }: { rows: CmpRow[] }) {
               <td>India total</td>
               <td>{fmt(tot.td)}</td>
               <td>{fmt(tot.e)}</td>
-              <td>—</td>
+              <td>–</td>
               <td>{tot.td > 0 ? `${Math.round((tot.e / tot.td) * 100)}%` : 'NA'}</td>
-              <td className="cell-gap">—</td>
+              <td className="cell-gap">–</td>
               <td className="cell-gap">{fmt(Math.max(0, tot.td - tot.e))}</td>
             </tr>
           </tfoot>

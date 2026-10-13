@@ -15,7 +15,7 @@ import type { M3Norms } from './engine/method3'
 import { DEFAULT_PRIVATE } from './engine/methodPrivate'
 import type { PrivateNorms } from './engine/methodPrivate'
 
-type Section = 'estimation' | 'forecasting'
+type Section = 'estimation' | 'forecasting' | 'private'
 
 interface Tab {
   key: string
@@ -26,15 +26,16 @@ const SUBS: Record<Section, Tab[]> = {
   estimation: [
     { key: 'bu', label: 'Guidelines-based current demand' },
     { key: 'td', label: 'Epidemiological Need' },
-    { key: 'pvt', label: 'Private sector Demand' },
     { key: 'cmp', label: 'Compare estimates' },
   ],
   forecasting: [{ key: 'fc', label: 'Forecast' }],
+  private: [{ key: 'pvt', label: 'Private sector demand' }],
 }
 
 const PRIMARY: { key: Section; label: string }[] = [
-  { key: 'estimation', label: 'CPAP Demand Estimation' },
-  { key: 'forecasting', label: 'CPAP Demand Forecasting' },
+  { key: 'estimation', label: 'CPAP Demand Estimation (Public)' },
+  { key: 'forecasting', label: 'CPAP Demand Forecasting (Public)' },
+  { key: 'private', label: 'CPAP Demand Estimation (Private)' },
 ]
 
 interface ContentProps {
@@ -56,15 +57,15 @@ function renderContent({ section, sub, m1, setM1, m2, setM2, m3, setM3, mp, setM
   if (section === 'estimation') {
     if (sub === 'bu') return <EstimationBottomUp norms={m1} onChange={setM1} />
     if (sub === 'td') return <EstimationTopDown m2={m2} setM2={setM2} m3={m3} setM3={setM3} />
-    if (sub === 'pvt') return <PrivateSector mp={mp} setMp={setMp} mprv={mprv} setMprv={setMprv} />
     return <Comparison m1={m1} m2={m2} m3={m3} />
   }
-  return <Forecast m1={m1} />
+  if (section === 'private') return <PrivateSector mp={mp} setMp={setMp} mprv={mprv} setMprv={setMprv} />
+  return <Forecast m1={m1} m3={m3} />
 }
 
 export default function App() {
   const [section, setSection] = useState<Section>('estimation')
-  const [sub, setSub] = useState<Record<Section, string>>({ estimation: 'bu', forecasting: 'fc' })
+  const [sub, setSub] = useState<Record<Section, string>>({ estimation: 'bu', forecasting: 'fc', private: 'pvt' })
   const [m1, setM1] = useState<Norms>(DEFAULT_NORMS)
   const [m2, setM2] = useState<M2Norms>(DEFAULT_M2)
   const [m3, setM3] = useState<M3Norms>(DEFAULT_M3)
@@ -106,8 +107,8 @@ export default function App() {
         {renderContent({ section, sub: activeSub, m1, setM1, m2, setM2, m3, setM3, mp, setMp, mprv, setMprv })}
 
         <div className="footer">
-          CPAP Demand Estimator · all calculation runs client-side.<br />
-          For support, reach out to the developer at{' '}
+          CPAP Demand Estimator. All calculations run in your web browser.<br />
+          For support, contact the developer at{' '}
           <a href="mailto:mchaurasiya@wjcf.in">mchaurasiya@wjcf.in</a>
         </div>
       </main>
