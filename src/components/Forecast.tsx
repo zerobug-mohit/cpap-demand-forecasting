@@ -1,4 +1,4 @@
-import { Fragment, useDeferredValue, useId, useMemo, useState } from 'react'
+import { useDeferredValue, useId, useMemo, useState } from 'react'
 import {
   ComposedChart, Area, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ResponsiveContainer, Customized,
 } from 'recharts'
@@ -43,24 +43,6 @@ const LABEL: Record<LeverKey, string> = {
 }
 const UNIT: Record<LeverKey, string> = { sncuGrowthPct: '%', nbsuCpapSharePct: '%', cpapPerNbsu: '', mncuSharePct: '%', cpapPerMncu: '', alsCpapSharePct: '%', utilisationPct: '%' }
 const show = (k: LeverKey, v: number) => `${v}${UNIT[k]}`
-const TESTED: Record<LeverKey, (lo: string, hi: string) => string> = {
-  sncuGrowthPct: (lo, hi) => `SNCU growth from ${lo} to ${hi} a year`,
-  nbsuCpapSharePct: (lo, hi) => `CPAP at ${lo} to ${hi} of NBSUs`,
-  cpapPerNbsu: (lo, hi) => `${lo} to ${hi} CPAP per NBSU`,
-  mncuSharePct: (lo, hi) => `an MNCU at ${lo} to ${hi} of eligible facilities`,
-  cpapPerMncu: (lo, hi) => `${lo} to ${hi} CPAP per MNCU`,
-  alsCpapSharePct: (lo, hi) => `CPAP in ${lo} to ${hi} of ALS ambulances`,
-  utilisationPct: (lo, hi) => `utilisation from ${lo} to ${hi}`,
-}
-const AT: Record<LeverKey, (v: string) => string> = {
-  sncuGrowthPct: (v) => `${v} SNCU growth a year`,
-  nbsuCpapSharePct: (v) => `CPAP at ${v} of NBSUs`,
-  cpapPerNbsu: (v) => `${v} CPAP per NBSU`,
-  mncuSharePct: (v) => `an MNCU at ${v} of eligible facilities`,
-  cpapPerMncu: (v) => `${v} CPAP per MNCU`,
-  alsCpapSharePct: (v) => `CPAP in ${v} of ALS ambulances`,
-  utilisationPct: (v) => `${v} utilisation`,
-}
 const listAnd = (items: string[]) => items.slice(0, -1).join(', ') + (items.length > 1 ? ' and ' : '') + items[items.length - 1]
 const kTick = (v: number) => (v === 0 ? '0' : `${v / 1000}k`)
 
@@ -308,7 +290,7 @@ export default function Forecast({ m1, m3 }: { m1: Norms; m3: M3Norms }) {
           </div>
           <p className="card-note">
             We worked out the devices in use each year for every possible combination of values for these factors.
-            From these, we picked three scenarios:
+            We also set out three scenarios. The Methodology note at the bottom of this tab explains how they are chosen.
           </p>
           <div className="fc-how-scn">
             <div className="fc-how-box">
@@ -499,48 +481,134 @@ export default function Forecast({ m1, m3 }: { m1: Norms; m3: M3Norms }) {
       </div>
 
       <div className="card">
-        <h2>How this works and its limits</h2>
-        <ul className="src-list" style={{ paddingLeft: 18 }}>
-          <li>
-            We tried every combination of these values:{' '}
-            {LEVERS.map((l, i) => (
-              <Fragment key={l.key}>{i ? (i === LEVERS.length - 1 ? ' and ' : ', ') : ''}{TESTED[l.key](show(l.key, l.grid[0]), show(l.key, l.grid[l.grid.length - 1]))}</Fragment>
-            ))}. That makes {fmt(ens.runs.length)} combinations in all. For each one, we worked out the devices in place and
-            the devices in use each year.
-          </li>
-          <li>
-            The top values for the three scenarios are {listAnd(LEVERS.map((l) => AT[l.key](show(l.key, l.hi))))}. The values
-            we tried go past these top values, to show what it would take to go further. By {endYear}, {fmt(reached)} combinations
-            reach the public need.{' '}
-            {reachedWithin === 0
-              ? 'None of them stays within the top values.'
-              : <>Only {fmt(reachedWithin)} of them stay{reachedWithin === 1 ? 's' : ''} within the top values. The rest push at least one factor further.</>}
-          </li>
-          <li>Every combination counts equally. So "8 in 10 combinations" shows the spread of the values we tried. It does not show how likely each outcome is.</li>
-          <li>The forecast starts from today's guidelines-based requirement of {fmt(today.total)} devices in place. It grows the SNCU network at the chosen rate. New CPAP at NBSUs, MNCUs and in transport is added evenly each year from now to {endYear}.</li>
-          <li>An MNCU (mother-newborn care unit) is a newborn unit where the mother stays with her sick baby. The FBNC 2025 guidelines place MNCUs at district hospitals and medical colleges, so the forecast counts the {fmt(base.mncuSites)} district hospitals and medical colleges in the Epidemiological Need tab as eligible. Sub-district hospitals with more than 3,000 deliveries a year can also have one, but there is no national count of them, so they are left out. Each eligible hospital gets at most one MNCU. FBNC 2025 suggests 4 CPAP for a 12-bed MNCU (Table 14), so the three scenarios use 4. The simulation also tries 2 and 6, for smaller and bigger units. Very few MNCUs are open today, so the forecast starts from none. MNCU CPAP is counted on top of SNCU CPAP. If MNCUs replace SNCU beds instead of adding to them, the total is a little too high.</li>
-          <li>CPAP in transport is one CPAP in each equipped ALS (advanced life support) ambulance, for moving sick newborns between facilities. There are {fmt(base.alsAmbulances)} ALS ambulances under NHM ({ALS_SOURCE}). The {fmt(BLS_AMBULANCES)} basic life support ambulances are not counted, because national guidance gives the newborn ventilator, which can give CPAP, to ALS ambulances only. Some ALS ambulances may already carry one, but there is no national count, so the forecast starts from none.</li>
-          <li>
-            Utilisation is the share of devices that are actually working and in use. It depends on staff training and motivation;
-            procurement of devices, consumables and spare parts; repairs and maintenance; the price of commodities; and
-            upcoming innovations. We assume about {UTIL_NOW}% today. This is a planning assumption. One study found that only
-            about 37% of district hospitals actually used their CPAP (Dewez et al., BMJ Open 2020). Utilisation moves evenly
-            from today's level to the chosen level by {endYear}.
-          </li>
-          <li>The public need of {fmt(ceiling)} devices is the facility-based epidemiological need for public facilities. It comes from the Epidemiological Need tab. We compare it with devices in use, because a device that is not in use does not treat a baby. If you change the need in that tab, this tab updates too.</li>
-          {acc.years[horizon].sncu > hospitals && (
+        <h2>Methodology</h2>
+        <div className="fc-method">
+          <p>This note explains how the forecast is built, how the three scenarios are chosen, and what the forecast cannot tell you.</p>
+
+          <h3 className="fc-sub">How the combinations are built</h3>
+          <ol>
             <li>
-              Accelerated needs {fmt(acc.years[horizon].sncu)} SNCUs by {endYear}. That is more than the {fmt(hospitals)} public
-              hospitals (district hospitals, medical colleges and sub-district hospitals) that could host one.
-              {chcShare > 0.2 && <> This happens because about {Math.round(chcShare * 100)}% of the need is at CHCs. The only factor that adds CPAP below the SNCU level is CPAP at the {fmt(base.nbsu)} NBSUs, so SNCU growth has to do most of the work.</>}
+              Each of the seven factors gets a short list of values to try. The table below lists them. Some factors use an
+              even step, and others use only a few chosen values, so that the number of combinations stays manageable.
             </li>
-          )}
-          <li>
-            Device lifespan and unit price only affect how many devices to buy and what they cost, so they are not part of the
-            simulation. We assume devices last {starters[0].params.replacementYears} years and each costs ₹{starters[0].params.unitPriceLakh} lakh.
-          </li>
-          <li>Growth rates, prices and policy coverage are planning assumptions, not official targets.</li>
-        </ul>
+            <li>We try every possible combination of these values. That makes {fmt(ens.runs.length)} combinations.</li>
+            <li>
+              For each combination, we work out the devices in place in every year from now to {endYear}. SNCU growth is a
+              yearly rate that builds on itself, starting from today's {fmt(base.sncu)} SNCUs with {base.cpapPerSncu.toFixed(1)} CPAP
+              each. NBSUs with CPAP, hospitals with an MNCU and CPAP in transport are the levels reached by {endYear}. They start
+              from none today and rise by the same amount each year. CPAP per NBSU and CPAP per MNCU stay the same every year.
+            </li>
+            <li>
+              Devices in use are the devices in place multiplied by that year's utilisation. Utilisation moves evenly from
+              about {UTIL_NOW}% today to the chosen value by {endYear}.
+            </li>
+            <li>On the chart, the shaded band shows the middle 8 in 10 of all combinations in each year. The faint lines show a sample of them.</li>
+          </ol>
+          <div className="table-scroll fc-method-table">
+            <table className="data">
+              <thead>
+                <tr><th>Factor</th><th>Values tried</th><th>Today's level</th><th>Top value for the scenarios</th></tr>
+              </thead>
+              <tbody>
+                {LEVERS.map((l) => (
+                  <tr key={l.key}><td>{LABEL[l.key]}</td><td>{triedText(l.key)}</td><td>{show(l.key, l.lo)}</td><td>{show(l.key, l.hi)}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <h3 className="fc-sub">How the three scenarios are chosen</h3>
+          <p>
+            Many different combinations give the same number of devices in use. By {endYear}, {fmt(reached)} combinations reach
+            the public need, and each one gets there with a different mix of factors. Some rely on very fast SNCU growth and
+            almost every device working. Others add no extra SNCUs and put CPAP everywhere else. Others buy far more devices
+            than needed and leave many of them unused. So we need one fair rule to choose a single combination for each scenario.
+          </p>
+          <p>
+            The rule is to move all the factors together. Each factor has a starting point, which is today's level, and a top
+            value, which is the most we treat as realistic. Both are in the table above. A scenario moves every factor the same
+            share of the way from its starting point to its top value. For example, moving 50% of the way means every factor
+            goes halfway.
+          </p>
+          <ul>
+            <li>
+              <b style={{ color: 'var(--t-baseline)' }}>Baseline</b> does not move the factors. Everything stays at today's level,
+              and SNCUs keep growing at the past rate of {SNCU_PAST}% a year.
+            </li>
+            <li>
+              <b style={{ color: 'var(--t-moderate)' }}>Moderate expansion</b> moves every factor about {Math.round(starters[1].ambition * 100)}% of
+              the way. This closes half the gap between Baseline and the public need by {endYear}.
+            </li>
+            <li>
+              <b style={{ color: 'var(--t-accelerated)' }}>Accelerated</b> moves every factor about {Math.round(acc.ambition * 100)}% of
+              the way. This is the smallest move that reaches the public need of {fmt(ceiling)} devices in use by {endYear}.
+              {acc.ambition > 1.0001 && ' This is past the top values, because the need cannot be reached within them by then.'}
+            </li>
+          </ul>
+          <p>
+            After this, each value is rounded to its slider step, and SNCU growth is adjusted a little so that each scenario
+            still lands on its target. All three scenarios keep CPAP per MNCU at 4, the FBNC 2025 guideline.
+          </p>
+          <p>
+            We use this rule for three reasons. It does not favour any one factor, so the scenarios avoid extreme plans. It
+            spreads the effort across all the factors, which is how real programmes usually work. It is also easy to explain,
+            because each scenario does a little more of everything than the one before it.
+          </p>
+
+          <h3 className="fc-sub">Inputs and assumptions</h3>
+          <ul>
+            <li>The forecast starts from today's guidelines-based requirement of {fmt(today.total)} devices in place. It grows the SNCU network at the chosen rate. New CPAP at NBSUs, MNCUs and in transport is added evenly each year from now to {endYear}.</li>
+            <li>An MNCU (mother-newborn care unit) is a newborn unit where the mother stays with her sick baby. The FBNC 2025 guidelines place MNCUs at district hospitals and medical colleges, so the forecast counts the {fmt(base.mncuSites)} district hospitals and medical colleges in the Epidemiological Need tab as eligible. Sub-district hospitals with more than 3,000 deliveries a year can also have one, but there is no national count of them, so they are left out. Each eligible hospital gets at most one MNCU. FBNC 2025 suggests 4 CPAP for a 12-bed MNCU (Table 14), so the three scenarios use 4. The simulation also tries 2 and 6, for smaller and bigger units. Very few MNCUs are open today, so the forecast starts from none. MNCU CPAP is counted on top of SNCU CPAP. If MNCUs replace SNCU beds instead of adding to them, the total is a little too high.</li>
+            <li>CPAP in transport is one CPAP in each equipped ALS (advanced life support) ambulance, for moving sick newborns between facilities. There are {fmt(base.alsAmbulances)} ALS ambulances under NHM ({ALS_SOURCE}). The {fmt(BLS_AMBULANCES)} basic life support ambulances are not counted, because national guidance gives the newborn ventilator, which can give CPAP, to ALS ambulances only. Some ALS ambulances may already carry one, but there is no national count, so the forecast starts from none.</li>
+            <li>
+              Utilisation is the share of devices that are actually working and in use. It depends on staff training and motivation;
+              procurement of devices, consumables and spare parts; repairs and maintenance; the price of commodities; and
+              upcoming innovations. We assume about {UTIL_NOW}% today. This is a planning assumption. One study found that only
+              about 37% of district hospitals actually used their CPAP (Dewez et al., BMJ Open 2020). Utilisation moves evenly
+              from today's level to the chosen level by {endYear}.
+            </li>
+            <li>The public need of {fmt(ceiling)} devices is the facility-based epidemiological need for public facilities. It comes from the Epidemiological Need tab. We compare it with devices in use, because a device that is not in use does not treat a baby. If you change the need in that tab, this tab updates too.</li>
+            <li>
+              Device lifespan and unit price only affect how many devices to buy and what they cost, so they are not part of the
+              simulation. We assume devices last {starters[0].params.replacementYears} years and each costs ₹{starters[0].params.unitPriceLakh} lakh.
+            </li>
+          </ul>
+
+          <h3 className="fc-sub">Limits</h3>
+          <ul>
+            <li>
+              The rule treats every factor as equally easy to change. In real life this is not true. For example, raising
+              utilisation may cost much less than building many new SNCUs. The rule does not consider cost or how hard each
+              change is.
+            </li>
+            <li>
+              The scenarios depend on the top values, and these are planning judgements. If a top value changes, the mix of
+              factors inside every scenario changes too.
+            </li>
+            <li>Every combination counts equally. So "8 in 10 combinations" shows the spread of the values we tried. It does not show how likely each outcome is.</li>
+            <li>
+              Some combinations repeat. When no NBSUs have CPAP, changing CPAP per NBSU makes no difference, and the same is
+              true for MNCUs. These combinations give the same result but are still counted.
+            </li>
+            <li>
+              The values tried go past the top values, to show what it would take to go further. Of the {fmt(reached)} combinations
+              that reach the public need by {endYear},{' '}
+              {reachedWithin === 0
+                ? 'none keeps every factor within its top value.'
+                : reachedWithin === 1
+                  ? 'only 1 keeps every factor within its top value.'
+                  : <>only {fmt(reachedWithin)} keep every factor within its top value.</>}
+            </li>
+            {acc.years[horizon].sncu > hospitals && (
+              <li>
+                Accelerated needs {fmt(acc.years[horizon].sncu)} SNCUs by {endYear}. That is more than the {fmt(hospitals)} public
+                hospitals (district hospitals, medical colleges and sub-district hospitals) that could host one.
+                {chcShare > 0.2 && <> This happens because about {Math.round(chcShare * 100)}% of the need is at CHCs. The only factor that adds CPAP below the SNCU level is CPAP at the {fmt(base.nbsu)} NBSUs, so SNCU growth has to do most of the work.</>}
+              </li>
+            )}
+            <li>Growth rates, prices and policy coverage are planning assumptions, not official targets.</li>
+          </ul>
+        </div>
       </div>
     </div>
   )

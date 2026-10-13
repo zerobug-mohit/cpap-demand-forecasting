@@ -653,6 +653,17 @@ button.fc-line-card:hover { border-color: var(--c-border-strong); }
 .fc-line-card.on { border-color: var(--line); box-shadow: inset 0 0 0 1px var(--line); background: var(--c-surface-alt); }
 .fc-line-card:focus-visible { outline: 2px solid var(--c-primary); outline-offset: 2px; }
 .fc-sub { font-size: 0.98rem; color: var(--c-primary-dark); margin: 26px 0 3px; }
+/* Forecast methodology note */
+.fc-method { font-size: 0.8rem; line-height: 1.5; color: var(--c-text-muted); }
+.fc-method p { margin: 0 0 8px; }
+.fc-method ol, .fc-method ul { margin: 0 0 10px; padding-left: 20px; }
+.fc-method li { margin-bottom: 5px; }
+.fc-method b { color: var(--c-text); }
+.fc-method .fc-sub { margin: 18px 0 6px; }
+.fc-method-table { margin: 4px 0 12px; }
+.fc-method-table table.data { font-variant-numeric: normal; }
+.fc-method-table table.data thead th { text-align: left; }
+.fc-method-table table.data tbody td { text-align: left; white-space: normal; vertical-align: top; }
 .fc-line-head { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: 0.82rem; color: var(--c-primary-dark); }
 .fc-line-rows { display: grid; gap: 3px; font-size: 0.74rem; }
 .fc-line-rows > div { display: flex; flex-wrap: wrap; justify-content: space-between; column-gap: 8px; }
