@@ -91,6 +91,19 @@ function triedText(key: LeverKey): string {
   return s !== null && k < grid.length ? `${range(head, s)}, then ${listAnd(grid.slice(k).map(v))}` : listAnd(grid.map(v))
 }
 
+// The value range modelled for a box's factors, in a small highlighted box right after their text. With two factors
+// in one box, each line starts with the factor's name so it is clear which range is which.
+function RangeNote({ keys, after = {} }: { keys: LeverKey[]; after?: Partial<Record<LeverKey, string>> }) {
+  return (
+    <div className="fc-how-range">
+      <div className="fc-how-range-head">Modelled for the value range</div>
+      {keys.map((k) => (
+        <p key={k}>{keys.length > 1 && <b>{LABEL[k]}: </b>}{triedText(k)}{after[k] ?? ''}</p>
+      ))}
+    </div>
+  )
+}
+
 const START: LeverValues = { sncuGrowthPct: 8, nbsuCpapSharePct: 50, cpapPerNbsu: 1.5, mncuSharePct: 20, cpapPerMncu: 4, alsCpapSharePct: 20, utilisationPct: 60 }
 const UTIL_NOW = LEVERS.find((l) => l.key === 'utilisationPct')!.lo // share of devices in use today
 const SNCU_PAST = LEVERS.find((l) => l.key === 'sncuGrowthPct')!.lo // SNCU growth a year, 2014–2024
@@ -268,31 +281,29 @@ export default function Forecast({ m1, m3 }: { m1: Norms; m3: M3Norms }) {
             <div className="fc-how-box">
               <div className="fc-how-title">SNCUs <small>special newborn care units</small></div>
               <p><b>SNCU growth</b> is how fast the number of SNCUs grows each year.</p>
-              <p className="fc-how-tried">Modelled for the value range: {triedText('sncuGrowthPct')}, the past rate</p>
+              <RangeNote keys={['sncuGrowthPct']} after={{ sncuGrowthPct: ', the past rate' }} />
             </div>
             <div className="fc-how-box">
               <div className="fc-how-title">NBSUs <small>newborn stabilisation units</small></div>
               <p><b>NBSUs with CPAP</b> is how many NBSUs get CPAP.</p>
-              <p className="fc-how-tried">Modelled for the value range: {triedText('nbsuCpapSharePct')}</p>
               <p><b>CPAP per NBSU</b> is how many CPAP each of these NBSUs gets.</p>
-              <p className="fc-how-tried">Modelled for the value range: {triedText('cpapPerNbsu')}</p>
+              <RangeNote keys={['nbsuCpapSharePct', 'cpapPerNbsu']} />
             </div>
             <div className="fc-how-box">
               <div className="fc-how-title">MNCUs <small>mother-newborn care units</small></div>
               <p><b>Hospitals with an MNCU</b> is how many district hospitals and medical colleges open one.</p>
-              <p className="fc-how-tried">Modelled for the value range: {triedText('mncuSharePct')}</p>
               <p><b>CPAP per MNCU</b> is how many CPAP each MNCU has.</p>
-              <p className="fc-how-tried">Modelled for the value range: {triedText('cpapPerMncu')}</p>
+              <RangeNote keys={['mncuSharePct', 'cpapPerMncu']} />
             </div>
             <div className="fc-how-box">
               <div className="fc-how-title">CPAP in transport <small>advanced life support (ALS) ambulances</small></div>
               <p><b>CPAP in transport</b> is how many ALS ambulances carry a CPAP for moving sick newborns.</p>
-              <p className="fc-how-tried">Modelled for the value range: {triedText('alsCpapSharePct')}</p>
+              <RangeNote keys={['alsCpapSharePct']} />
             </div>
             <div className="fc-how-box">
               <div className="fc-how-title">Devices in use</div>
               <p><b>Utilisation</b> is how many of all these devices are actually working and in use. It depends on staff training and motivation; procurement of devices, consumables and spare parts; repairs and maintenance; the price of commodities; and upcoming innovations.</p>
-              <p className="fc-how-tried">Modelled for the value range: {triedText('utilisationPct')}</p>
+              <RangeNote keys={['utilisationPct']} />
             </div>
           </div>
           <p className="card-note">

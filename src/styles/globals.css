@@ -123,8 +123,15 @@ a { color: var(--c-primary); }
 .fc-how-box p { margin: 0 0 4px; }
 .fc-how-box p:last-child { margin-bottom: 0; }
 .fc-how-box b { color: var(--c-text); font-weight: 600; }
-.fc-how-box p.fc-how-tried { margin: -1px 0 8px; font-size: 0.74rem; }
-.fc-how-box p.fc-how-tried:last-child { margin-bottom: 0; }
+.fc-how-factors .fc-how-box > p:nth-last-child(2) { margin-bottom: 8px; }
+.fc-how-range {
+  padding: 6px 9px; font-size: 0.74rem; line-height: 1.4;
+  background: var(--c-primary-light); border: 1px solid color-mix(in srgb, var(--c-primary) 35%, transparent);
+  border-radius: var(--radius-sm); color: color-mix(in srgb, var(--c-primary) 75%, #000);
+}
+.fc-how-range-head { font-weight: 700; margin-bottom: 1px; }
+.fc-how-box .fc-how-range p { margin: 0; }
+.fc-how-box .fc-how-range b { color: inherit; font-weight: 600; }
 .fc-how-title { display: flex; align-items: baseline; flex-wrap: wrap; column-gap: 6px; margin-bottom: 5px; font-size: 0.86rem; font-weight: 700; color: var(--c-text); }
 .fc-how-title small { font-size: 0.74rem; font-weight: 400; color: var(--c-text-muted); }
 .fc-how-title .sim-key { align-self: center; }
