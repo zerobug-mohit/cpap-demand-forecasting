@@ -229,3 +229,13 @@ button.io-pill:focus-visible { outline: 2px solid var(--c-primary); outline-offs
 
 /* Figures in running text and the scenario cards read best with proportional digits (no gaps around commas and points). */
 .sim-mine, .fc-lines, .fc-calc, .fc-normv { font-variant-numeric: lining-nums proportional-nums; }
+
+/* A compact table inside an Output section (for example, the facility-based result by facility level). */
+.io-table { margin-top: 10px; overflow-x: auto; background: var(--c-surface); border: 1px solid var(--c-text); }
+.io-table table.data { font-size: 0.84rem; font-variant-numeric: lining-nums proportional-nums; }
+.io-table caption { padding: 10px 12px 4px; text-align: left; font-size: 0.9rem; font-weight: 700; color: var(--c-text); }
+.io-table thead th { cursor: default; position: static; text-transform: none; letter-spacing: 0; font-size: 0.76rem; color: var(--c-text); border-bottom: 2px solid var(--c-text); }
+.io-table tbody tr:hover { background: none; }
+.io-table tfoot td { padding: 7px 11px; text-align: right; font-weight: 700; color: var(--c-text); border-top: 2px solid var(--c-text); white-space: nowrap; }
+.io-table tfoot td:first-child { text-align: left; }
+.io-table tfoot tr.io-table-total td { border-top: 1px solid var(--c-border); }

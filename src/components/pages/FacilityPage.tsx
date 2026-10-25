@@ -154,6 +154,47 @@ export default function FacilityPage({ norms, onChange, top }: { norms: M3Norms;
           { label: 'Deliveries counted', value: fmt(r.totals.deliveries), sub: 'facilities × average deliveries' },
           { label: 'Facilities counted', value: fmt(r.totals.facilities), sub: 'in the included levels' },
         ]} />
+        <div className="io-table" data-step="o-fac-levels">
+          <table className="data">
+            <caption>By facility level</caption>
+            <thead>
+              <tr>
+                <th scope="col">Facility level</th>
+                <th scope="col">Facilities</th>
+                <th scope="col">Deliveries a year</th>
+                <th scope="col">CPAP machines</th>
+                <th scope="col">Share</th>
+              </tr>
+            </thead>
+            <tbody>
+              {r.sections.filter((s) => !s.excluded).map((s) => (
+                <tr key={s.key}>
+                  <td>{s.name}</td>
+                  <td>{fmt(s.facilities)}</td>
+                  <td>{fmt(s.deliveries)}</td>
+                  <td>{fmt(s.devices)}</td>
+                  <td>{Math.round((s.devices / (r.totals.rawDevices || 1)) * 100)}%</td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td>All levels, before the buffer</td>
+                <td>{fmt(r.totals.facilities)}</td>
+                <td>{fmt(r.totals.deliveries)}</td>
+                <td>{fmt(r.totals.rawDevices)}</td>
+                <td>100%</td>
+              </tr>
+              <tr className="io-table-total">
+                <td>With the {Math.round(norms.buffer * 100)}% planning buffer</td>
+                <td />
+                <td />
+                <td>{fmt(r.totals.devices)}</td>
+                <td />
+              </tr>
+            </tfoot>
+          </table>
+        </div>
         {largest && (
           <Insight>
             {largest.name} need the most machines: {fmt(largest.devices)} of the {fmt(r.totals.rawDevices)} before the buffer
@@ -181,19 +222,6 @@ export default function FacilityPage({ norms, onChange, top }: { norms: M3Norms;
             { name: 'CPAP machines needed', parts: [`${dec1(r.totals.rawDevices)} × (1 + `, pill(`${Math.round(norms.buffer * 100)}% buffer`, 'buffer'), '), rounded'], value: fmt(r.totals.devices), total: true },
           ]} />
         </Drill>
-      </OutSection>
-
-      <OutSection title="Machines by facility level" step="o-fac-levels">
-        <div className="fc-bars io-bars">
-          {r.bars.map((b) => (
-            <div className="fc-barrow" key={b.name}>
-              <span className="fc-bname">{b.name}</span>
-              <span className="fc-track"><span className="fc-fill" style={{ width: `${Math.max(2, (b.devices / r.maxBar) * 100)}%` }} /></span>
-              <span className="fc-bval fc-num">{fmt(b.devices)}</span>
-            </div>
-          ))}
-        </div>
-        <p className="io-hint">Before the planning buffer.</p>
       </OutSection>
 
       <OutSection title="State by state" step="o-fac-states">
