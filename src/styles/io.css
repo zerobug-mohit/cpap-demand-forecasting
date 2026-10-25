@@ -20,14 +20,17 @@
 
 /* The Output column gets most of the width: it is where the results and calculations are read. */
 .io-grid { display: grid; grid-template-columns: minmax(340px, 0.7fr) minmax(0, 1.3fr); gap: 24px; align-items: start; }
-@media (max-width: 1000px) { .io-grid { grid-template-columns: 1fr; } }
+/* minmax(0, …): a column never grows past the screen to fit its widest row */
+@media (max-width: 1000px) { .io-grid { grid-template-columns: minmax(0, 1fr); } }
 
+/* Both column headers share one height, so their rules line up whether or not a header holds a button. */
 .io-colhead {
-  position: sticky; top: 0; z-index: 5; display: flex; align-items: baseline; gap: 10px; background: var(--c-bg);
-  padding: 0 2px 8px; margin-bottom: 14px; border-bottom: 2px solid var(--c-text);
+  position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 10px; background: var(--c-bg);
+  box-sizing: border-box; min-height: 3rem; padding: 0 2px 8px; margin-bottom: 14px; border-bottom: 2px solid var(--c-text);
 }
+.io-colname { flex: 1; display: flex; align-items: baseline; gap: 10px; min-width: 0; }
 .io-coltitle { font-size: 1.12rem; font-weight: 800; letter-spacing: -0.01em; color: var(--c-text); }
-.io-colsub { flex: 1; font-size: 0.8rem; color: var(--c-text-muted); }
+.io-colsub { font-size: 0.8rem; color: var(--c-text-muted); }
 .io-tour, .io-reset-all, .io-nav-back, .io-link-btn {
   display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border: 1px solid var(--c-text); background: var(--c-surface);
   color: var(--c-text); font: inherit; font-size: 0.8rem; font-weight: 600; cursor: pointer; white-space: nowrap;

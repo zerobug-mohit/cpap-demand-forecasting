@@ -100,8 +100,10 @@ export function IoPage({ scope, inputs, output }: { scope: string; inputs: React
 function ColumnHeader({ title, sub, action }: { title: string; sub: string; action?: ReactNode }) {
   return (
     <div className="io-colhead">
-      <span className="io-coltitle">{title}</span>
-      <span className="io-colsub">{sub}</span>
+      <span className="io-colname">
+        <span className="io-coltitle">{title}</span>
+        <span className="io-colsub">{sub}</span>
+      </span>
       {action}
     </div>
   )
