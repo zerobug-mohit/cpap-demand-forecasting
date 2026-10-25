@@ -342,6 +342,66 @@ export default function Forecast({ m1, m3 }: { m1: Norms; m3: M3Norms }) {
 
   const output = (
     <>
+      <OutSection title="How the forecast works" step="o-fc-explain" defaultOpen={false}>
+        <div className="card">
+          <div className="fc-how">
+          <p className="card-note">
+            This forecast estimates how the demand for CPAP devices in public facilities grows year on year over the
+            next {horizon} years, up to {endYear}. That growth does not depend on one thing alone. It depends on several
+            factors working together: how fast new newborn care units open, how many of them get CPAP, and how many of
+            the devices are actually kept working. The forecast is built on seven such factors:
+          </p>
+          <div className="fc-how-factors">
+            <div className="fc-how-box">
+              <div className="fc-how-title">SNCUs <small>special newborn care units</small></div>
+              <p><b>SNCU growth</b> is how fast the number of SNCUs grows each year.</p>
+              <RangeNote keys={['sncuGrowthPct']} after={{ sncuGrowthPct: ', the past rate' }} />
+            </div>
+            <div className="fc-how-box">
+              <div className="fc-how-title">NBSUs <small>newborn stabilisation units</small></div>
+              <p><b>NBSUs with CPAP</b> is how many NBSUs get CPAP.</p>
+              <p><b>CPAP per NBSU</b> is how many CPAP each of these NBSUs gets.</p>
+              <RangeNote keys={['nbsuCpapSharePct', 'cpapPerNbsu']} />
+            </div>
+            <div className="fc-how-box">
+              <div className="fc-how-title">MNCUs <small>mother-newborn care units</small></div>
+              <p><b>Hospitals with an MNCU</b> is how many district hospitals and medical colleges open one.</p>
+              <p><b>CPAP per MNCU</b> is how many CPAP each MNCU has.</p>
+              <RangeNote keys={['mncuSharePct', 'cpapPerMncu']} />
+            </div>
+            <div className="fc-how-box">
+              <div className="fc-how-title">CPAP in transport <small>advanced life support (ALS) ambulances</small></div>
+              <p><b>CPAP in transport</b> is how many ALS ambulances carry a CPAP for moving sick newborns.</p>
+              <RangeNote keys={['alsCpapSharePct']} />
+            </div>
+            <div className="fc-how-box">
+              <div className="fc-how-title">Devices in use</div>
+              <p><b>Utilisation</b> is how many of all these devices are actually working and in use. It depends on staff training and motivation; procurement of devices, consumables and spare parts; repairs and maintenance; the price of commodities; and upcoming innovations.</p>
+              <RangeNote keys={['utilisationPct']} />
+            </div>
+          </div>
+          <p className="card-note">
+            We worked out the devices in use each year for every possible combination of values for these factors.
+            We also set out three scenarios. The Methodology note at the bottom of this tab explains how they are chosen.
+          </p>
+          <div className="fc-how-scn">
+            <div className="fc-how-box">
+              <div className="fc-how-title" style={{ color: 'var(--t-baseline)' }}><span className="sim-key" style={{ background: SCN_COLOR.s1 }} />Baseline</div>
+              <p>Things carry on as they are today. SNCUs keep growing at the past rate, and nothing else changes.</p>
+            </div>
+            <div className="fc-how-box">
+              <div className="fc-how-title" style={{ color: 'var(--t-moderate)' }}><span className="sim-key" style={{ background: SCN_COLOR.s2 }} />Moderate expansion</div>
+              <p>The factors improve part of the way. This closes half the gap between Baseline and the public need.</p>
+            </div>
+            <div className="fc-how-box">
+              <div className="fc-how-title" style={{ color: 'var(--t-accelerated)' }}><span className="sim-key" style={{ background: SCN_COLOR.s3 }} />Accelerated</div>
+              <p>The factors improve enough for the devices in use to reach the public need of <b>{fmt(ceiling)} devices</b> by {endYear}. This is the most CPAP the public sector could need.</p>
+            </div>
+          </div>
+        </div>
+        </div>
+      </OutSection>
+
       <OutSection title="Your result" step="o-fc-result" note={`${pctOfNeed(mineEnd.effective)}% of the need`}>
         <ExplainHere id="fc-your-result" />
           <div className="sim-mine">
@@ -479,66 +539,6 @@ export default function Forecast({ m1, m3 }: { m1: Norms; m3: M3Norms }) {
               ))}
             </div>
           </div>
-      </OutSection>
-
-      <OutSection title="How the forecast works" step="o-fc-explain" defaultOpen={false}>
-        <div className="card">
-          <div className="fc-how">
-          <p className="card-note">
-            This forecast estimates how the demand for CPAP devices in public facilities grows year on year over the
-            next {horizon} years, up to {endYear}. That growth does not depend on one thing alone. It depends on several
-            factors working together: how fast new newborn care units open, how many of them get CPAP, and how many of
-            the devices are actually kept working. The forecast is built on seven such factors:
-          </p>
-          <div className="fc-how-factors">
-            <div className="fc-how-box">
-              <div className="fc-how-title">SNCUs <small>special newborn care units</small></div>
-              <p><b>SNCU growth</b> is how fast the number of SNCUs grows each year.</p>
-              <RangeNote keys={['sncuGrowthPct']} after={{ sncuGrowthPct: ', the past rate' }} />
-            </div>
-            <div className="fc-how-box">
-              <div className="fc-how-title">NBSUs <small>newborn stabilisation units</small></div>
-              <p><b>NBSUs with CPAP</b> is how many NBSUs get CPAP.</p>
-              <p><b>CPAP per NBSU</b> is how many CPAP each of these NBSUs gets.</p>
-              <RangeNote keys={['nbsuCpapSharePct', 'cpapPerNbsu']} />
-            </div>
-            <div className="fc-how-box">
-              <div className="fc-how-title">MNCUs <small>mother-newborn care units</small></div>
-              <p><b>Hospitals with an MNCU</b> is how many district hospitals and medical colleges open one.</p>
-              <p><b>CPAP per MNCU</b> is how many CPAP each MNCU has.</p>
-              <RangeNote keys={['mncuSharePct', 'cpapPerMncu']} />
-            </div>
-            <div className="fc-how-box">
-              <div className="fc-how-title">CPAP in transport <small>advanced life support (ALS) ambulances</small></div>
-              <p><b>CPAP in transport</b> is how many ALS ambulances carry a CPAP for moving sick newborns.</p>
-              <RangeNote keys={['alsCpapSharePct']} />
-            </div>
-            <div className="fc-how-box">
-              <div className="fc-how-title">Devices in use</div>
-              <p><b>Utilisation</b> is how many of all these devices are actually working and in use. It depends on staff training and motivation; procurement of devices, consumables and spare parts; repairs and maintenance; the price of commodities; and upcoming innovations.</p>
-              <RangeNote keys={['utilisationPct']} />
-            </div>
-          </div>
-          <p className="card-note">
-            We worked out the devices in use each year for every possible combination of values for these factors.
-            We also set out three scenarios. The Methodology note at the bottom of this tab explains how they are chosen.
-          </p>
-          <div className="fc-how-scn">
-            <div className="fc-how-box">
-              <div className="fc-how-title" style={{ color: 'var(--t-baseline)' }}><span className="sim-key" style={{ background: SCN_COLOR.s1 }} />Baseline</div>
-              <p>Things carry on as they are today. SNCUs keep growing at the past rate, and nothing else changes.</p>
-            </div>
-            <div className="fc-how-box">
-              <div className="fc-how-title" style={{ color: 'var(--t-moderate)' }}><span className="sim-key" style={{ background: SCN_COLOR.s2 }} />Moderate expansion</div>
-              <p>The factors improve part of the way. This closes half the gap between Baseline and the public need.</p>
-            </div>
-            <div className="fc-how-box">
-              <div className="fc-how-title" style={{ color: 'var(--t-accelerated)' }}><span className="sim-key" style={{ background: SCN_COLOR.s3 }} />Accelerated</div>
-              <p>The factors improve enough for the devices in use to reach the public need of <b>{fmt(ceiling)} devices</b> by {endYear}. This is the most CPAP the public sector could need.</p>
-            </div>
-          </div>
-        </div>
-        </div>
       </OutSection>
 
       <OutSection title="Methodology" step="o-fc-method" defaultOpen={false}>

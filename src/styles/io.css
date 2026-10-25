@@ -16,10 +16,6 @@
     height: 100%; overflow-y: auto; overscroll-behavior: contain; padding: 0 8px 28px 0;
     scrollbar-width: thin; scrollbar-color: var(--c-border-strong) transparent;
   }
-  .app-io .app-header-inner { padding: 12px 26px 10px; }
-  .app-io .app-header h1 { font-size: 28px; }
-  .app-io .nav-primary button { margin: 4px 0; padding: 6px 12px; font-size: 0.98rem; }
-  .app-io .nav-secondary { padding: 4px 0; }
 }
 
 .io-grid { display: grid; grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.28fr); gap: 26px; align-items: start; }
@@ -230,3 +226,6 @@ button.io-pill:focus-visible { outline: 2px solid var(--c-primary); outline-offs
 .aid-in { display: inline-block; min-width: 38px; padding: 2px 6px; border: 1px solid; font-size: 0.82rem; font-variant-numeric: lining-nums proportional-nums; color: var(--c-text); }
 .aid-in.preset { background: var(--in-preset); border-color: var(--in-preset-line); }
 .aid-in.edited { background: var(--in-edited); border-color: var(--in-edited-line); }
+
+/* Figures in running text and the scenario cards read best with proportional digits (no gaps around commas and points). */
+.sim-mine, .fc-lines, .fc-calc, .fc-normv { font-variant-numeric: lining-nums proportional-nums; }

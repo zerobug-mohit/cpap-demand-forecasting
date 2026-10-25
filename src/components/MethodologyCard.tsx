@@ -26,8 +26,7 @@ export default function MethodologyCard() {
         We then apply the FBNC norm for how many of those beds should have a CPAP machine (about 30%). We add up the
         results for all 36 states and union territories to get the national total. Then we add a planning buffer (25% by default)
         to cover busy periods, machines wearing out, and the time needed to order replacements. FBNC does not provide
-        CPAP machines for NBSUs and NBCCs, so the estimate leaves them out. You can add NBSUs, and CPAP in transport,
-        with the optional add-on.
+        CPAP machines for NBSUs and NBCCs, so the estimate counts SNCUs only.
         <br /><br />
         This tab shows what the facilities that <strong>exist today</strong> should have. To estimate how many machines
         newborns actually <em>need</em>, including in areas that have no SNCU yet, use the{' '}

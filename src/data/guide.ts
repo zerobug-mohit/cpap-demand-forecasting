@@ -185,13 +185,13 @@ export const TRACKS: Track[] = [
       },
       {
         target: inStep('bu', 1), scope: 'bu', open: 1,
-        title: 'Choose which units get CPAP',
-        body: 'The inputs are in numbered steps. Step 1 sets which newborn units are counted. Keep SNCUs only to follow the FBNC guidelines.',
+        title: 'Check the SNCU norms',
+        body: 'The inputs are in numbered steps on the left. Step 1 holds the SNCU norms: the presets give each SNCU 16 beds on average, and a CPAP machine for 30% of SNCU beds. Yellow values are presets. A value you change turns green.',
       },
       {
         target: inStep('bu', 2), scope: 'bu', open: 2,
-        title: 'Check the SNCU norms',
-        body: 'The presets give each SNCU 16 beds on average, and a CPAP machine for 30% of SNCU beds. Yellow values are presets. A value you change turns green, and Reset all brings back the presets.',
+        title: 'The planning buffer',
+        body: 'Step 2 sets the planning buffer, 25% by default, for busy periods, breakdowns and the time to order replacements. Reset all brings back every preset.',
       },
       {
         target: at('o-bu-result'),
