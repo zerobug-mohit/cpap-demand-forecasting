@@ -247,3 +247,12 @@ button.io-pill:focus-visible { outline: 2px solid var(--c-primary); outline-offs
 .io-table tfoot td { padding: 7px 11px; text-align: right; font-weight: 700; color: var(--c-text); border-top: 2px solid var(--c-text); white-space: nowrap; }
 .io-table tfoot td:first-child { text-align: left; }
 .io-table tfoot tr.io-table-total td { border-top: 1px solid var(--c-border); }
+
+/* A smaller base size, so more of the tool fits on a laptop screen: type that is sized relative to the page
+   (rem) scales down by an eighth, running text from 14px to 13px, and the masthead and tabs are more compact.
+   The masthead stays the same on every tab. */
+html { font-size: 14px; }
+body { font-size: 13px; }
+[data-design="swiss-chai"] .app-header-inner { padding: 16px 26px 13px; }
+[data-design="swiss-chai"] .app-header h1 { font-size: 34px; }
+[data-design="swiss-chai"] .nav-primary button { margin: 5px 0; padding: 6px 12px; }
