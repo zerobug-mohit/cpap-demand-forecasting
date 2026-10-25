@@ -410,7 +410,7 @@ export const TRACKS: Track[] = [
       {
         target: at('o-homes-groups'),
         title: 'By size group',
-        body: 'The bars compare how many machines each size group needs. The notes below list the main limits of this approach.',
+        body: 'This table shows the homes, the homes doing deliveries and the machines for each size group. The notes further down list the main limits of this approach.',
       },
     ],
   },

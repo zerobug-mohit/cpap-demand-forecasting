@@ -11,6 +11,7 @@ import {
 
 const GROUP = ['Homes with an SNCU of 3 or more beds', 'Homes with an SNCU of 1 to 2 beds', 'Small homes with a basic setup']
 const SHORT = ['High', 'Medium', 'Small']
+const ROW = ['High (SNCU of 3+ beds)', 'Medium (SNCU of 1 to 2 beds)', 'Small (basic setup)']
 
 export default function HomesPage({ norms, onChange, top }: { norms: PrivateNorms; onChange: (n: PrivateNorms) => void; top?: ReactNode }) {
   const r = useMemo(() => computePrivate(norms), [norms])
@@ -64,6 +65,43 @@ export default function HomesPage({ norms, onChange, top }: { norms: PrivateNorm
           { label: 'Maternity homes', value: fmt(r.homesTotal), sub: 'all size groups' },
           { label: 'Homes doing deliveries', value: fmt(r.delivering), sub: 'homes × share doing deliveries' },
         ]} />
+        <div className="io-table" data-step="o-homes-groups">
+          <table className="data">
+            <caption>By size group</caption>
+            <thead>
+              <tr>
+                <th scope="col">Size group</th>
+                <th scope="col">Homes</th>
+                <th scope="col">Doing deliveries</th>
+                <th scope="col">CPAP each</th>
+                <th scope="col">CPAP machines</th>
+                <th scope="col">Share</th>
+              </tr>
+            </thead>
+            <tbody>
+              {r.tiers.map((t, i) => (
+                <tr key={t.name}>
+                  <td>{ROW[i] ?? t.name}</td>
+                  <td>{fmt(t.count)}</td>
+                  <td>{fmt(t.facilities)}</td>
+                  <td>{t.cpapPer}</td>
+                  <td>{fmt(t.devices)}</td>
+                  <td>{r.devices > 0 ? Math.round((t.devices / r.devices) * 100) : 0}%</td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td>All maternity homes</td>
+                <td>{fmt(r.homesTotal)}</td>
+                <td>{fmt(r.delivering)}</td>
+                <td />
+                <td>{fmt(r.devices)}</td>
+                <td>100%</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
         {biggest && r.devices > 0 && (
           <Insight>
             {GROUP[r.tiers.indexOf(biggest)] ?? biggest.name} need the most machines: {fmt(biggest.devices)} of {fmt(r.devices)} ({Math.round((biggest.devices / r.devices) * 100)}%).
@@ -84,21 +122,6 @@ export default function HomesPage({ norms, onChange, top }: { norms: PrivateNorm
             { name: 'CPAP machines needed', parts: ['the three groups, added up'], value: fmt(r.devices), total: true },
           ]} />
         </Drill>
-      </OutSection>
-
-      <OutSection title="By size group" step="o-homes-groups">
-        <div className="fc-bars io-bars">
-          {r.tiers.map((t, i) => {
-            const max = Math.max(1, ...r.tiers.map((x) => x.devices))
-            return (
-              <div className="fc-barrow" key={t.name}>
-                <span className="fc-bname">{SHORT[i] ?? t.name}</span>
-                <span className="fc-track"><span className="fc-fill" style={{ width: `${Math.max(2, (t.devices / max) * 100)}%` }} /></span>
-                <span className="fc-bval fc-num">{fmt(t.devices)}</span>
-              </div>
-            )
-          })}
-        </div>
       </OutSection>
 
       <OutSection title="Method and limits" step="o-homes-limits" defaultOpen={false}>
