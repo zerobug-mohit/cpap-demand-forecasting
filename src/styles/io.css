@@ -12,10 +12,16 @@
   .app-io > .app-header, .app-io > .app-nav, .app-io > .io-footer { flex: none; }
   .app-io > main.container { flex: 1; min-height: 0; width: 100%; padding-top: 14px; padding-bottom: 0; }
   .app-io .io-grid { height: 100%; }
+  /* As in OxyCost: the last sliver of each column fades out so content doesn't hard-cut against the footer;
+     the bottom padding lets the final line scroll clear of the fade. */
   .app-io .io-col {
-    height: 100%; overflow-y: auto; overscroll-behavior: contain; padding: 0 8px 28px 0;
+    height: 100%; overflow-y: auto; overscroll-behavior: contain; padding: 0 8px 40px 0;
     scrollbar-width: thin; scrollbar-color: var(--c-border-strong) transparent;
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 24px), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 24px), transparent);
   }
+  /* Lift the footer off the columns so the boundary reads cleanly. */
+  .app-io > .io-footer { position: relative; z-index: 2; box-shadow: 0 -2px 10px rgba(0, 62, 120, 0.06); }
 }
 
 /* The Output column gets most of the width: it is where the results and calculations are read. */
