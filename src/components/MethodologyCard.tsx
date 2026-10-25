@@ -1,4 +1,5 @@
 import { SOURCES } from '../data/sources'
+import { ExplainTitle } from './Explain'
 import type { SourceKey } from '../data/sources'
 
 const SRC_LIST: { key: SourceKey; page?: string; what: string }[] = [
@@ -15,8 +16,8 @@ const SRC_LIST: { key: SourceKey; page?: string; what: string }[] = [
 
 export default function MethodologyCard() {
   return (
-    <div className="card">
-      <h2>How it works &amp; sources</h2>
+    <div className="card" data-step="bu-sources">
+      <ExplainTitle id="bu-sources">How it works &amp; sources</ExplainTitle>
       <p className="card-note">This tab uses the guidelines-based method. It starts from the facilities that exist today and applies the government norms.</p>
 
       <div className="section-label">How the number is worked out</div>

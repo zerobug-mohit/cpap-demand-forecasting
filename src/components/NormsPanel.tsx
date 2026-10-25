@@ -5,6 +5,7 @@ import ExtendedNormsSection from './ExtendedNormsSection'
 import SourceNote from './SourceNote'
 import type { SourceRef } from './SourceNote'
 import PanelSection from './PanelSection'
+import { useExplain } from './Explain'
 
 interface Props {
   norms: Norms
@@ -51,28 +52,32 @@ const ROWS: RowDef[] = [
 export default function NormsPanel({ norms, onChange, onReset }: Props) {
   const dirty = (k: NumKey) => norms[k] !== DEFAULT_NORMS[k]
   const anyDirty = JSON.stringify(norms) !== JSON.stringify(DEFAULT_NORMS)
+  const ex = useExplain('bu-inputs')
 
   return (
-    <div className="card card-tight sticky-col">
+    <div className="card card-tight sticky-col" data-step="bu-inputs">
       <div className="flex-between">
         <div className="explain-head">
           <h2>Norms &amp; assumptions</h2>
+          {ex.bulb}
         </div>
         <button className="btn link" onClick={onReset} disabled={!anyDirty} style={{ opacity: anyDirty ? 1 : 0.4 }}>
           Reset
         </button>
       </div>
+      {ex.panel}
       <p className="card-note" style={{ marginTop: 2 }}>You can change any value below. An "edited" label means you changed the value. A "preset" label means it is the default.</p>
 
       <PanelSection
         title="CPAP scope"
+        explain="bu-scope"
         badge={norms.scope !== 'sncu' ? <span className="badge entered">edited</span> : undefined}
       >
         <ScopeToggle scope={norms.scope} onChange={(scope) => onChange({ ...norms, scope })} />
         <p className="hint" style={{ marginTop: 6 }}>{SCOPE_LABEL[norms.scope]}</p>
       </PanelSection>
 
-      <PanelSection title="SNCU norms" ids={['m1-cpapPerBed', 'm1-avgSncuBeds']}>
+      <PanelSection title="SNCU norms" explain="bu-sncu" ids={['m1-cpapPerBed', 'm1-avgSncuBeds']}>
         {ROWS.map((r) => {
           const val = norms[r.key]
           const changed = dirty(r.key)
@@ -104,6 +109,7 @@ export default function NormsPanel({ norms, onChange, onReset }: Props) {
 
       <PanelSection
         title="Planning buffer"
+        explain="bu-buffer"
         ids={['m1-buffer']}
         badge={norms.buffer !== DEFAULT_NORMS.buffer ? <span className="badge entered">edited</span> : <span className="badge preset">preset</span>}
       >
@@ -125,7 +131,7 @@ export default function NormsPanel({ norms, onChange, onReset }: Props) {
       </PanelSection>
 
       {norms.scope !== 'sncu' && (
-        <PanelSection title="NBSU and transport add-on">
+        <PanelSection title="NBSU and transport add-on" explain="bu-addon">
           <ExtendedNormsSection norms={norms} onChange={onChange} />
         </PanelSection>
       )}

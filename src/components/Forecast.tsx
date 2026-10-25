@@ -258,8 +258,8 @@ export default function Forecast({ m1, m3 }: { m1: Norms; m3: M3Norms }) {
 
   return (
     <div>
-      <div className="card">
-        <h2>How the forecast works</h2>
+      <div className="card" data-step="fc-how">
+        <ExplainTitle id="fc-how">How the forecast works</ExplainTitle>
         <div className="fc-how">
           <p className="card-note">
             This forecast estimates how the demand for CPAP devices in public facilities grows year on year over the
@@ -315,14 +315,14 @@ export default function Forecast({ m1, m3 }: { m1: Norms; m3: M3Norms }) {
             </div>
           </div>
         </div>
-        <div style={{ maxWidth: 380 }}>
+        <div style={{ maxWidth: 380 }} data-tour="fc-years">
           <ExplainHere id="fc-years" />
           <Range id="fc-horizon" label="Years to project" value={horizonInput} min={5} max={12} step={1} suffix={` yr (to ${baseYear + horizonInput})`} onChange={setHorizon} />
         </div>
       </div>
 
       <div className="layout-grid">
-        <div className="card card-tight sticky-col fc-panel">
+        <div className="card card-tight sticky-col fc-panel" data-step="fc-inputs">
           <div className="flex-between">
             <h2>Your combination</h2>
             <div className="explain-head" style={{ alignItems: 'center' }}>
@@ -378,8 +378,8 @@ export default function Forecast({ m1, m3 }: { m1: Norms; m3: M3Norms }) {
         </div>
 
         <div>
-          <div className="card">
-            <h2>Devices in use each year, across every combination</h2>
+          <div className="card" data-step="fc-chart">
+            <ExplainTitle id="fc-chart">Devices in use each year, across every combination</ExplainTitle>
             <p className="card-note">
               Three of the coloured lines are the scenarios. <strong style={{ color: 'var(--t-baseline)' }}>Baseline</strong> keeps to
               today's path, <strong style={{ color: 'var(--t-moderate)' }}>Moderate expansion</strong> closes half the gap to the
@@ -389,7 +389,7 @@ export default function Forecast({ m1, m3 }: { m1: Norms; m3: M3Norms }) {
             </p>
 
             <ExplainTitle id="fc-line-cards" as="h3" className="fc-sub">Pick a scenario to deep dive</ExplainTitle>
-            <div className="fc-lines" role="group" aria-label="Lines on the chart">
+            <div className="fc-lines" data-step="fc-scenarios" role="group" aria-label="Lines on the chart">
               {lineCards.map((c) => {
                 const L = c.levers
                 const ce = c.years[horizon]
@@ -471,7 +471,7 @@ export default function Forecast({ m1, m3 }: { m1: Norms; m3: M3Norms }) {
             </div>
           </div>
 
-          <div className="card">
+          <div className="card" data-step="fc-factors">
             <ExplainTitle id="fc-factors">Which factors change the number most</ExplainTitle>
             <p className="card-note">
               Each bar shows how far the devices in use in {endYear} move when one factor goes from its lowest tested value
@@ -496,8 +496,8 @@ export default function Forecast({ m1, m3 }: { m1: Norms; m3: M3Norms }) {
         </div>
       </div>
 
-      <div className="card">
-        <h2>Methodology</h2>
+      <div className="card" data-step="fc-method">
+        <ExplainTitle id="fc-method">Methodology</ExplainTitle>
         <div className="fc-method">
           <p>This note explains how the forecast is built, how the three scenarios are chosen, and what the forecast cannot tell you.</p>
 

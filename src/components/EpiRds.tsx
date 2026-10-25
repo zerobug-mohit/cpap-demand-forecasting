@@ -31,7 +31,7 @@ export default function EpiRds({ norms, onChange }: Props) {
       <M2NormsPanel norms={norms} onChange={onChange} onReset={() => onChange(priv ? DEFAULT_M2_PRIVATE : DEFAULT_M2)} />
 
       <div>
-        <div className="card lens-explainer">
+        <div className="card lens-explainer" data-step="rds-how">
           <div className="explain-head">
             <button className="lens-toggle-head" onClick={() => setOpen(!open)} aria-expanded={open}>
               <div>
@@ -64,7 +64,7 @@ export default function EpiRds({ norms, onChange }: Props) {
         </div>
 
         <ExplainHere id="td-rds-kpis" />
-        <div className="kpi-row">
+        <div className="kpi-row" data-step="rds-result">
           <div className="kpi accent-navy">
             <div className="kpi-label">CPAP devices needed · national</div>
             <div className="kpi-value">{fmt(totals.gross)}</div>
@@ -89,7 +89,7 @@ export default function EpiRds({ norms, onChange }: Props) {
 
         <M2Explorer rows={rows} totals={totals} />
 
-        <div className="card">
+        <div className="card" data-step="rds-limits">
           <ExplainTitle id="td-rds-caveats">Method and limits</ExplainTitle>
           <ul className="src-list" style={{ paddingLeft: 18 }}>
             <li>We work out the national number first, then split it across states.</li>

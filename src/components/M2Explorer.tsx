@@ -16,7 +16,7 @@ export default function M2Explorer({ rows, totals }: { rows: Computed2[]; totals
   const metric = getMetric2(metricKey)
 
   return (
-    <div className="card">
+    <div className="card" data-step="rds-states">
       <ExplainHere id="td-rds-explorer" />
       <div className="explorer-head">
         <div className="toggle-group" role="tablist" aria-label="View">

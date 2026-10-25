@@ -1,14 +1,14 @@
-import { useState } from 'react'
 import type { M2Norms } from '../engine/method2'
 import type { M3Norms } from '../engine/method3'
 import { DEFAULT_M3 } from '../engine/method3'
 import EpiFacility from './EpiFacility'
 import EpiRds from './EpiRds'
-import { ExplainTitle, NoBulbs } from './Explain'
-
-type Approach = 'facility' | 'rds'
+import { ExplainTitle } from './Explain'
+import type { TdApproach as Approach } from '../data/guide'
 
 interface Props {
+  approach: Approach
+  onApproach: (a: Approach) => void
   m2: M2Norms
   setM2: (n: M2Norms) => void
   m3: M3Norms
@@ -20,12 +20,11 @@ const APPROACHES: { key: Approach; label: string }[] = [
   { key: 'facility', label: 'Deliveries × FBNC norms' },
 ]
 
-export default function EstimationTopDown({ m2, setM2, m3, setM3 }: Props) {
-  const [approach, setApproach] = useState<Approach>('rds')
+export default function EstimationTopDown({ approach, onApproach, m2, setM2, m3, setM3 }: Props) {
 
   return (
-    <NoBulbs>
-      <div className="card lens-explainer" style={{ marginBottom: 16 }}>
+    <>
+      <div className="card lens-explainer" style={{ marginBottom: 16 }} data-tour="td-switch">
         <ExplainTitle id="td-approach-switch">Epidemiological need: two approaches</ExplainTitle>
         <p className="card-note" style={{ marginTop: 4 }}>
           This tab estimates how many CPAP machines newborns need, based on health data and not on the facilities
@@ -37,7 +36,7 @@ export default function EstimationTopDown({ m2, setM2, m3, setM3 }: Props) {
         <div className="epi-switch" role="tablist" aria-label="Epidemiological need approach">
           {APPROACHES.map((a) => (
             <button key={a.key} role="tab" aria-selected={approach === a.key}
-              className={approach === a.key ? 'active' : ''} onClick={() => setApproach(a.key)}>
+              className={approach === a.key ? 'active' : ''} onClick={() => onApproach(a.key)}>
               {a.label}
             </button>
           ))}
@@ -47,6 +46,6 @@ export default function EstimationTopDown({ m2, setM2, m3, setM3 }: Props) {
       {approach === 'facility'
         ? <EpiFacility norms={m3} onChange={setM3} onReset={() => setM3(DEFAULT_M3)} />
         : <EpiRds norms={m2} onChange={setM2} />}
-    </NoBulbs>
+    </>
   )
 }

@@ -37,7 +37,7 @@ export default function PrivateHomes({ norms, onChange, onReset }: Props) {
   return (
     <div className="layout-grid">
       {/* ---------------- controls ---------------- */}
-      <div className="card card-tight sticky-col fc-panel">
+      <div className="card card-tight sticky-col fc-panel" data-step="homes-inputs">
         <div className="flex-between">
           <h2>Private inputs</h2>
           <div className="explain-head" style={{ alignItems: 'center' }}>
@@ -78,7 +78,7 @@ export default function PrivateHomes({ norms, onChange, onReset }: Props) {
       {/* ---------------- results ---------------- */}
       <div>
         <ExplainHere id="pvt-homes-kpis" />
-        <div className="kpi-row">
+        <div className="kpi-row" data-step="homes-result">
           <div className="kpi accent-navy">
             <div className="kpi-label">CPAP devices · private sector</div>
             <div className="kpi-value">{fmt(r.devices)}</div>
@@ -96,7 +96,7 @@ export default function PrivateHomes({ norms, onChange, onReset }: Props) {
           </div>
         </div>
 
-        <div className="card">
+        <div className="card" data-step="homes-groups">
           <ExplainTitle id="pvt-homes-bars">Devices by size group</ExplainTitle>
           <div className="fc-bars">
             {r.tiers.map((t) => {
@@ -153,7 +153,7 @@ export default function PrivateHomes({ norms, onChange, onReset }: Props) {
           </div>
         </div>
 
-        <div className="card">
+        <div className="card" data-step="homes-limits">
           <ExplainTitle id="pvt-homes-caveats">Method and limits</ExplainTitle>
           <ul className="src-list" style={{ paddingLeft: 18 }}>
             <li>This is kept <strong>out</strong> of the public (government) estimates. The government does not buy machines for private facilities, but this shows the size of the private market.</li>

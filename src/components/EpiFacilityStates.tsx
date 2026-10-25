@@ -67,7 +67,7 @@ export default function EpiFacilityStates({ norms }: { norms: M3Norms }) {
   ]
 
   return (
-    <div className="card">
+    <div className="card" data-step="fac-states">
       <div className="explorer-head">
         <div>
           <ExplainTitle id="td-fac-states" style={{ marginBottom: 2 }}>State-wise variation</ExplainTitle>

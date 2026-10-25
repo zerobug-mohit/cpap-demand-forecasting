@@ -3,15 +3,17 @@ import type { Norms, Totals } from '../engine/method1'
 import type { ComputedRow } from '../engine/method1'
 import { fmt } from '../utils/format'
 import M1Flow from './M1Flow'
+import { useExplain } from './Explain'
 
 export default function LensExplainer({ totals, norms, rows }: { totals: Totals; norms: Norms; rows: ComputedRow[] }) {
   const [open, setOpen] = useState(false)
   const [geo, setGeo] = useState('National')
+  const ex = useExplain('bu-how')
   const sortedStates = [...rows].map((r) => r.state).sort((a, b) => a.localeCompare(b))
   const flowTotals: Totals = geo === 'National' ? totals : (rows.find((r) => r.state === geo) ?? totals)
 
   return (
-    <div className="card lens-explainer">
+    <div className="card lens-explainer" data-step="bu-how">
       <div className="explain-head">
         <button className="lens-toggle-head" onClick={() => setOpen(!open)} aria-expanded={open}>
           <div>
@@ -24,7 +26,9 @@ export default function LensExplainer({ totals, norms, rows }: { totals: Totals;
           </div>
           <span className={`chevron ${open ? 'open' : ''}`}>▸</span>
         </button>
+        {ex.bulb}
       </div>
+      {ex.panel}
 
       {open && (
         <div style={{ marginTop: 12 }}>

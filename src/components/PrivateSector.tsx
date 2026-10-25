@@ -1,14 +1,14 @@
-import { useState } from 'react'
 import type { PrivateNorms } from '../engine/methodPrivate'
 import { DEFAULT_PRIVATE } from '../engine/methodPrivate'
 import type { M2Norms } from '../engine/method2'
 import PrivateHomes from './PrivateHomes'
 import EpiRds from './EpiRds'
-import { ExplainTitle, NoBulbs } from './Explain'
-
-type Approach = 'homes' | 'rds'
+import { ExplainTitle } from './Explain'
+import type { PvtApproach as Approach } from '../data/guide'
 
 interface Props {
+  approach: Approach
+  onApproach: (a: Approach) => void
   mp: PrivateNorms
   setMp: (n: PrivateNorms) => void
   mprv: M2Norms
@@ -20,12 +20,11 @@ const APPROACHES: { key: Approach; label: string }[] = [
   { key: 'rds', label: 'RDS prevalence (private)' },
 ]
 
-export default function PrivateSector({ mp, setMp, mprv, setMprv }: Props) {
-  const [approach, setApproach] = useState<Approach>('homes')
+export default function PrivateSector({ approach, onApproach, mp, setMp, mprv, setMprv }: Props) {
 
   return (
-    <NoBulbs>
-      <div className="card lens-explainer" style={{ marginBottom: 16 }}>
+    <>
+      <div className="card lens-explainer" style={{ marginBottom: 16 }} data-tour="pvt-switch">
         <ExplainTitle id="pvt-approach-switch">Private sector demand · two approaches</ExplainTitle>
         <p className="card-note" style={{ marginTop: 4 }}>
           The private maternity sector is estimated on its own, <strong>separate</strong> from the public (government)
@@ -36,7 +35,7 @@ export default function PrivateSector({ mp, setMp, mprv, setMprv }: Props) {
         <div className="epi-switch" role="tablist" aria-label="Private sector approach">
           {APPROACHES.map((a) => (
             <button key={a.key} role="tab" aria-selected={approach === a.key}
-              className={approach === a.key ? 'active' : ''} onClick={() => setApproach(a.key)}>
+              className={approach === a.key ? 'active' : ''} onClick={() => onApproach(a.key)}>
               {a.label}
             </button>
           ))}
@@ -46,6 +45,6 @@ export default function PrivateSector({ mp, setMp, mprv, setMprv }: Props) {
       {approach === 'homes'
         ? <PrivateHomes norms={mp} onChange={setMp} onReset={() => setMp(DEFAULT_PRIVATE)} />
         : <EpiRds norms={mprv} onChange={setMprv} />}
-    </NoBulbs>
+    </>
   )
 }

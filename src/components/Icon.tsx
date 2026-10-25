@@ -32,3 +32,31 @@ export function ResetIcon() {
     </svg>
   )
 }
+
+export function CheckIcon() {
+  return (
+    <svg {...base} strokeWidth={2.4}>
+      <path d="M5 12.5l4.5 4.5L19 7.5" />
+    </svg>
+  )
+}
+
+/** A path with a start and an end point: the guided tour. */
+export function TourIcon() {
+  return (
+    <svg {...base}>
+      <circle cx="6" cy="18" r="2.2" />
+      <circle cx="18" cy="6" r="2.2" />
+      <path d="M8.2 18H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.8" />
+    </svg>
+  )
+}
+
+export function ArrowRightIcon() {
+  return (
+    <svg {...base}>
+      <path d="M5 12h14" />
+      <path d="M13 6l6 6-6 6" />
+    </svg>
+  )
+}

@@ -47,7 +47,7 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
   return (
     <div className="layout-grid">
       {/* ---------------- controls ---------------- */}
-      <div className="card card-tight sticky-col fc-panel">
+      <div className="card card-tight sticky-col fc-panel" data-step="fac-inputs">
         <div className="flex-between">
           <div className="explain-head">
             <h2>Facility tiers</h2>
@@ -144,7 +144,7 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
       {/* ---------------- results ---------------- */}
       <div>
         <ExplainHere id="td-fac-kpis" />
-        <div className="kpi-row">
+        <div className="kpi-row" data-step="fac-result">
           <div className="kpi accent-navy">
             <div className="kpi-label">CPAP devices · public need</div>
             <div className="kpi-value">{fmt(r.totals.devices)}</div>
@@ -162,7 +162,7 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
           </div>
         </div>
 
-        <div className="card">
+        <div className="card" data-step="fac-levels">
           <p className="card-note" style={{ marginTop: 0 }}>
             The number of <strong>deliveries</strong> here is the facility count times the average deliveries per facility
             in each group, added up over the four public levels. It leaves out PHCs and sub-centres, so it will not match
@@ -251,7 +251,7 @@ export default function EpiFacility({ norms, onChange, onReset }: Props) {
 
         <EpiFacilityStates norms={norms} />
 
-        <div className="card">
+        <div className="card" data-step="fac-limits">
           <ExplainTitle id="td-fac-caveats">Method and limits</ExplainTitle>
           <ul className="src-list" style={{ paddingLeft: 18 }}>
             <li>This is an estimate of <strong>need</strong>. It works out how many machines a fully equipped public network would need, not how many are installed today.</li>

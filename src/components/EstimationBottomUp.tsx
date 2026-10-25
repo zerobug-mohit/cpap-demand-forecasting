@@ -9,6 +9,7 @@ import LensExplainer from './LensExplainer'
 import SummaryCards from './SummaryCards'
 import DataExplorer from './DataExplorer'
 import MethodologyCard from './MethodologyCard'
+import { ExplainHere } from './Explain'
 
 interface Props {
   norms: Norms
@@ -34,8 +35,8 @@ export default function EstimationBottomUp({ norms, onChange }: Props) {
           </>
         )}
 
-        <div style={{ marginTop: 16 }}>
-          <div className="section-label">Summary figures</div>
+        <div style={{ marginTop: 16 }} data-step="bu-result">
+          <ExplainHere id="bu-kpis" label="Summary figures" />
           <SummaryCards totals={totals} />
         </div>
         <DataExplorer rows={rows} totals={totals} showExt={norms.scope !== 'sncu'} />

@@ -64,7 +64,7 @@ export default function M2NormsPanel({ norms, onChange, onReset }: Props) {
   const ex = useExplain('td-rds-assumptions')
 
   return (
-    <div className="card card-tight sticky-col">
+    <div className="card card-tight sticky-col" data-step="rds-inputs">
       <div className="flex-between">
         <div className="explain-head">
           <h2>Assumptions and settings</h2>

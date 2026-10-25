@@ -12,6 +12,11 @@ export function NoBulbs({ children }: { children: ReactNode }) {
   return <BulbsOn.Provider value={false}>{children}</BulbsOn.Provider>
 }
 
+/** The "Show guides" switch in the masthead turns every bulb in the tool on or off. */
+export function Guides({ on, children }: { on: boolean; children: ReactNode }) {
+  return <BulbsOn.Provider value={on}>{children}</BulbsOn.Provider>
+}
+
 // The light-bulb toggle. Pressed, it shows a short plain-language explanation of the part beside it.
 function Bulb({ open, onClick, controls, title }: { open: boolean; onClick: () => void; controls: string; title: string }) {
   // Checked here too, because a parent can build the bulb with useExplain above the <NoBulbs> it renders.

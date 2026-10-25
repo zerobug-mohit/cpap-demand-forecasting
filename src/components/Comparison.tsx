@@ -8,7 +8,7 @@ import { fmt } from '../utils/format'
 import CmpScatter from './CmpScatter'
 import CmpMap from './CmpMap'
 import CmpTable from './CmpTable'
-import { ExplainTitle, ExplainHere, NoBulbs, useExplain } from './Explain'
+import { ExplainTitle, ExplainHere, useExplain } from './Explain'
 
 interface Props {
   m1: Norms
@@ -114,8 +114,8 @@ export default function Comparison({ m1, m2, m3 }: Props) {
 
   const needEx = useExplain('cmp-need-basis')
   return (
-    <NoBulbs>
-      <div className="card lens-explainer">
+    <>
+      <div className="card lens-explainer" data-step="cmp-area">
         <ExplainHere id="cmp-scope" />
         <div className="cmp-scope">
           <label htmlFor="cmp-scope-sel">Area</label>
@@ -138,7 +138,7 @@ export default function Comparison({ m1, m2, m3 }: Props) {
         const installedRows = rows.filter((r) => r.installed != null && r.installed > 0).sort((a, b) => b.tdFacility - a.tdFacility)
         if (installedRows.length === 0) return null
         return (
-          <div className="card">
+          <div className="card" data-step="cmp-installed">
             <ExplainTitle id="cmp-installed-states">States with reported installed devices</ExplainTitle>
             <p className="card-note">
               For the states that have reported how many CPAP machines are actually installed, this shows how that count
@@ -171,7 +171,7 @@ export default function Comparison({ m1, m2, m3 }: Props) {
         )
       })()}
 
-      <div className="card">
+      <div className="card" data-step="cmp-states">
         <div className="explorer-head">
           <div>
             <ExplainTitle id="cmp-by-state" style={{ marginBottom: 2 }}>By state: current demand against need</ExplainTitle>
@@ -205,7 +205,7 @@ export default function Comparison({ m1, m2, m3 }: Props) {
         {view === 'table' && <CmpTable rows={chartRows} />}
       </div>
 
-      <div className="card">
+      <div className="card" data-step="cmp-read">
         <ExplainTitle id="cmp-how-to-read">How to read it</ExplainTitle>
         <ul className="src-list" style={{ paddingLeft: 18 }}>
           <li><strong>Current demand against need:</strong> the gap between what today's SNCUs should have and what newborns actually need shows how much more the public system would have to add.</li>
@@ -214,6 +214,6 @@ export default function Comparison({ m1, m2, m3 }: Props) {
           <li>Private-sector demand is left out here on purpose. It is estimated separately on the CPAP Demand Estimation (Private) tab.</li>
         </ul>
       </div>
-    </NoBulbs>
+    </>
   )
 }

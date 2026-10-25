@@ -6,6 +6,7 @@ import BarView, { SERIES_META } from './BarView'
 import type { Series } from './BarView'
 import StateTable from './StateTable'
 import SourceNote from './SourceNote'
+import { ExplainHere } from './Explain'
 
 type View = 'map' | 'visual' | 'table'
 
@@ -32,8 +33,8 @@ export default function DataExplorer({ rows, totals, showExt }: Props) {
   }
 
   return (
-    <div className="card">
-      <div className="section-label">State-wise results</div>
+    <div className="card" data-step="bu-states">
+      <ExplainHere id="bu-states" label="State-wise results" />
       <div className="explorer-head">
         <div className="toggle-group" role="tablist" aria-label="View">
           {(['map', 'visual', 'table'] as View[]).map((v) => (
