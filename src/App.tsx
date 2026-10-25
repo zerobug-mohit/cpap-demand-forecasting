@@ -55,6 +55,15 @@ const PVT_OPTIONS: { key: PvtApproach; label: string }[] = [
   { key: 'rds', label: 'RDS prevalence (private)' },
 ]
 
+// TRIAL: designs for the Output column's section containers (styles/sections.css). Remove once one is chosen.
+const SEC_DESIGNS = [
+  { key: '', label: 'Current' },
+  { key: 'band', label: 'Navy band' },
+  { key: 'frame', label: 'Framed' },
+  { key: 'tab', label: 'Saffron tab' },
+]
+const SEC_KEY = 'cpap-sec-trial'
+
 // The Guides switch is a viewer's own preference, so it is remembered in this browser when it can be.
 const GUIDES_KEY = 'cpap-guides'
 function readGuides(): boolean {
@@ -77,6 +86,22 @@ export default function App() {
   const [mprv, setMprv] = useState<M2Norms>(DEFAULT_M2_PRIVATE)
   const [guidesOn, setGuidesOn] = useState(readGuides)
   const [tour, setTour] = useState<{ key: TrackKey; index: number } | null>(null)
+  const [sec, setSec] = useState(() => {
+    try {
+      return localStorage.getItem(SEC_KEY) ?? ''
+    } catch {
+      return ''
+    }
+  })
+  useEffect(() => {
+    if (sec) document.documentElement.dataset.sec = sec
+    else delete document.documentElement.dataset.sec
+    try {
+      localStorage.setItem(SEC_KEY, sec)
+    } catch {
+      /* the trial still works for this visit */
+    }
+  }, [sec])
 
   const activeSub = section === 'start' ? undefined : sub[section]
   const page = pageOf({ section, sub: activeSub, td, pvt })
@@ -199,6 +224,17 @@ export default function App() {
       {io && (
         <div className="io-footer">
           Prepared by WJCF. All calculations run in your web browser. Support: <a href="mailto:mchaurasiya@wjcf.in">mchaurasiya@wjcf.in</a>
+        </div>
+      )}
+
+      {io && (
+        <div className="sec-trial" role="group" aria-label="Section design trial">
+          <span className="sec-trial-label">Section design (trial)</span>
+          <div className="io-seg small">
+            {SEC_DESIGNS.map((d) => (
+              <button key={d.key || 'current'} type="button" aria-pressed={sec === d.key} className={sec === d.key ? 'on' : ''} onClick={() => setSec(d.key)}>{d.label}</button>
+            ))}
+          </div>
         </div>
       )}
 

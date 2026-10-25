@@ -1,0 +1,59 @@
+/* Design trial for the Output column's section containers (Result, How the number is worked out, ...).
+   The preview's "Section design" switcher sets <html data-sec="...">: band | frame | tab. With no value,
+   the current ruled design in io.css applies. Remove the losing designs once one is chosen. */
+
+/* The focus ring sits inside the bar, so a click does not leave a box around it. */
+.io-sec-head:focus { outline: none; }
+.io-sec-head:focus-visible { outline: 2px solid var(--c-primary); outline-offset: -2px; }
+
+/* ---------------- Navy band: open sections have a solid navy title bar; folded ones are white ---------------- */
+[data-sec="band"] .io-sec { margin-bottom: 18px; }
+[data-sec="band"] .io-sec-head { border-top: 0; padding: 10px 14px; background: var(--c-text); border: 1px solid var(--c-text); }
+[data-sec="band"] .io-sec-title, [data-sec="band"] .io-sec-head:hover .io-sec-title { color: #ffffff; font-size: 1rem; }
+[data-sec="band"] .io-sec-note { color: #d4e3ec; font-weight: 600; }
+[data-sec="band"] .io-sec-head .io-caret { color: #ffffff; }
+[data-sec="band"] .io-sec-head:hover { background: #1d4c75; }
+[data-sec="band"] .io-sec:not([open]) > .io-sec-head { background: var(--c-surface); }
+[data-sec="band"] .io-sec:not([open]) > .io-sec-head .io-sec-title { color: var(--c-text); }
+[data-sec="band"] .io-sec:not([open]) > .io-sec-head .io-sec-note { color: var(--c-text-muted); }
+[data-sec="band"] .io-sec:not([open]) > .io-sec-head .io-caret { color: var(--c-text); }
+[data-sec="band"] .io-sec:not([open]) > .io-sec-head:hover { background: var(--marker); }
+[data-sec="band"] .io-sec-body { padding-top: 10px; }
+[data-sec="band"] .io-sec-head:focus-visible { outline-color: var(--marker); }
+
+/* ---------------- Framed: one white panel per section, the key figure large, open / close at the end ---------------- */
+[data-sec="frame"] .io-sec { background: var(--c-surface); border: 1px solid var(--c-text); margin-bottom: 14px; }
+[data-sec="frame"] .io-sec-head { border-top: 0; padding: 12px 16px; gap: 14px; }
+[data-sec="frame"] .io-sec-title { flex: 1; min-width: 0; font-size: 1.08rem; }
+[data-sec="frame"] .io-sec-note { order: 2; margin-left: 0; font-size: 1.2rem; font-weight: 600; letter-spacing: -0.02em; color: var(--c-text); }
+[data-sec="frame"] .io-sec-head .io-caret {
+  order: 3; display: grid; place-items: center; width: 26px; height: 26px; border: 1px solid var(--c-text);
+  font-size: 0.72rem; color: var(--c-text);
+}
+[data-sec="frame"] .io-sec-head:hover .io-caret { background: var(--marker); }
+[data-sec="frame"] .io-sec-body { margin: 0 16px; padding: 14px 0 16px; border-top: 1px solid var(--c-border); }
+[data-sec="frame"] .io-sec-body > .card,
+[data-sec="frame"] .io-sec-body > .io-drill-card,
+[data-sec="frame"] .io-sec-body > .io-table,
+[data-sec="frame"] .io-sec-body > .io-bars { border: 0; padding-left: 0; padding-right: 0; background: none; box-shadow: none; margin-bottom: 0; }
+[data-sec="frame"] .io-sec-body > .card + .card { border-top: 1px solid var(--c-border); margin-top: 14px; padding-top: 14px; }
+[data-sec="frame"] .io-sec-body > .io-table caption { padding-left: 0; }
+
+/* ---------------- Saffron tab: the title on a saffron tab, on a full-width navy rule; folded tabs are grey ---------------- */
+[data-sec="tab"] .io-sec { margin-bottom: 18px; }
+[data-sec="tab"] .io-sec-head { border-top: 0; border-bottom: 2px solid var(--c-text); padding: 0; gap: 0; align-items: stretch; }
+[data-sec="tab"] .io-sec-head .io-caret { display: flex; align-items: center; padding: 0 0 0 12px; background: var(--marker); color: var(--c-text); }
+[data-sec="tab"] .io-sec-title { display: flex; align-items: center; padding: 8px 14px 7px 9px; background: var(--marker); font-size: 1rem; }
+[data-sec="tab"] .io-sec-head:hover .io-sec-title { color: var(--c-text); text-decoration: underline; text-underline-offset: 3px; }
+[data-sec="tab"] .io-sec-note { align-self: flex-end; padding-bottom: 6px; font-weight: 600; color: var(--c-text); }
+[data-sec="tab"] .io-sec:not([open]) > .io-sec-head .io-caret,
+[data-sec="tab"] .io-sec:not([open]) > .io-sec-head .io-sec-title { background: var(--c-surface-3); }
+[data-sec="tab"] .io-sec-body { padding-top: 12px; }
+
+/* ---------------- the temporary switcher ---------------- */
+.sec-trial {
+  position: fixed; right: 16px; bottom: 40px; z-index: 900; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  max-width: calc(100vw - 32px); padding: 8px 10px; background: var(--c-surface); border: 1px solid var(--c-text);
+  box-shadow: 0 8px 22px rgba(11, 29, 48, 0.22); font-size: 0.8rem;
+}
+.sec-trial-label { font-weight: 700; color: var(--c-text); }
