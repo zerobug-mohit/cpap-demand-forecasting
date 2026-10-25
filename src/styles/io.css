@@ -154,15 +154,14 @@
 .io-links .io-link-btn { grid-column: 1 / -1; justify-self: start; }
 
 /* ---------------- output ---------------- */
-/* A section: a navy title bar joined to a light panel that holds its content. Folded, only a white bar shows. */
-.io-sec { margin-bottom: 16px; border: 1px solid var(--c-text); background: var(--c-surface-alt); }
+/* A section: a navy title bar joined to a white panel that holds its content. Folded, only a white bar shows. */
+.io-sec { margin-bottom: 16px; border: 1px solid var(--c-text); background: var(--c-surface); }
 .io-sec-head { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--c-text); list-style: none; cursor: pointer; transition: background-color 0.15s; }
 .io-sec-head::-webkit-details-marker { display: none; }
 .io-sec-head:hover { background: #1d4c75; }
 .io-sec-title { font-size: 1rem; font-weight: 800; letter-spacing: -0.01em; color: #ffffff; }
 .io-sec-note { margin-left: auto; font-size: 0.84rem; font-weight: 600; color: #d4e3ec; font-variant-numeric: lining-nums proportional-nums; }
 .io-sec-head .io-caret { color: #ffffff; }
-.io-sec:not([open]) { background: var(--c-surface); }
 .io-sec:not([open]) > .io-sec-head { background: var(--c-surface); }
 .io-sec:not([open]) > .io-sec-head:hover { background: var(--marker); }
 .io-sec:not([open]) > .io-sec-head .io-sec-title, .io-sec:not([open]) > .io-sec-head .io-caret { color: var(--c-text); }
