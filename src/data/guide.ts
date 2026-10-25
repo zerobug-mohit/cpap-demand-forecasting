@@ -272,14 +272,14 @@ export const TRACKS: Track[] = [
         body: 'This tour covers RDS prevalence. The other approach, Deliveries × FBNC norms, has its own tour.',
       },
       {
-        target: inStep('rds', 2), scope: 'rds', open: 2,
+        target: inStep('rds', 1), scope: 'rds', open: 1,
         title: 'Newborns who need CPAP',
-        body: 'Step 2 sets how many newborns per 1,000 facility births are likely to need CPAP. The presets count 25 RDS cases per 1,000 births, doubled to cover other breathing problems treated with CPAP.',
+        body: 'Births in public facilities are counted with each state’s own public share. Step 1 sets how many newborns per 1,000 facility births are likely to need CPAP: the presets count 25 RDS cases per 1,000 births, doubled to cover other breathing problems treated with CPAP.',
       },
       {
-        target: inStep('rds', 3), scope: 'rds', open: 3,
+        target: inStep('rds', 2), scope: 'rds', open: 2,
         title: 'From newborns to machines',
-        body: 'Step 3 turns newborns into machines: each spends 5 days on CPAP, the days are divided by 365, and a 25% buffer is added. Step 4 sets how the total is shared among states.',
+        body: 'Step 2 turns newborns into machines: each spends 5 days on CPAP, the days are divided by 365, and a 25% buffer is added. Step 3 sets how the total is shared among states.',
       },
       {
         target: at('o-rds-result'),
@@ -431,8 +431,8 @@ export const TRACKS: Track[] = [
       },
       {
         target: inStep('prds', 1), scope: 'prds', open: 1,
-        title: 'Births counted',
-        body: 'Step 1 counts births in private facilities, using each state’s own private share. You can use one share for every state instead. The other steps work as in the public approach.',
+        title: 'The inputs',
+        body: 'Births in private facilities are counted with each state’s own private share. The steps on the left work as in the public approach: newborns who need CPAP, from newborns to machines, and sharing the total among states.',
       },
       {
         target: at('o-prds-result'),

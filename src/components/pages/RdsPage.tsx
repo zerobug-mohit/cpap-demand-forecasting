@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
-import { STATES2, NATIONAL_PUBLIC_SHARE } from '../../data/states2'
+import { STATES2 } from '../../data/states2'
 import { computeAll2, DEFAULT_M2, DEFAULT_M2_PRIVATE } from '../../engine/method2'
 import type { M2Driver, M2Norms } from '../../engine/method2'
 import { fmt } from '../../utils/format'
@@ -8,7 +8,7 @@ import SourceNote from '../SourceNote'
 import M2Explorer from '../M2Explorer'
 import DataCaveats from '../DataCaveats'
 import {
-  IoPage, useSteps, StepProgress, StepCard, StepNav, WhatToDo, FieldLegend, NumField, ChoiceField, CheckField,
+  IoPage, useSteps, StepProgress, StepCard, StepNav, WhatToDo, FieldLegend, NumField, ChoiceField,
   OutSection, Insight, Drill, DrillBlock, GeoSelect, Kpis, pill,
 } from '../io/Io'
 import type { Part } from '../io/Io'
@@ -20,19 +20,21 @@ const DRIVERS: { key: M2Driver; label: string }[] = [
 ]
 const pct = (v: number, dp = 1) => `${+(v * 100).toFixed(dp)}%`
 
-export default function RdsPage({ norms, onChange, top }: { norms: M2Norms; onChange: (n: M2Norms) => void; top?: ReactNode }) {
-  const priv = norms.sector === 'private'
+// The RDS-based estimate, for public facilities or (sector 'private') for private ones. Births are always
+// counted with each state's own NFHS-6 share of facility births; the one-share-for-every-state option is
+// not offered, so it is held off here.
+export default function RdsPage({ norms: given, onChange, top }: { norms: M2Norms; onChange: (n: M2Norms) => void; top?: ReactNode }) {
+  const priv = given.sector === 'private'
+  const norms: M2Norms = given.publicShareOverride === null && (priv || given.publicOnly) ? given : { ...given, publicOnly: true, publicShareOverride: null }
   const scope = priv ? 'prds' : 'rds'
+  const sector = priv ? 'private' : 'public'
   const D = priv ? DEFAULT_M2_PRIVATE : DEFAULT_M2
   const { rows, totals } = useMemo(() => computeAll2(STATES2, norms), [norms])
   const set = (patch: Partial<M2Norms>) => onChange({ ...norms, ...patch })
-  const steps = useSteps(scope, 4)
+  const steps = useSteps(scope, 3)
   const dirty = JSON.stringify(norms) !== JSON.stringify(D)
   const [geo, setGeo] = useState('India')
   const stateNames = useMemo(() => rows.map((r) => r.state).sort((a, b) => a.localeCompare(b)), [rows])
-  const scoped = priv || norms.publicOnly
-  const sector = priv ? 'private' : scoped ? 'public' : 'all'
-  const nationalShare = priv ? 1 - NATIONAL_PUBLIC_SHARE : NATIONAL_PUBLIC_SHARE
 
   // national standards for the need score, as the engine works them out (weighted by births counted)
   const std = useMemo(() => {
@@ -51,13 +53,10 @@ export default function RdsPage({ norms, onChange, top }: { norms: M2Norms; onCh
   const top1 = [...rows].sort((a, b) => b.gross - a.gross)[0]
 
   const st = geo === 'India' ? null : rows.find((r) => r.state === geo) ?? null
-  const shareTxt = priv ? 'private share' : 'public share'
-  const sharePart: Part[] = norms.publicShareOverride !== null
-    ? [pill(`${pct(norms.publicShareOverride, 0)} ${shareTxt}`, 'share')]
-    : st ? [`${pct(st.pubFactor)} ${shareTxt}`] : [`each state’s own ${shareTxt}`]
+  const shareTxt = `${sector} share`
   const birthsRow = st
-    ? { name: 'Facility births counted', parts: [`${fmt(st.births)} live births × ${pct(st.idr)} born in a facility`, ...(scoped ? [' × ', ...sharePart] : [])], value: fmt(st.baseInstBirths) }
-    : { name: 'Facility births counted', parts: [`${fmt(totals.births)} live births × each state’s facility delivery rate`, ...(scoped ? [' × ', ...sharePart] : [])], value: fmt(totals.baseInstBirths) }
+    ? { name: 'Facility births counted', parts: [`${fmt(st.births)} live births × ${pct(st.idr)} born in a facility × ${pct(st.pubFactor)} ${shareTxt}`], value: fmt(st.baseInstBirths) }
+    : { name: 'Facility births counted', parts: [`${fmt(totals.births)} live births × each state’s facility delivery rate × its own ${shareTxt}`], value: fmt(totals.baseInstBirths) }
 
   const g = st ?? totals
   const reaching = st ? st.reaching : totals.reaching
@@ -81,38 +80,15 @@ export default function RdsPage({ norms, onChange, top }: { norms: M2Norms; onCh
   const inputs = (
     <>
       {top}
-      <StepProgress steps={steps} labels={['Births counted', 'Newborns who need CPAP', 'From newborns to machines', 'Sharing among states']} />
+      <StepProgress steps={steps} labels={['Newborns who need CPAP', 'From newborns to machines', 'Sharing among states']} />
       <FieldLegend dirty={dirty} onReset={() => onChange(D)} />
 
-      <StepCard steps={steps} n={1} title="Births counted" note={priv ? 'private facilities' : norms.publicOnly ? 'public facilities' : 'all facilities'}>
+      <StepCard steps={steps} n={1} title="Newborns who need CPAP" note={`${norms.rdsPer1000} × ${norms.correction.toFixed(1)}`}>
         <WhatToDo>
-          {priv
-            ? 'Births in private facilities are counted: facility births that are not in public facilities. Keep each state’s own share, or use one share for every state.'
-            : 'Choose which facility births are counted. The preset counts public (NHM) facilities only, because that is what the government would buy machines for.'}
+          Check how many newborns per 1,000 facility births are likely to need CPAP. RDS is respiratory distress syndrome, a
+          breathing problem common in babies born early. The births counted are those in {sector} facilities, using each
+          state’s own {shareTxt} of facility births from NFHS-6.
         </WhatToDo>
-        {!priv && (
-          <CheckField field="publicOnly" label="Count public (NHM) facilities only" checked={norms.publicOnly} preset={D.publicOnly}
-            onChange={(publicOnly) => set({ publicOnly })} />
-        )}
-        {scoped && (
-          <>
-            <CheckField field="shareOn" label={`Use one ${shareTxt} for every state`} checked={norms.publicShareOverride !== null} preset={false}
-              onChange={(on) => set({ publicShareOverride: on ? nationalShare : null })}
-              hint={norms.publicShareOverride === null
-                ? (priv ? 'Each state uses 1 minus its own NFHS-6 public share: about 35% nationally, from 3% in Ladakh to 66% in Kerala.' : 'Each state uses its own NFHS-6 public share: about 65% nationally, from 34% in Kerala to 97% in Ladakh.')
-                : undefined} />
-            {norms.publicShareOverride !== null && (
-              <NumField field="share" label={`${priv ? 'Private' : 'Public'} share of facility births, every state`} value={norms.publicShareOverride}
-                preset={nationalShare} unit="%" scale={100} step={1} max={100} dp={0} onChange={(v) => set({ publicShareOverride: v })} />
-            )}
-            <SourceNote refs={[{ key: 'nfhs6', page: 'indicators 35 and 36' }]} note={`share of facility births in ${priv ? 'private' : 'public'} facilities`} />
-          </>
-        )}
-        <StepNav steps={steps} n={1} nextLabel="Next: newborns who need CPAP" />
-      </StepCard>
-
-      <StepCard steps={steps} n={2} title="Newborns who need CPAP" note={`${norms.rdsPer1000} × ${norms.correction.toFixed(1)}`}>
-        <WhatToDo>Check how many newborns per 1,000 facility births are likely to need CPAP. RDS is respiratory distress syndrome, a breathing problem common in babies born early.</WhatToDo>
         <NumField field="rdsPer1000" label="RDS cases per 1,000 facility births" value={norms.rdsPer1000} preset={D.rdsPer1000} unit="per 1,000" step={1} min={1} max={60} dp={1}
           onChange={(v) => set({ rdsPer1000: v })}
           tip="The preset, 25, is the top of the range in Indian studies that count RDS per birth (4.5 to 25.3)."
@@ -121,10 +97,11 @@ export default function RdsPage({ norms, onChange, top }: { norms: M2Norms; onCh
           onChange={(v) => set({ correction: v })}
           tip="RDS is not the only problem treated with CPAP. In Indian studies, the share of babies put on CPAP is about twice the share with RDS (1.9 in Aligarh, 2.1 in Navi Mumbai)."
           source={<SourceNote refs={[{ key: 'rdsRecent', page: '67.5% ÷ 35.5%' }, { key: 'distJain', page: '68% ÷ 32.8%' }]} />} />
-        <StepNav steps={steps} n={2} nextLabel="Next: from newborns to machines" />
+        <SourceNote refs={[{ key: 'nfhs6', page: 'indicators 35 and 36' }]} note={`each state’s share of facility births in ${sector} facilities`} />
+        <StepNav steps={steps} n={1} nextLabel="Next: from newborns to machines" />
       </StepCard>
 
-      <StepCard steps={steps} n={3} title="From newborns to machines" note={`${norms.durationDays} days · ${pct(norms.buffer, 0)} buffer`}>
+      <StepCard steps={steps} n={2} title="From newborns to machines" note={`${norms.durationDays} days · ${pct(norms.buffer, 0)} buffer`}>
         <WhatToDo>Check how long each newborn stays on CPAP, how many reach a facility, and the planning buffer.</WhatToDo>
         <NumField field="durationDays" label="Days on CPAP per newborn" value={norms.durationDays} preset={D.durationDays} unit="days" step={0.5} min={0.5} max={15} dp={1}
           onChange={(v) => set({ durationDays: v })}
@@ -134,10 +111,10 @@ export default function RdsPage({ norms, onChange, top }: { norms: M2Norms; onCh
           onChange={(v) => set({ admissionRate: v })} hint="A programme assumption. The births counted already happen in facilities, so the preset is 100%." />
         <NumField field="buffer" label="Planning buffer" value={norms.buffer} preset={D.buffer} unit="%" scale={100} step={5} max={100} dp={0}
           onChange={(v) => set({ buffer: v })} hint="Extra machines for busy days, breakdowns and the time to order replacements." />
-        <StepNav steps={steps} n={3} nextLabel="Next: sharing among states" />
+        <StepNav steps={steps} n={2} nextLabel="Next: sharing among states" />
       </StepCard>
 
-      <StepCard steps={steps} n={4} title="Sharing the total among states" note={DRIVERS.find((d) => d.key === norms.driver)?.label}>
+      <StepCard steps={steps} n={3} title="Sharing the total among states" note={DRIVERS.find((d) => d.key === norms.driver)?.label}>
         <WhatToDo>Choose how the national number is shared among states. This does not change the national total, only each state’s share.</WhatToDo>
         <ChoiceField field="driver" label="Share by" options={DRIVERS} value={norms.driver} preset={D.driver} onChange={(driver) => set({ driver })}
           hint="States with more low birth weight babies and more newborn deaths get a larger share, because these point to greater need." />
@@ -153,7 +130,7 @@ export default function RdsPage({ norms, onChange, top }: { norms: M2Norms; onCh
         )}
         <SourceNote refs={[{ key: 'nfhs5', page: 'LBW' }, { key: 'srs2024', page: 'Statement 48' }]} note="low birth weight and newborn death rate by state" />
         <DataCaveats />
-        <StepNav steps={steps} n={4} />
+        <StepNav steps={steps} n={3} />
       </StepCard>
     </>
   )
@@ -162,12 +139,12 @@ export default function RdsPage({ norms, onChange, top }: { norms: M2Norms; onCh
     <>
       <OutSection title="Result" step={`o-${scope}-result`} note={`${fmt(totals.gross)} machines`}>
         <Kpis items={[
-          { label: 'CPAP machines needed', value: fmt(totals.gross), sub: `for newborns in ${sector === 'all' ? 'all' : sector} facilities, with the buffer`, main: true },
-          { label: 'Facility births counted', value: fmt(totals.baseInstBirths), sub: `${sector === 'all' ? 'all' : sector} facility births a year` },
+          { label: 'CPAP machines needed', value: fmt(totals.gross), sub: `for newborns in ${sector} facilities, with the buffer`, main: true },
+          { label: 'Facility births counted', value: fmt(totals.baseInstBirths), sub: `${sector} facility births a year` },
           { label: 'Newborns likely to need CPAP', value: fmt(totals.eligible), sub: `${totals.eligPer1000.toFixed(1)} per 1,000 births counted` },
         ]} />
         <Insight>
-          About {fmt(totals.eligible)} newborns born in {sector === 'all' ? '' : `${sector} `}facilities each year are likely to need CPAP. On an
+          About {fmt(totals.eligible)} newborns born in {sector} facilities each year are likely to need CPAP. On an
           average day about {fmt(totals.meanConcurrent)} of them are on CPAP, so with the buffer {fmt(totals.gross)} machines are needed.
           {top1 && <> {top1.state} needs the most: {fmt(top1.gross)}.</>}
         </Insight>
@@ -199,6 +176,7 @@ export default function RdsPage({ norms, onChange, top }: { norms: M2Norms; onCh
       <OutSection title="Method and limits" step={`o-${scope}-limits`} defaultOpen={false}>
         <ul className="src-list io-list">
           <li>The national number is worked out first, then shared among states.</li>
+          <li>Births are counted with each state’s own NFHS-6 {shareTxt} of facility births.</li>
           <li>The share uses two signals: low birth weight and the newborn death rate, each compared with the national level. Smaller states and union territories have no newborn death rate in SRS, so only low birth weight moves their share.</li>
           <li>The RDS rates come from studies in large referral hospitals, which see sicker babies. They are used only for the national number.</li>
           <li>There is no reliable state rate of premature birth, so low birth weight is used in its place.</li>
