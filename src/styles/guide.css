@@ -126,10 +126,13 @@
 /* ---------------- Start here ---------------- */
 .cover { color: var(--c-text); }
 .cover-intro { padding: 10px 0 30px; border-bottom: 2px solid var(--c-text); }
-.cover-problem { margin: 0; max-width: 30ch; font-size: 2.3rem; font-weight: 800; letter-spacing: -0.035em; line-height: 1.08; color: var(--c-text); text-wrap: balance; }
-.cover-intro-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 24px 44px; margin-top: 24px; align-items: start; }
-.cover-prose p { margin: 0 0 12px; max-width: 68ch; font-size: 1.02rem; line-height: 1.62; color: var(--c-text); }
-.cover-prose p:last-child { margin-bottom: 0; }
+.cover-problem { margin: 0; font-size: 2.3rem; font-weight: 800; letter-spacing: -0.035em; line-height: 1.08; color: var(--c-text); text-wrap: balance; }
+/* The heading and the three intro paragraphs (side by side) on the left, the start box beside them, so the intro uses the full width. */
+.cover-intro-top { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 24px 48px; align-items: start; }
+.cover-prose { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 32px; margin-top: 20px; }
+.cover-prose p { margin: 0; font-size: 1.02rem; line-height: 1.62; color: var(--c-text); }
+.cover-prose p strong { color: var(--c-text); }
+@media (max-width: 1100px) { .cover-prose { grid-template-columns: 1fr; } .cover-prose p { max-width: 74ch; } }
 .cover-start { border: 1px solid var(--c-text); background: var(--c-surface); padding: 18px 18px 16px; }
 .cover-start h3 { margin: 0 0 6px; font-size: 1.08rem; }
 .cover-start p { margin: 0 0 6px; font-size: 0.9rem; line-height: 1.5; color: var(--c-text-muted); }
@@ -161,7 +164,7 @@
 .approach-name h4 { margin: 0 0 4px; font-size: 1.08rem; font-weight: 700; line-height: 1.25; color: var(--c-text); }
 .approach-tab { font-size: 0.78rem; line-height: 1.4; color: var(--c-text-muted); }
 .approach-text { grid-area: text; }
-.approach-text p { margin: 0 0 6px; font-size: 0.9rem; line-height: 1.55; color: var(--c-text-muted); max-width: 70ch; }
+.approach-text p { margin: 0 0 6px; font-size: 0.9rem; line-height: 1.55; color: var(--c-text-muted); max-width: 90ch; }
 .approach-text strong { color: var(--c-text); }
 .approach-result { grid-area: result; display: flex; flex-direction: column; align-items: flex-end; text-align: right; }
 .approach-figure { font-size: 2.5rem; font-weight: 600; letter-spacing: -0.04em; line-height: 1; color: var(--c-text); font-variant-numeric: lining-nums proportional-nums; white-space: nowrap; }
@@ -173,7 +176,7 @@
   .approach-actions { flex-direction: row; flex-wrap: wrap; }
 }
 @media (max-width: 900px) {
-  .cover-intro-grid { grid-template-columns: 1fr; }
+  .cover-intro-top { grid-template-columns: 1fr; }
   .cover-problem { font-size: 1.9rem; }
 }
 @media (max-width: 560px) {

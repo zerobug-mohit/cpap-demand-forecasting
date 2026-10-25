@@ -191,30 +191,33 @@ export default function Cover({ m1, m2, m3, mp, mprv, onOpen, onTour }: Props) {
   return (
     <div className="cover">
       <section className="cover-intro" aria-labelledby="cover-problem">
-        <h2 id="cover-problem" className="cover-problem">
-          Estimating how many CPAP machines India’s public and private health facilities need for newborns
-        </h2>
-        <div className="cover-intro-grid">
-          <div className="cover-prose">
-            <p>
-              CPAP stands for continuous positive airway pressure. A CPAP machine gently pushes air into a newborn’s lungs to
-              keep them open. It is the main treatment for newborns who struggle to breathe, especially babies born early.
-              Many of these babies have respiratory distress syndrome (RDS).
-            </p>
-            <p>
-              Planners need to know how many machines facilities need today, and how many the public sector will need in the
-              coming years. But there is no national count of the CPAP machines installed in India, and only six states have
-              reported their numbers. So demand has to be estimated.
-            </p>
-            <p>
-              This tool estimates demand in several independent ways, for India and for every state, so that the estimates
-              can be checked against each other. It then forecasts public demand for the next 5 to 12 years. Every number is
-              worked out in your web browser from published data. Every assumption is shown, explained and can be changed.
-            </p>
+        <div className="cover-intro-top">
+          <div className="cover-intro-main">
+            <h2 id="cover-problem" className="cover-problem">
+              Estimating how many CPAP machines India’s public and private health facilities need for newborns
+            </h2>
+            <div className="cover-prose">
+              <p>
+                <strong>What CPAP is.</strong> CPAP stands for continuous positive airway pressure. A CPAP machine gently pushes
+                air into a newborn’s lungs to keep them open. It is the main treatment for newborns who struggle to breathe,
+                especially babies born early. Many of these babies have respiratory distress syndrome (RDS).
+              </p>
+              <p>
+                <strong>Why demand has to be estimated.</strong> Planners need to know how many machines facilities need today,
+                and how many the public sector will need in the coming years. But there is no national count of the CPAP machines
+                installed in India, and only six states have reported their numbers.
+              </p>
+              <p>
+                <strong>What this tool does.</strong> It estimates demand in several independent ways, for India and for every
+                state, so that the estimates can be checked against each other. It then forecasts public demand for the next 5 to
+                12 years. Every number is worked out in your web browser from published data, and every assumption is shown,
+                explained and can be changed.
+              </p>
+            </div>
           </div>
           <aside className="cover-start" aria-label="Where to begin">
             <h3>New to the tool?</h3>
-            <p>Take the short tour first. It shows the main tabs, the steps on each page, the bulbs and the tours.</p>
+            <p>Take the short tour first. It shows the main tabs, the inputs and results on each page, the yellow values and the bulbs.</p>
             <button type="button" className="cover-btn primary wide" onClick={() => onTour('around')}>
               <TourIcon /> Take the two-minute tour
             </button>
