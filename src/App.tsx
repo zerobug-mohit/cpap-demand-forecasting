@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
 import Header from './components/Header'
 import Cover from './components/Cover'
-import StepTrack from './components/StepTrack'
 import TourOverlay from './components/TourOverlay'
 import { Guides } from './components/Explain'
-import EstimationBottomUp from './components/EstimationBottomUp'
-import EstimationTopDown from './components/EstimationTopDown'
-import PrivateSector from './components/PrivateSector'
-import Comparison from './components/Comparison'
+import { ApproachSwitch, PageTour, openIoStep } from './components/io/Io'
+import GuidelinesPage from './components/pages/GuidelinesPage'
+import FacilityPage from './components/pages/FacilityPage'
+import RdsPage from './components/pages/RdsPage'
+import HomesPage from './components/pages/HomesPage'
+import ComparePage from './components/pages/ComparePage'
 import Forecast from './components/Forecast'
 
 import { DEFAULT_NORMS } from './engine/method1'
@@ -18,7 +19,7 @@ import { DEFAULT_M3 } from './engine/method3'
 import type { M3Norms } from './engine/method3'
 import { DEFAULT_PRIVATE } from './engine/methodPrivate'
 import type { PrivateNorms } from './engine/methodPrivate'
-import { PAGE_STEPS, pageOf, trackOf } from './data/guide'
+import { pageOf, trackOf } from './data/guide'
 import type { Place, PvtApproach, Section, TdApproach, TrackKey } from './data/guide'
 
 type ToolSection = Exclude<Section, 'start'>
@@ -43,6 +44,15 @@ const PRIMARY: { key: Section; label: string; num?: string }[] = [
   { key: 'estimation', label: 'CPAP Demand Estimation (Public)', num: '01' },
   { key: 'forecasting', label: 'CPAP Demand Forecasting (Public)', num: '02' },
   { key: 'private', label: 'CPAP Demand Estimation (Private)', num: '03' },
+]
+
+const TD_OPTIONS: { key: TdApproach; label: string }[] = [
+  { key: 'rds', label: 'RDS prevalence' },
+  { key: 'facility', label: 'Deliveries × FBNC norms' },
+]
+const PVT_OPTIONS: { key: PvtApproach; label: string }[] = [
+  { key: 'homes', label: 'Maternity homes' },
+  { key: 'rds', label: 'RDS prevalence (private)' },
 ]
 
 // The Guides switch is a viewer's own preference, so it is remembered in this browser when it can be.
@@ -92,12 +102,17 @@ export default function App() {
     }
   }
 
-  // A tour step can move the app to another page before it points at something there.
+  // A tour step can move the app to another page, and open an input step there, before it points at something.
   const track = tour ? trackOf(tour.key) : null
   useEffect(() => {
     if (!tour) return
     const t = trackOf(tour.key)
-    goTo(t.steps[tour.index].place ?? t.place)
+    const step = t.steps[tour.index]
+    goTo(step.place ?? t.place)
+    if (!step.scope || !step.open) return
+    // the page may still be mounting (the forecast takes a moment), so ask twice
+    const timers = [80, 450].map((ms) => window.setTimeout(() => openIoStep(step.scope!, step.open!), ms))
+    return () => timers.forEach((id) => window.clearTimeout(id))
   }, [tour, goTo])
 
   const startTour = (key: TrackKey) => setTour({ key, index: 0 })
@@ -108,26 +123,49 @@ export default function App() {
   )
   const prevStep = useCallback(() => setTour((t) => (t && t.index > 0 ? { ...t, index: t.index - 1 } : t)), [])
 
+  const tdSwitch = (
+    <ApproachSwitch label="Approach" options={TD_OPTIONS} value={td} onChange={setTd}
+      note={td === 'rds'
+        ? 'Starts from newborns: how many born in public facilities are likely to need CPAP, from how often RDS occurs.'
+        : 'Starts from facilities: the deliveries at public hospitals, and the FBNC norm for machines per 1,000 deliveries.'} />
+  )
+  const pvtSwitch = (
+    <ApproachSwitch label="Approach" options={PVT_OPTIONS} value={pvt} onChange={setPvt}
+      note={pvt === 'homes'
+        ? 'Counts private maternity homes by size, and the machines each one should have.'
+        : 'Applies the RDS-based approach to births in private facilities, about 35% of all facility births.'} />
+  )
+
   const content = (() => {
     if (section === 'start') return <Cover m1={m1} m2={m2} m3={m3} mp={mp} mprv={mprv} onOpen={open} onTour={startTour} />
     if (section === 'estimation') {
-      if (activeSub === 'bu') return <EstimationBottomUp norms={m1} onChange={setM1} />
-      if (activeSub === 'td') return <EstimationTopDown approach={td} onApproach={setTd} m2={m2} setM2={setM2} m3={m3} setM3={setM3} />
-      return <Comparison m1={m1} m2={m2} m3={m3} />
+      if (activeSub === 'bu') return <GuidelinesPage key="bu" norms={m1} onChange={setM1} />
+      if (activeSub === 'td') {
+        return td === 'facility'
+          ? <FacilityPage key="fac" norms={m3} onChange={setM3} top={tdSwitch} />
+          : <RdsPage key="rds" norms={m2} onChange={setM2} top={tdSwitch} />
+      }
+      return <ComparePage key="cmp" m1={m1} m2={m2} m3={m3} onOpen={open} />
     }
-    if (section === 'private') return <PrivateSector approach={pvt} onApproach={setPvt} mp={mp} setMp={setMp} mprv={mprv} setMprv={setMprv} />
-    return <Forecast m1={m1} m3={m3} />
+    if (section === 'private') {
+      return pvt === 'homes'
+        ? <HomesPage key="homes" norms={mp} onChange={setMp} top={pvtSwitch} />
+        : <RdsPage key="prds" norms={mprv} onChange={setMprv} top={pvtSwitch} />
+    }
+    return <Forecast key="fc" m1={m1} m3={m3} />
   })()
 
+  const io = section !== 'start'
   return (
-    <>
+    <div className={`app${io ? ' app-io' : ''}`}>
       <Header guidesOn={guidesOn} onGuides={setGuides} onTour={startTour} />
 
       <nav className="app-nav" aria-label="Main tabs">
         <div className="app-nav-inner">
           <div className="nav-primary" data-tour="nav-primary">
             {PRIMARY.map((p) => (
-              <button key={p.key} className={section === p.key ? 'active' : ''} aria-current={section === p.key ? 'page' : undefined} onClick={() => { setSection(p.key); window.scrollTo({ top: 0 }) }}>
+              <button key={p.key} className={section === p.key ? 'active' : ''} aria-current={section === p.key ? 'page' : undefined}
+                onClick={() => { setSection(p.key); window.scrollTo({ top: 0 }) }}>
                 {p.num && <span className="nav-num">{p.num}</span>}
                 {p.label}
               </button>
@@ -145,20 +183,26 @@ export default function App() {
         </div>
       </nav>
 
-      {page && <StepTrack key={page} steps={PAGE_STEPS[page]} onTour={() => startTour(page)} />}
-
       <Guides on={guidesOn}>
-        <main className={`container${page ? ' has-steps' : ''}`}>
-          {content}
-
-          <div className="footer">
-            CPAP Demand Estimation &amp; Forecasting. Prepared by WJCF. All calculations run in your web browser.<br />
-            For support, contact the developer at <a href="mailto:mchaurasiya@wjcf.in">mchaurasiya@wjcf.in</a>
-          </div>
-        </main>
+        <PageTour.Provider value={page ? () => startTour(page) : null}>
+          <main className="container">
+            {content}
+            {!io && (
+              <div className="footer">
+                CPAP Demand Estimation &amp; Forecasting. Prepared by WJCF. All calculations run in your web browser.<br />
+                For support, contact the developer at <a href="mailto:mchaurasiya@wjcf.in">mchaurasiya@wjcf.in</a>
+              </div>
+            )}
+          </main>
+        </PageTour.Provider>
       </Guides>
+      {io && (
+        <div className="io-footer">
+          Prepared by WJCF. All calculations run in your web browser. Support: <a href="mailto:mchaurasiya@wjcf.in">mchaurasiya@wjcf.in</a>
+        </div>
+      )}
 
       {track && tour && <TourOverlay track={track} index={tour.index} onPrev={prevStep} onNext={nextStep} onClose={endTour} />}
-    </>
+    </div>
   )
 }

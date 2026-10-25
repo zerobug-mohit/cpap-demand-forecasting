@@ -12,6 +12,9 @@ export function NoBulbs({ children }: { children: ReactNode }) {
   return <BulbsOn.Provider value={false}>{children}</BulbsOn.Provider>
 }
 
+/** True when the masthead's Guides switch is on. */
+export const useGuidesOn = () => useContext(BulbsOn)
+
 /** The "Show guides" switch in the masthead turns every bulb in the tool on or off. */
 export function Guides({ on, children }: { on: boolean; children: ReactNode }) {
   return <BulbsOn.Provider value={on}>{children}</BulbsOn.Provider>

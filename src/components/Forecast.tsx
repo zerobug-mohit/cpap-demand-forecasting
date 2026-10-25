@@ -13,7 +13,9 @@ import type { LeverKey, LeverValues } from '../engine/forecastSim'
 import { fmt } from '../utils/format'
 import { MNCU_TIERS, ALS_AMBULANCES, BLS_AMBULANCES, ALS_SOURCE, MNCU_SOURCE } from '../data/forecastInputs'
 import { ResetIcon } from './Icon'
-import { ExplainTitle, ExplainHere, useExplain } from './Explain'
+import { ExplainTitle, ExplainHere } from './Explain'
+import { IoPage, useSteps, StepProgress, StepCard, StepNav, WhatToDo, FieldLegend, OutSection, Insight, Drill, DrillBlock, Picker, pill } from './io/Io'
+import type { Part } from './io/Io'
 
 // The Forecasting tab: every combination of the demand factors is simulated; three scenarios
 // (Baseline / Moderate / Accelerated) are picked from them, and any line can be selected to see
@@ -110,16 +112,16 @@ function CloudLayer({ xAxisMap, yAxisMap, lines, year0 }: any) {
 }
 
 // A labelled slider. Pass `def` to get a reset button that puts it back to that starting value.
-function Range({ id, label, value, min, max, step, suffix = '', def, onChange }: {
-  id?: string; label: string; value: number; min: number; max: number; step: number; suffix?: string; def?: number; onChange: (v: number) => void
+function Range({ id, field, label, value, min, max, step, suffix = '', def, onChange }: {
+  id?: string; field?: string; label: string; value: number; min: number; max: number; step: number; suffix?: string; def?: number; onChange: (v: number) => void
 }) {
   const inputId = useId()
   const changed = def !== undefined && value !== def
   return (
-    <div className="field" id={id} style={{ marginBottom: 12 }}>
+    <div className="field" id={id} data-field={field} style={{ marginBottom: 12 }}>
       <div className="fc-range-head">
         <label htmlFor={inputId}>{label}</label>
-        <span className="fc-normv">{value}{suffix}</span>
+        <span className={`fc-normv${def !== undefined ? (changed ? ' io-v-edited' : ' io-v-preset') : ''}`}>{value}{suffix}</span>
         {def !== undefined && (
           <button type="button" className="fc-reset" disabled={!changed} onClick={() => onChange(def)}
             title={changed ? `Reset to ${def}${suffix}` : 'This factor is at its starting value.'} aria-label={`Reset ${label} to ${def}${suffix}`}><ResetIcon /></button>
@@ -166,7 +168,7 @@ export default function Forecast({ m1, m3 }: { m1: Norms; m3: M3Norms }) {
   const [sel, setSel] = useState('s3') // the selected line: 's1'…'s3' or 'mine'; Accelerated when the tab opens
   const setLever = (k: LeverKey, v: number) => setMine((prev) => ({ ...prev, [k]: v }))
   const mineChanged = LEVERS.some((l) => mine[l.key] !== START[l.key])
-  const mineExplain = useExplain('fc-your-combination')
+  const steps = useSteps('fc', 4)
 
   const ens = useMemo(() => simulate(base, horizon, ceiling), [base, horizon, ceiling])
   const starters = useMemo(() => deriveStarters(base, horizon, ceiling), [base, horizon, ceiling])
@@ -256,128 +258,106 @@ export default function Forecast({ m1, m3 }: { m1: Norms; m3: M3Norms }) {
     </div>
   ) : null
 
-  return (
-    <div>
-      <div className="card" data-step="fc-how">
-        <ExplainTitle id="fc-how">How the forecast works</ExplainTitle>
-        <div className="fc-how">
-          <p className="card-note">
-            This forecast estimates how the demand for CPAP devices in public facilities grows year on year over the
-            next {horizon} years, up to {endYear}. That growth does not depend on one thing alone. It depends on several
-            factors working together: how fast new newborn care units open, how many of them get CPAP, and how many of
-            the devices are actually kept working. The forecast is built on seven such factors:
-          </p>
-          <div className="fc-how-factors">
-            <div className="fc-how-box">
-              <div className="fc-how-title">SNCUs <small>special newborn care units</small></div>
-              <p><b>SNCU growth</b> is how fast the number of SNCUs grows each year.</p>
-              <RangeNote keys={['sncuGrowthPct']} after={{ sncuGrowthPct: ', the past rate' }} />
-            </div>
-            <div className="fc-how-box">
-              <div className="fc-how-title">NBSUs <small>newborn stabilisation units</small></div>
-              <p><b>NBSUs with CPAP</b> is how many NBSUs get CPAP.</p>
-              <p><b>CPAP per NBSU</b> is how many CPAP each of these NBSUs gets.</p>
-              <RangeNote keys={['nbsuCpapSharePct', 'cpapPerNbsu']} />
-            </div>
-            <div className="fc-how-box">
-              <div className="fc-how-title">MNCUs <small>mother-newborn care units</small></div>
-              <p><b>Hospitals with an MNCU</b> is how many district hospitals and medical colleges open one.</p>
-              <p><b>CPAP per MNCU</b> is how many CPAP each MNCU has.</p>
-              <RangeNote keys={['mncuSharePct', 'cpapPerMncu']} />
-            </div>
-            <div className="fc-how-box">
-              <div className="fc-how-title">CPAP in transport <small>advanced life support (ALS) ambulances</small></div>
-              <p><b>CPAP in transport</b> is how many ALS ambulances carry a CPAP for moving sick newborns.</p>
-              <RangeNote keys={['alsCpapSharePct']} />
-            </div>
-            <div className="fc-how-box">
-              <div className="fc-how-title">Devices in use</div>
-              <p><b>Utilisation</b> is how many of all these devices are actually working and in use. It depends on staff training and motivation; procurement of devices, consumables and spare parts; repairs and maintenance; the price of commodities; and upcoming innovations.</p>
-              <RangeNote keys={['utilisationPct']} />
-            </div>
-          </div>
-          <p className="card-note">
-            We worked out the devices in use each year for every possible combination of values for these factors.
-            We also set out three scenarios. The Methodology note at the bottom of this tab explains how they are chosen.
-          </p>
-          <div className="fc-how-scn">
-            <div className="fc-how-box">
-              <div className="fc-how-title" style={{ color: 'var(--t-baseline)' }}><span className="sim-key" style={{ background: SCN_COLOR.s1 }} />Baseline</div>
-              <p>Things carry on as they are today. SNCUs keep growing at the past rate, and nothing else changes.</p>
-            </div>
-            <div className="fc-how-box">
-              <div className="fc-how-title" style={{ color: 'var(--t-moderate)' }}><span className="sim-key" style={{ background: SCN_COLOR.s2 }} />Moderate expansion</div>
-              <p>The factors improve part of the way. This closes half the gap between Baseline and the public need.</p>
-            </div>
-            <div className="fc-how-box">
-              <div className="fc-how-title" style={{ color: 'var(--t-accelerated)' }}><span className="sim-key" style={{ background: SCN_COLOR.s3 }} />Accelerated</div>
-              <p>The factors improve enough for the devices in use to reach the public need of <b>{fmt(ceiling)} devices</b> by {endYear}. This is the most CPAP the public sector could need.</p>
-            </div>
-          </div>
-        </div>
-        <div style={{ maxWidth: 380 }} data-tour="fc-years">
-          <ExplainHere id="fc-years" />
-          <Range id="fc-horizon" label="Years to project" value={horizonInput} min={5} max={12} step={1} suffix={` yr (to ${baseYear + horizonInput})`} onChange={setHorizon} />
-        </div>
-      </div>
+  // ---------------- the year-by-year calculation for the selected line ----------------
+  const isMine = selLine.key === 'mine'
+  const P = (t: string, field: LeverKey): Part => pill(t, isMine ? field : undefined)
+  const ce = selLine.years[horizon]
+  const L = selLine.levers
+  const drill = (
+    <Drill title={`${selLine.key === 'mine' ? 'Your combination' : selLine.name}, ${endYear}`}
+      controls={<Picker label="Line" value={selLine.key} onChange={setSel} options={lineCards.map((c) => ({ key: c.key, label: c.key === 'mine' ? 'Your combination' : c.name }))} />}
+      foot={<p className="io-drill-foot">{isMine ? 'These are your values: click a yellow one to change it on the left.' : 'A scenario’s values are set by the tool (see Methodology), so they are grey here. Pick Your combination to use your own.'} CPAP at NBSUs, at MNCUs and in ambulances builds up evenly from none today to these values in {endYear}.</p>}>
+      <DrillBlock label={`1 · SNCUs in ${endYear}`} rows={[
+        { name: 'SNCUs', parts: [`${fmt(base.sncu)} today × (1 + `, P(`${L.sncuGrowthPct}% a year`, 'sncuGrowthPct'), `) to the power ${horizon}`], value: fmt(ce.sncu) },
+      ]} />
+      <DrillBlock label={`2 · Devices in place in ${endYear}`} rows={[
+        { name: 'CPAP at SNCUs', parts: [`${fmt(ce.sncu)} SNCUs × ${base.cpapPerSncu.toFixed(1)} each, from the guidelines-based tab`], value: fmt(ce.sncuCore) },
+        { name: 'CPAP at NBSUs', parts: [`${fmt(base.nbsu)} NBSUs × `, P(`${L.nbsuCpapSharePct}% with CPAP`, 'nbsuCpapSharePct'), ' × ', P(`${L.cpapPerNbsu} each`, 'cpapPerNbsu')], value: fmt(ce.nbsu) },
+        { name: 'CPAP at MNCUs', parts: [`${fmt(base.mncuSites)} hospitals × `, P(`${L.mncuSharePct}% with an MNCU`, 'mncuSharePct'), ' × ', P(`${L.cpapPerMncu} each`, 'cpapPerMncu')], value: fmt(ce.mncu) },
+        { name: 'CPAP in ambulances', parts: [`${fmt(base.alsAmbulances)} ALS ambulances × `, P(`${L.alsCpapSharePct}% with a CPAP`, 'alsCpapSharePct'), ' × 1 each'], value: fmt(ce.transport) },
+        { name: 'Devices in place', parts: ['the four rows above, added up'], value: fmt(ce.total), total: true },
+      ]} />
+      <DrillBlock label="3 · Devices in use" rows={[
+        { name: 'Devices in use', parts: [`${fmt(ce.total)} × `, P(`${L.utilisationPct}% in use`, 'utilisationPct')], value: fmt(ce.effective), total: true },
+        { name: 'Share of the public need', parts: [`${fmt(ce.effective)} ÷ ${fmt(ceiling)}, the facility-based need`], value: `${pctOfNeed(ce.effective)}%` },
+      ]} />
+    </Drill>
+  )
 
-      <div className="layout-grid">
-        <div className="card card-tight sticky-col fc-panel" data-step="fc-inputs">
-          <div className="flex-between">
-            <h2>Your combination</h2>
-            <div className="explain-head" style={{ alignItems: 'center' }}>
-              <button type="button" className="fc-reset-all" disabled={!mineChanged} onClick={() => setMine(START)}>Reset all</button>
-              {mineExplain.bulb}
-            </div>
-          </div>
-          {mineExplain.panel}
-          <p className="card-note" style={{ marginTop: 2 }}>Set a value for each factor to build one combination. It shows on the chart as the "Your combination" line. The reset button beside a factor puts it back to its starting value.</p>
+  const inputs = (
+    <>
+      <StepProgress steps={steps} labels={['Years to project', 'SNCU growth', 'New CPAP outside SNCUs', 'Share in use']} />
+      <FieldLegend dirty={mineChanged || horizonInput !== 10} onReset={() => { setMine(START); setHorizon(10) }} />
 
-          <Range label="SNCU growth per year" value={mine.sncuGrowthPct} def={START.sncuGrowthPct} min={0} max={20} step={0.1} suffix="%" onChange={(v) => setLever('sncuGrowthPct', v)} />
-          <p className="hint" style={{ marginTop: -6, marginBottom: 12 }}>
-            This is how fast the number of SNCUs (special newborn care units) grows each year, starting from {fmt(base.sncu)} today. Each SNCU has {base.cpapPerSncu.toFixed(1)} CPAP. The number grew about {SNCU_PAST}% a year from 2014 to 2024.
-          </p>
-          <Range label={`NBSUs with CPAP by ${endYear}`} value={mine.nbsuCpapSharePct} def={START.nbsuCpapSharePct} min={0} max={100} step={5} suffix="% of NBSUs" onChange={(v) => setLever('nbsuCpapSharePct', v)} />
-          <p className="hint" style={{ marginTop: -6, marginBottom: 12 }}>
-            This is the share of the {fmt(base.nbsu)} NBSUs (newborn stabilisation units) that have CPAP. NBSUs are smaller units that stabilise sick newborns before referral. The FBNC guidelines do not provide CPAP at NBSUs today, so none are counted now.
-          </p>
-          <Range label="CPAP per NBSU" value={mine.cpapPerNbsu} def={START.cpapPerNbsu} min={1} max={4} step={0.5} onChange={(v) => setLever('cpapPerNbsu', v)} />
-          <p className="hint" style={{ marginTop: -6, marginBottom: 12 }}>
-            This is how many CPAP each NBSU with CPAP gets. An NBSU usually has 4 beds.
-          </p>
-          <Range label={`Hospitals with an MNCU by ${endYear}`} value={mine.mncuSharePct} def={START.mncuSharePct} min={0} max={100} step={5} suffix="% of eligible" onChange={(v) => setLever('mncuSharePct', v)} />
-          <p className="hint" style={{ marginTop: -6, marginBottom: 12 }}>
-            This is the share of the {fmt(base.mncuSites)} district hospitals and medical colleges that have an MNCU (mother-newborn care unit). Each hospital has at most one MNCU.
-          </p>
-          <Range label="CPAP per MNCU" value={mine.cpapPerMncu} def={START.cpapPerMncu} min={1} max={8} step={1} onChange={(v) => setLever('cpapPerMncu', v)} />
-          <p className="hint" style={{ marginTop: -6, marginBottom: 12 }}>
-            The FBNC 2025 guidelines suggest 4 CPAP for a 12-bed MNCU.
-          </p>
-          <Range label={`CPAP in transport by ${endYear}`} value={mine.alsCpapSharePct} def={START.alsCpapSharePct} min={0} max={100} step={5} suffix="% of ALS" onChange={(v) => setLever('alsCpapSharePct', v)} />
-          <p className="hint" style={{ marginTop: -6, marginBottom: 12 }}>
-            This is the share of the {fmt(base.alsAmbulances)} advanced life support (ALS) ambulances that carry a CPAP for newborn transfers. Each of these ambulances carries one CPAP.
-          </p>
-          <Range label={`Utilisation by ${endYear}`} value={mine.utilisationPct} def={START.utilisationPct} min={30} max={100} step={5} suffix="%" onChange={(v) => setLever('utilisationPct', v)} />
-          <p className="hint" style={{ marginTop: -6, marginBottom: 12 }}>
-            Utilisation is the share of devices that are actually working and in use. It depends on staff training and
-            motivation; procurement of devices, consumables and spare parts; repairs and maintenance; the price of
-            commodities; and upcoming innovations. It moves evenly from about {UTIL_NOW}% today to the value you set here.
-          </p>
+      <StepCard steps={steps} n={1} title="Years to project" note={`to ${baseYear + horizonInput}`}>
+        <WhatToDo>Choose how many years to look ahead, from 5 to 12. Every number on the right is worked out again for the new end year.</WhatToDo>
+        <Range id="fc-horizon" field="horizon" label="Years to project" value={horizonInput} def={10} min={5} max={12} step={1} suffix={` yr (to ${baseYear + horizonInput})`} onChange={setHorizon} />
+        <StepNav steps={steps} n={1} nextLabel="Next: SNCU growth" />
+      </StepCard>
 
-          <ExplainHere id="fc-your-result" />
+      <StepCard steps={steps} n={2} title="SNCU growth" note={`${mine.sncuGrowthPct}% a year`}>
+        <WhatToDo>Set how fast the number of SNCUs grows each year in your combination. Each new SNCU brings its CPAP machines with it.</WhatToDo>
+        <Range field="sncuGrowthPct" label="SNCU growth per year" value={mine.sncuGrowthPct} def={START.sncuGrowthPct} min={0} max={20} step={0.1} suffix="%" onChange={(v) => setLever('sncuGrowthPct', v)} />
+        <p className="hint" style={{ marginTop: -6, marginBottom: 12 }}>
+          SNCUs (special newborn care units) start from {fmt(base.sncu)} today, each with {base.cpapPerSncu.toFixed(1)} CPAP. Their number grew about {SNCU_PAST}% a year from 2014 to 2024.
+        </p>
+        <StepNav steps={steps} n={2} nextLabel="Next: new CPAP outside SNCUs" />
+      </StepCard>
+
+      <StepCard steps={steps} n={3} title="New CPAP outside SNCUs" note={`NBSU ${mine.nbsuCpapSharePct}% · MNCU ${mine.mncuSharePct}% · ALS ${mine.alsCpapSharePct}%`}>
+        <WhatToDo>Set how much CPAP is added at NBSUs, in mother-newborn care units (MNCUs) and in ambulances by {endYear}. Each one builds up evenly from none today.</WhatToDo>
+        <Range field="nbsuCpapSharePct" label={`NBSUs with CPAP by ${endYear}`} value={mine.nbsuCpapSharePct} def={START.nbsuCpapSharePct} min={0} max={100} step={5} suffix="% of NBSUs" onChange={(v) => setLever('nbsuCpapSharePct', v)} />
+        <p className="hint" style={{ marginTop: -6, marginBottom: 12 }}>
+          The share of the {fmt(base.nbsu)} NBSUs (newborn stabilisation units) that have CPAP. The FBNC guidelines do not provide CPAP at NBSUs today.
+        </p>
+        <Range field="cpapPerNbsu" label="CPAP per NBSU" value={mine.cpapPerNbsu} def={START.cpapPerNbsu} min={1} max={4} step={0.5} onChange={(v) => setLever('cpapPerNbsu', v)} />
+        <p className="hint" style={{ marginTop: -6, marginBottom: 12 }}>An NBSU usually has 4 beds.</p>
+        <Range field="mncuSharePct" label={`Hospitals with an MNCU by ${endYear}`} value={mine.mncuSharePct} def={START.mncuSharePct} min={0} max={100} step={5} suffix="% of eligible" onChange={(v) => setLever('mncuSharePct', v)} />
+        <p className="hint" style={{ marginTop: -6, marginBottom: 12 }}>
+          The share of the {fmt(base.mncuSites)} district hospitals and medical colleges that have an MNCU, at most one each.
+        </p>
+        <Range field="cpapPerMncu" label="CPAP per MNCU" value={mine.cpapPerMncu} def={START.cpapPerMncu} min={1} max={8} step={1} onChange={(v) => setLever('cpapPerMncu', v)} />
+        <p className="hint" style={{ marginTop: -6, marginBottom: 12 }}>The FBNC 2025 guidelines suggest 4 CPAP for a 12-bed MNCU.</p>
+        <Range field="alsCpapSharePct" label={`Ambulances with a CPAP by ${endYear}`} value={mine.alsCpapSharePct} def={START.alsCpapSharePct} min={0} max={100} step={5} suffix="% of ALS" onChange={(v) => setLever('alsCpapSharePct', v)} />
+        <p className="hint" style={{ marginTop: -6, marginBottom: 12 }}>
+          The share of the {fmt(base.alsAmbulances)} advanced life support (ALS) ambulances that carry a CPAP for moving sick newborns, one each.
+        </p>
+        <StepNav steps={steps} n={3} nextLabel="Next: share in use" />
+      </StepCard>
+
+      <StepCard steps={steps} n={4} title="Share of machines in use" note={`${mine.utilisationPct}%`}>
+        <WhatToDo>Set the share of machines that are working and in use by {endYear}.</WhatToDo>
+        <Range field="utilisationPct" label={`Share in use by ${endYear}`} value={mine.utilisationPct} def={START.utilisationPct} min={30} max={100} step={5} suffix="%" onChange={(v) => setLever('utilisationPct', v)} />
+        <p className="hint" style={{ marginTop: -6, marginBottom: 12 }}>
+          It depends on staff training and motivation, consumables and spare parts, repairs and maintenance. It moves evenly from about {UTIL_NOW}% today to the value you set here.
+        </p>
+        <StepNav steps={steps} n={4} />
+      </StepCard>
+
+          <p className="source-note" style={{ marginTop: 14 }}>
+            <span className="src-prefix">Base:</span> The forecast starts from {fmt(base.sncu)} SNCUs and {fmt(base.nbsu)} NBSUs today (RHS 2022-23). Each SNCU has {base.cpapPerSncu.toFixed(1)} CPAP, taken from the guidelines-based inputs. There are {fmt(base.mncuSites)} hospitals eligible for an MNCU ({MNCU_SOURCE}) and {fmt(base.alsAmbulances)} ALS ambulances ({ALS_SOURCE}).
+          </p>
+    </>
+  )
+
+  const output = (
+    <>
+      <OutSection title="Your result" step="o-fc-result" note={`${pctOfNeed(mineEnd.effective)}% of the need`}>
+        <ExplainHere id="fc-your-result" />
           <div className="sim-mine">
             Your combination has <strong>{fmt(mineEnd.total)}</strong> devices in place by {endYear}. At{' '}
             {mine.utilisationPct}% utilisation, <strong>{fmt(mineEnd.effective)}</strong> are in use, which
             is <strong>{pctOfNeed(mineEnd.effective)}%</strong> of the public need.{' '}
             {mineReach >= 0 ? <>It reaches the need in <strong>{yr(mineReach)}</strong>.</> : <>It does not reach the need by {endYear}.</>}
           </div>
+        <Insight>
+          The public need is {fmt(ceiling)} machines in use. By {endYear}, Baseline reaches {fmt(starters[0].years[horizon].effective)} ({pctOfNeed(starters[0].years[horizon].effective)}%),
+          Moderate expansion {fmt(starters[1].years[horizon].effective)} ({pctOfNeed(starters[1].years[horizon].effective)}%) and
+          Accelerated {fmt(acc.years[horizon].effective)} ({pctOfNeed(acc.years[horizon].effective)}%). Accelerated moves every factor {Math.round(acc.ambition * 100)}% of the way to its top value.
+        </Insight>
+      </OutSection>
 
-          <p className="source-note" style={{ marginTop: 14 }}>
-            <span className="src-prefix">Base:</span> The forecast starts from {fmt(base.sncu)} SNCUs and {fmt(base.nbsu)} NBSUs today (RHS 2022-23). Each SNCU has {base.cpapPerSncu.toFixed(1)} CPAP, taken from the guidelines-based inputs. There are {fmt(base.mncuSites)} hospitals eligible for an MNCU ({MNCU_SOURCE}) and {fmt(base.alsAmbulances)} ALS ambulances ({ALS_SOURCE}).
-          </p>
-        </div>
-
-        <div>
+      <OutSection title="Devices in use each year" step="o-fc-chart">
           <div className="card" data-step="fc-chart">
             <ExplainTitle id="fc-chart">Devices in use each year, across every combination</ExplainTitle>
             <p className="card-note">
@@ -470,7 +450,13 @@ export default function Forecast({ m1, m3 }: { m1: Norms; m3: M3Norms }) {
               {COMP.map((c) => (<span key={c.key}><span className="legend-dot" style={{ background: c.color }} />{c.label}</span>))}
             </div>
           </div>
+      </OutSection>
 
+      <OutSection title="How the number is worked out" step="o-fc-how">
+        {drill}
+      </OutSection>
+
+      <OutSection title="What matters most" step="o-fc-factors">
           <div className="card" data-step="fc-factors">
             <ExplainTitle id="fc-factors">Which factors change the number most</ExplainTitle>
             <p className="card-note">
@@ -493,9 +479,69 @@ export default function Forecast({ m1, m3 }: { m1: Norms; m3: M3Norms }) {
               ))}
             </div>
           </div>
-        </div>
-      </div>
+      </OutSection>
 
+      <OutSection title="How the forecast works" step="o-fc-explain" defaultOpen={false}>
+        <div className="card">
+          <div className="fc-how">
+          <p className="card-note">
+            This forecast estimates how the demand for CPAP devices in public facilities grows year on year over the
+            next {horizon} years, up to {endYear}. That growth does not depend on one thing alone. It depends on several
+            factors working together: how fast new newborn care units open, how many of them get CPAP, and how many of
+            the devices are actually kept working. The forecast is built on seven such factors:
+          </p>
+          <div className="fc-how-factors">
+            <div className="fc-how-box">
+              <div className="fc-how-title">SNCUs <small>special newborn care units</small></div>
+              <p><b>SNCU growth</b> is how fast the number of SNCUs grows each year.</p>
+              <RangeNote keys={['sncuGrowthPct']} after={{ sncuGrowthPct: ', the past rate' }} />
+            </div>
+            <div className="fc-how-box">
+              <div className="fc-how-title">NBSUs <small>newborn stabilisation units</small></div>
+              <p><b>NBSUs with CPAP</b> is how many NBSUs get CPAP.</p>
+              <p><b>CPAP per NBSU</b> is how many CPAP each of these NBSUs gets.</p>
+              <RangeNote keys={['nbsuCpapSharePct', 'cpapPerNbsu']} />
+            </div>
+            <div className="fc-how-box">
+              <div className="fc-how-title">MNCUs <small>mother-newborn care units</small></div>
+              <p><b>Hospitals with an MNCU</b> is how many district hospitals and medical colleges open one.</p>
+              <p><b>CPAP per MNCU</b> is how many CPAP each MNCU has.</p>
+              <RangeNote keys={['mncuSharePct', 'cpapPerMncu']} />
+            </div>
+            <div className="fc-how-box">
+              <div className="fc-how-title">CPAP in transport <small>advanced life support (ALS) ambulances</small></div>
+              <p><b>CPAP in transport</b> is how many ALS ambulances carry a CPAP for moving sick newborns.</p>
+              <RangeNote keys={['alsCpapSharePct']} />
+            </div>
+            <div className="fc-how-box">
+              <div className="fc-how-title">Devices in use</div>
+              <p><b>Utilisation</b> is how many of all these devices are actually working and in use. It depends on staff training and motivation; procurement of devices, consumables and spare parts; repairs and maintenance; the price of commodities; and upcoming innovations.</p>
+              <RangeNote keys={['utilisationPct']} />
+            </div>
+          </div>
+          <p className="card-note">
+            We worked out the devices in use each year for every possible combination of values for these factors.
+            We also set out three scenarios. The Methodology note at the bottom of this tab explains how they are chosen.
+          </p>
+          <div className="fc-how-scn">
+            <div className="fc-how-box">
+              <div className="fc-how-title" style={{ color: 'var(--t-baseline)' }}><span className="sim-key" style={{ background: SCN_COLOR.s1 }} />Baseline</div>
+              <p>Things carry on as they are today. SNCUs keep growing at the past rate, and nothing else changes.</p>
+            </div>
+            <div className="fc-how-box">
+              <div className="fc-how-title" style={{ color: 'var(--t-moderate)' }}><span className="sim-key" style={{ background: SCN_COLOR.s2 }} />Moderate expansion</div>
+              <p>The factors improve part of the way. This closes half the gap between Baseline and the public need.</p>
+            </div>
+            <div className="fc-how-box">
+              <div className="fc-how-title" style={{ color: 'var(--t-accelerated)' }}><span className="sim-key" style={{ background: SCN_COLOR.s3 }} />Accelerated</div>
+              <p>The factors improve enough for the devices in use to reach the public need of <b>{fmt(ceiling)} devices</b> by {endYear}. This is the most CPAP the public sector could need.</p>
+            </div>
+          </div>
+        </div>
+        </div>
+      </OutSection>
+
+      <OutSection title="Methodology" step="o-fc-method" defaultOpen={false}>
       <div className="card" data-step="fc-method">
         <ExplainTitle id="fc-method">Methodology</ExplainTitle>
         <div className="fc-method">
@@ -681,6 +727,9 @@ export default function Forecast({ m1, m3 }: { m1: Norms; m3: M3Norms }) {
           </ul>
         </div>
       </div>
-    </div>
+      </OutSection>
+    </>
   )
+
+  return <IoPage scope="fc" inputs={inputs} output={output} />
 }

@@ -46,9 +46,14 @@ export default function TourOverlay({ track, index, onPrev, onNext, onClose }: P
       if (el && el.getBoundingClientRect().height > 0) {
         const vh = window.innerHeight
         const h = el.getBoundingClientRect().height
-        const top = anchorOf(el).getBoundingClientRect().top + window.scrollY
-        const to = h > vh * 0.6 ? top - 80 : top - (vh - h) / 2
-        window.scrollTo({ top: Math.max(0, to), behavior: 'smooth' })
+        if (el.closest('.io-col')) {
+          // inside a column that scrolls on its own: let the browser scroll that column
+          el.scrollIntoView({ behavior: 'smooth', block: h > vh * 0.5 ? 'start' : 'center' })
+        } else {
+          const top = anchorOf(el).getBoundingClientRect().top + window.scrollY
+          const to = h > vh * 0.6 ? top - 80 : top - (vh - h) / 2
+          window.scrollTo({ top: Math.max(0, to), behavior: 'smooth' })
+        }
         raf = requestAnimationFrame(measure)
       } else if (tries++ < 90) {
         raf = requestAnimationFrame(locate)

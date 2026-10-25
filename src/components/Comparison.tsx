@@ -14,10 +14,17 @@ interface Props {
   m1: Norms
   m2: M2Norms
   m3: M3Norms
+  /** Set these to drive the area and the need basis from outside, for example from the Inputs column. */
+  scope?: string
+  onScope?: (s: string) => void
+  needBasis?: NeedBasis
+  onNeedBasis?: (b: NeedBasis) => void
+  /** Hide the area list and the need-basis buttons, because they are shown elsewhere. */
+  inputsOutside?: boolean
 }
 
 type View = 'scatter' | 'map' | 'table'
-type NeedBasis = 'rds' | 'facility'
+export type NeedBasis = 'rds' | 'facility'
 
 const INSTALLED_COLOR = 'var(--s-installed)'
 
@@ -79,10 +86,14 @@ function MarkerBar({ marks, showLegend = true, valueOnly = false }: { marks: Mar
   )
 }
 
-export default function Comparison({ m1, m2, m3 }: Props) {
+export default function Comparison({ m1, m2, m3, ...ctl }: Props) {
   const { rows, nat } = useMemo(() => compare(m1, m2, m3), [m1, m2, m3])
-  const [scope, setScope] = useState('national')
-  const [needBasis, setNeedBasis] = useState<NeedBasis>('rds')
+  const [scopeIn, setScopeIn] = useState('national')
+  const [basisIn, setBasisIn] = useState<NeedBasis>('rds')
+  const scope = ctl.scope ?? scopeIn
+  const setScope = ctl.onScope ?? setScopeIn
+  const needBasis = ctl.needBasis ?? basisIn
+  const setNeedBasis = ctl.onNeedBasis ?? setBasisIn
   const [view, setView] = useState<View>('scatter')
 
   const sortedStates = useMemo(() => rows.map((r) => r.state).sort((a, b) => a.localeCompare(b)), [rows])
@@ -116,14 +127,14 @@ export default function Comparison({ m1, m2, m3 }: Props) {
   return (
     <>
       <div className="card lens-explainer" data-step="cmp-area">
-        <ExplainHere id="cmp-scope" />
-        <div className="cmp-scope">
+        {!ctl.inputsOutside && <ExplainHere id="cmp-scope" />}
+        {!ctl.inputsOutside && <div className="cmp-scope">
           <label htmlFor="cmp-scope-sel">Area</label>
           <select id="cmp-scope-sel" value={scope} onChange={(e) => setScope(e.target.value)}>
             <option value="national">India (national)</option>
             {sortedStates.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
-        </div>
+        </div>}
         <ExplainTitle id="cmp-by-approach">Demand by approach: {scopeName}</ExplainTitle>
         <p className="card-note">
           This shows the public CPAP estimates side by side for the area you choose. It compares what today's SNCUs should
@@ -189,16 +200,16 @@ export default function Comparison({ m1, m2, m3 }: Props) {
               </button>
             ))}
           </div>
-          <div className="explorer-controls">
+          {!ctl.inputsOutside && <div className="explorer-controls">
             <span className="muted" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Need based on</span>
             <div className="series-toggle">
               <button className={needBasis === 'rds' ? 'on asis' : ''} onClick={() => setNeedBasis('rds')}>RDS prevalence</button>
               <button className={needBasis === 'facility' ? 'on norm' : ''} onClick={() => setNeedBasis('facility')}>Facility-based</button>
             </div>
             {needEx.bulb}
-          </div>
+          </div>}
         </div>
-        {needEx.panel}
+        {!ctl.inputsOutside && needEx.panel}
 
         {view === 'scatter' && <CmpScatter rows={chartRows} lens="existing" />}
         {view === 'map' && <CmpMap rows={chartRows} lens="existing" />}

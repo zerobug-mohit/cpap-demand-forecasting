@@ -1,4 +1,4 @@
-// The user guides: the steps shown at the top of each page, and the guided tours.
+// The user guides: the steps of each page, and the guided tours (two-panel version).
 // A page step points at an element marked data-step="<id>". A tour step points at any CSS selector,
 // and can move the app to a page first. All text is plain English in full sentences.
 
@@ -89,6 +89,9 @@ export interface TourStep {
   body: string
   /** Where to go before showing this step. Defaults to the tour's own page. */
   place?: Place
+  /** On a two-panel page, the input step to open first (with the page's scope). */
+  scope?: string
+  open?: number
 }
 
 export interface Track {
@@ -100,6 +103,12 @@ export interface Track {
 }
 
 const at = (id: string) => `[data-step="${id}"]`
+// Two-panel pages: an input step on the left, and the parts of the Output column.
+const inStep = (scope: string, n: number) => `[data-field-scope="${scope}"] [data-io-step="${n}"]`
+const IN = '[data-tour="io-inputs"]'
+const OUT = '[data-tour="io-output"]'
+const DRILL = '[data-tour="io-drill"]'
+const APPROACH = '[data-tour="io-approach"]'
 
 const BU: Place = { section: 'estimation', sub: 'bu' }
 const TD_FAC: Place = { section: 'estimation', sub: 'td', td: 'facility' }
@@ -109,11 +118,13 @@ const FC: Place = { section: 'forecasting', sub: 'fc' }
 const PVT_HOMES: Place = { section: 'private', sub: 'pvt', pvt: 'homes' }
 const PVT_RDS: Place = { section: 'private', sub: 'pvt', pvt: 'rds' }
 
+const DRILL_BODY = 'This breakdown shows each step of the calculation with the real numbers. A yellow value is an input you can change: click it, and the tool takes you to it on the left.'
+
 export const TRACKS: Track[] = [
   {
     key: 'around',
     label: 'Getting around the tool',
-    desc: 'The main tabs, the steps on each page, the bulbs and the tours.',
+    desc: 'The main tabs, the two columns on each page, the yellow values, the bulbs and the tours.',
     place: { section: 'start' },
     steps: [
       {
@@ -131,22 +142,28 @@ export const TRACKS: Track[] = [
         body: 'Each way of estimating demand has a row like this one, with its result. Open takes you to that approach. Take the tour walks you through it, one part at a time.',
       },
       {
-        target: '[data-tour="step-track"]',
+        target: IN,
         place: BU,
-        title: 'Steps on each page',
-        body: 'Each page lists its steps in order at the top. The step you are reading is highlighted. Click any step to jump to it.',
+        title: 'Inputs on the left',
+        body: 'Each approach has two columns. On the left are the inputs, in numbered steps. Open one step at a time, or use Next at the bottom of a step. Every input starts at a yellow preset value.',
       },
       {
-        target: 'main .explain-btn',
+        target: OUT,
         place: BU,
-        title: 'Bulbs explain each part',
-        body: 'Click a bulb to read what a part shows, how it is worked out and how to read it. Click the bulb again to close the note.',
+        title: 'Results on the right',
+        body: 'On the right are the results. They update as soon as you change an input on the left.',
+      },
+      {
+        target: DRILL,
+        place: BU,
+        title: 'Yellow values in each calculation',
+        body: DRILL_BODY,
       },
       {
         target: '[data-tour="guides-switch"]',
         place: BU,
-        title: 'Show or hide the bulbs',
-        body: 'Turn guides off to hide every bulb, for example when you present to a room. Turn them on again at any time.',
+        title: 'Show or hide the guides',
+        body: 'Turn Guides off to hide the bulbs and the “What to do” notes, for example when you present to a room. Turn them on again at any time.',
       },
       {
         target: '[data-tour="tour-button"]',
@@ -167,33 +184,33 @@ export const TRACKS: Track[] = [
         body: 'This approach answers one question: how many CPAP machines do the special newborn care units (SNCUs) that exist today need under the government’s FBNC 2025 guidelines? It does not ask how many newborns need CPAP. The Epidemiological Need tab does that.',
       },
       {
-        target: at('bu-inputs'),
-        title: 'Check the inputs',
-        body: 'These are the assumptions. The presets give each SNCU 16 beds on average, and a CPAP machine for 30% of SNCU beds, as FBNC suggests. A 25% planning buffer is added on top. Move a slider to change a value. Reset brings back the presets.',
+        target: inStep('bu', 1), scope: 'bu', open: 1,
+        title: 'Choose which units get CPAP',
+        body: 'The inputs are in numbered steps. Step 1 sets which newborn units are counted. Keep SNCUs only to follow the FBNC guidelines.',
       },
       {
-        target: at('bu-how'),
-        title: 'How it is worked out',
-        body: 'Click this heading to see the calculation step by step: SNCUs × beds per SNCU × CPAP per bed, plus the buffer. You can follow it for India or for one state.',
+        target: inStep('bu', 2), scope: 'bu', open: 2,
+        title: 'Check the SNCU norms',
+        body: 'The presets give each SNCU 16 beds on average, and a CPAP machine for 30% of SNCU beds. Yellow values are presets. A value you change turns green, and Reset all brings back the presets.',
       },
       {
-        target: at('bu-result'),
+        target: at('o-bu-result'),
         title: 'The result',
-        body: 'The first box is the answer: the CPAP machines that today’s SNCUs need, including the buffer. The other boxes show the beds and the SNCUs it is based on.',
+        body: 'The results are on the right and update as you type. The first box is the answer: the CPAP machines that today’s SNCUs need, including a 25% planning buffer.',
       },
       {
-        target: at('bu-states'),
+        target: DRILL,
+        title: 'How the number is worked out',
+        body: `${DRILL_BODY} Use Show for to follow the calculation for one state.`,
+      },
+      {
+        target: at('o-bu-states'),
         title: 'State by state',
-        body: 'See the result for every state as a map, a chart or a table. Six states have reported how many machines are installed. The chart and the table compare these counts with the estimate.',
-      },
-      {
-        target: at('bu-sources'),
-        title: 'Sources',
-        body: 'This card explains the method in full and links to every source document, so you can check each number.',
+        body: 'See the result for every state as a map, a chart or a table. Six states have reported how many machines are installed, and the chart and the table compare these counts with the estimate.',
       },
       {
         title: 'Try it yourself',
-        body: 'Change the average beds per SNCU on the left and watch every number update. Press Reset when you are done. Your changes stay until you reload the page.',
+        body: 'Click the yellow “16 beds” in the breakdown, change it on the left, and watch every number update. Reset all brings back the presets. Your changes stay until you reload the page.',
       },
     ],
   },
@@ -208,34 +225,34 @@ export const TRACKS: Track[] = [
         body: 'This approach estimates how many CPAP machines public hospitals would need if every one were equipped to the FBNC norm for the deliveries it does. It covers district hospitals, government medical colleges, sub-district hospitals and community health centres.',
       },
       {
-        target: '[data-tour="td-switch"]',
+        target: APPROACH,
         title: 'Two ways to estimate need',
         body: 'This tab has two approaches. This tour covers Deliveries × FBNC norms. The other approach, RDS prevalence, has its own tour.',
       },
       {
-        target: at('fac-inputs'),
-        title: 'Check the inputs',
-        body: 'The FBNC norm is 4 SNCU beds per 1,000 deliveries, with a CPAP machine for 30% of those beds. That gives 1.2 machines per 1,000 deliveries. Every sub-district hospital and community health centre gets at least one machine. Open the sections below to see the facility counts and average deliveries.',
+        target: inStep('fac', 1), scope: 'fac', open: 1,
+        title: 'The FBNC norm',
+        body: 'Step 1 sets the norm for each level of facility: 4 SNCU beds per 1,000 deliveries, with a CPAP machine for 30% of those beds. That gives 1.2 machines per 1,000 deliveries. Untick a level to leave it out.',
       },
       {
-        target: at('fac-result'),
+        target: inStep('fac', 2), scope: 'fac', open: 2,
+        title: 'Facilities and workload',
+        body: 'Step 2 sets how many facilities each level has, and how many of them do many or few deliveries. Step 3 sets the average deliveries for each group, and step 4 the planning buffer.',
+      },
+      {
+        target: at('o-fac-result'),
         title: 'The result',
         body: 'The first box is the total number of machines needed, including a 25% planning buffer. The other boxes show the deliveries and the facilities counted.',
       },
       {
-        target: at('fac-levels'),
-        title: 'By facility level',
-        body: 'The bars compare the machines needed at each level of facility. The full breakdown below splits each level into high, medium and low workload groups.',
+        target: DRILL,
+        title: 'How the number is worked out',
+        body: `Pick a facility level to see its calculation: the facilities in each workload group, their deliveries, and the machines. Every sub-district hospital and community health centre gets at least one machine. ${DRILL_BODY}`,
       },
       {
-        target: at('fac-states'),
+        target: at('o-fac-states'),
         title: 'State by state',
         body: 'The same calculation for each state, based on its own count of each type of facility. Use the map or the table.',
-      },
-      {
-        target: at('fac-limits'),
-        title: 'Limits',
-        body: 'This card lists what the estimate leaves out and which numbers are assumptions. Read it before you quote the total.',
       },
     ],
   },
@@ -250,34 +267,34 @@ export const TRACKS: Track[] = [
         body: 'This approach starts from newborns, not from facilities. It works out how many newborns born in public facilities are likely to need CPAP, and how many machines they need. RDS, respiratory distress syndrome, is a breathing problem common in babies born early.',
       },
       {
-        target: '[data-tour="td-switch"]',
+        target: APPROACH,
         title: 'Two ways to estimate need',
         body: 'This tour covers RDS prevalence. The other approach, Deliveries × FBNC norms, has its own tour.',
       },
       {
-        target: at('rds-inputs'),
-        title: 'Check the inputs',
-        body: 'The presets count 25 RDS cases per 1,000 facility births, and double this to cover other breathing problems treated with CPAP. Each newborn spends 5 days on CPAP, and a 25% planning buffer is added. Open a section to see or change its settings.',
+        target: inStep('rds', 2), scope: 'rds', open: 2,
+        title: 'Newborns who need CPAP',
+        body: 'Step 2 sets how many newborns per 1,000 facility births are likely to need CPAP. The presets count 25 RDS cases per 1,000 births, doubled to cover other breathing problems treated with CPAP.',
       },
       {
-        target: at('rds-how'),
-        title: 'How it is worked out',
-        body: 'Click this heading to see the calculation with real numbers, from live births to machines. You can follow it for India or for one state.',
+        target: inStep('rds', 3), scope: 'rds', open: 3,
+        title: 'From newborns to machines',
+        body: 'Step 3 turns newborns into machines: each spends 5 days on CPAP, the days are divided by 365, and a 25% buffer is added. Step 4 sets how the total is shared among states.',
       },
       {
-        target: at('rds-result'),
+        target: at('o-rds-result'),
         title: 'The result',
-        body: 'The first box is the total number of machines needed. The others show the births counted, the newborns likely to need CPAP, and how the total is shared among states.',
+        body: 'The first box is the total number of machines needed. The others show the births counted and the newborns likely to need CPAP.',
       },
       {
-        target: at('rds-states'),
+        target: DRILL,
+        title: 'How the number is worked out',
+        body: `${DRILL_BODY} Pick a state in Show for to see how its share is worked out from low birth weight and newborn deaths.`,
+      },
+      {
+        target: at('o-rds-states'),
         title: 'State by state',
-        body: 'The national number is shared among states using their facility births, low birth weight and newborn deaths. See each state’s share as a map, a chart or a table.',
-      },
-      {
-        target: at('rds-limits'),
-        title: 'Limits',
-        body: 'This card lists the main limits of this approach. Treat each state figure as its fair share of the national need, not as a count made in that state.',
+        body: 'See each state’s share of the national need as a map, a chart or a table. Treat each figure as a fair share, not as a count made in that state.',
       },
     ],
   },
@@ -292,9 +309,19 @@ export const TRACKS: Track[] = [
         body: 'The approaches answer different questions, so their results differ. This page puts the public results side by side, for India and for each state.',
       },
       {
-        target: at('cmp-area'),
+        target: inStep('cmp', 1), scope: 'cmp', open: 1,
         title: 'Choose an area',
-        body: 'Pick India or one state. The bar shows current demand, the two estimates of need and, where reported, the machines installed. The gap between current demand and need is what the public system would still have to add.',
+        body: 'Pick India or one state. Every result on the right is then shown for that area.',
+      },
+      {
+        target: inStep('cmp', 3), scope: 'cmp', open: 3,
+        title: 'Where the numbers come from',
+        body: 'This page has no inputs of its own. Each figure comes from an approach on another tab. Use “Change its inputs” to open that approach.',
+      },
+      {
+        target: at('cmp-area'),
+        title: 'Demand by approach',
+        body: 'The bar places current demand, the two estimates of need and, where reported, the machines installed on one line. The gap between current demand and need is what the public system would still have to add.',
       },
       {
         target: at('cmp-installed'),
@@ -304,12 +331,7 @@ export const TRACKS: Track[] = [
       {
         target: at('cmp-states'),
         title: 'All states compared',
-        body: 'This compares every state’s current demand with its need. Choose which estimate of need to use. States with current demand far below need are marked under-served.',
-      },
-      {
-        target: at('cmp-read'),
-        title: 'How to read it',
-        body: 'These notes explain what the comparison can and cannot tell you.',
+        body: 'This compares every state’s current demand with its need. Choose which estimate of need to use in step 2 on the left. States with current demand far below need are marked under-served.',
       },
     ],
   },
@@ -324,34 +346,34 @@ export const TRACKS: Track[] = [
         body: 'The forecast looks 5 to 12 years ahead. Each year it counts the CPAP machines in place and the machines actually in use. It compares the machines in use with the public need from the facility-based approach.',
       },
       {
-        target: at('fc-how'),
-        title: 'How the forecast works',
-        body: 'Seven factors move the forecast: SNCU growth, CPAP at newborn stabilisation units (NBSUs), CPAP at mother-newborn care units (MNCUs), CPAP in ambulances, and the share of machines in use. This card shows today’s level of each one and the range the tool tries.',
-      },
-      {
-        target: '[data-tour="fc-years"]',
+        target: inStep('fc', 1), scope: 'fc', open: 1,
         title: 'Years to project',
-        body: 'Choose how many years to look ahead. Every number on the page is worked out again for the new end year.',
+        body: 'Step 1 sets how many years to look ahead. Every number on the right is worked out again for the new end year.',
       },
       {
-        target: at('fc-inputs'),
+        target: inStep('fc', 3), scope: 'fc', open: 3,
         title: 'Your combination',
-        body: 'Set your own value for each factor with these sliders. Your result is drawn as the “Your combination” line on the chart and shown on the last card.',
+        body: 'Steps 2 to 4 set your own value for each factor: SNCU growth, new CPAP at NBSUs, at mother-newborn care units (MNCUs) and in ambulances, and the share of machines in use.',
       },
       {
-        target: at('fc-chart'),
+        target: at('o-fc-chart'),
         title: 'Every combination',
         body: 'The tool tries 253,440 combinations of the factors. The faint lines show some of them, and the shaded band holds the middle 8 in 10 results. The dashed line is the public need.',
       },
       {
         target: at('fc-scenarios'),
         title: 'The three scenarios',
-        body: 'Baseline keeps to today’s path. Moderate expansion closes half the gap to the need. Accelerated reaches the need by the end year. Click a card to see what makes up its machines.',
+        body: 'Baseline keeps to today’s path. Moderate expansion closes half the gap to the need. Accelerated reaches the need by the end year. Click a card to follow that line.',
       },
       {
-        target: at('fc-factors'),
+        target: DRILL,
+        title: 'How the number is worked out',
+        body: 'This breakdown follows the selected line to the end year: SNCUs, then each kind of CPAP, then the share in use. For your combination, click a yellow value to change it on the left.',
+      },
+      {
+        target: at('o-fc-factors'),
         title: 'What matters most',
-        body: 'This chart shows which factors change the result the most. The Methodology card below explains how the combinations and the scenarios are built.',
+        body: 'This chart shows which factors change the result the most. The notes below it explain how the forecast and the scenarios are built.',
       },
     ],
   },
@@ -366,29 +388,29 @@ export const TRACKS: Track[] = [
         body: 'The private sector is estimated apart from the public sector, because the government does not buy machines for private facilities. This approach counts private maternity homes and the machines each one should have.',
       },
       {
-        target: '[data-tour="pvt-switch"]',
+        target: APPROACH,
         title: 'Two ways to estimate',
         body: 'This tour covers Maternity homes. The other approach, RDS prevalence (private), has its own tour.',
       },
       {
-        target: at('homes-inputs'),
-        title: 'Check the inputs',
+        target: inStep('homes', 1), scope: 'homes', open: 1,
+        title: 'Homes by size group',
         body: 'Homes are counted in three size groups, each with a number of CPAP machines per home. There is no official count of private maternity homes, so these numbers are assumptions. Change them to match what you know.',
       },
       {
-        target: at('homes-result'),
+        target: at('o-homes-result'),
         title: 'The result',
         body: 'The first box is the total number of machines needed. This approach adds no planning buffer.',
       },
       {
-        target: at('homes-groups'),
-        title: 'By size group',
-        body: 'The bars and the table show how many machines each size group needs.',
+        target: DRILL,
+        title: 'How the number is worked out',
+        body: DRILL_BODY,
       },
       {
-        target: at('homes-limits'),
-        title: 'Limits',
-        body: 'This card lists the main limits of this approach. The result is kept apart from the public estimates.',
+        target: at('o-homes-groups'),
+        title: 'By size group',
+        body: 'The bars compare how many machines each size group needs. The notes below list the main limits of this approach.',
       },
     ],
   },
@@ -403,34 +425,29 @@ export const TRACKS: Track[] = [
         body: 'This approach uses the same steps as the public RDS-based approach, but it counts births in private facilities. These are about 35% of all facility births in India.',
       },
       {
-        target: '[data-tour="pvt-switch"]',
+        target: APPROACH,
         title: 'Two ways to estimate',
         body: 'This tour covers RDS prevalence (private). The other approach, Maternity homes, has its own tour.',
       },
       {
-        target: at('rds-inputs'),
-        title: 'Check the inputs',
-        body: 'The settings are the same as in the public approach. The first section sets each state’s private share of facility births.',
+        target: inStep('prds', 1), scope: 'prds', open: 1,
+        title: 'Births counted',
+        body: 'Step 1 counts births in private facilities, using each state’s own private share. You can use one share for every state instead. The other steps work as in the public approach.',
       },
       {
-        target: at('rds-how'),
-        title: 'How it is worked out',
-        body: 'Click this heading to follow the calculation with real numbers, for India or for one state.',
-      },
-      {
-        target: at('rds-result'),
+        target: at('o-prds-result'),
         title: 'The result',
         body: 'The first box is the total number of machines needed in private facilities, including a 25% planning buffer.',
       },
       {
-        target: at('rds-states'),
-        title: 'State by state',
-        body: 'See each state’s private need as a map, a chart or a table.',
+        target: DRILL,
+        title: 'How the number is worked out',
+        body: `${DRILL_BODY} Pick a state in Show for to follow its share.`,
       },
       {
-        target: at('rds-limits'),
-        title: 'Limits',
-        body: 'This card lists the main limits of this approach.',
+        target: at('o-prds-states'),
+        title: 'State by state',
+        body: 'See each state’s private need as a map, a chart or a table.',
       },
     ],
   },

@@ -14,7 +14,7 @@ import type { PrivateNorms } from '../engine/methodPrivate'
 import { deriveStarters } from '../engine/forecastSim'
 import type { Place, TrackKey } from '../data/guide'
 import { fmt } from '../utils/format'
-import { ArrowRightIcon, BulbIcon, CheckIcon, TourIcon } from './Icon'
+import { ArrowRightIcon, BulbIcon, TourIcon } from './Icon'
 
 // "Start here": the problem the tool answers, every approach with its live result, a short note on
 // the forecast, how to find your way around, and the key terms. Written for readers who are new to
@@ -300,42 +300,34 @@ export default function Cover({ m1, m2, m3, mp, mprv, onOpen, onTour }: Props) {
       <section className="cover-section" aria-labelledby="cover-help">
         <div className="cover-section-head">
           <h2 id="cover-help">How to find your way</h2>
-          <p>Every page works the same way, with the same help built in.</p>
+          <p>Every approach page works the same way, with the same help built in.</p>
         </div>
         <div className="aids">
-          <Aid
-            title="Steps at the top of each page"
-            demo={
-              <span className="aid-steps">
-                <span className="done"><CheckIcon /></span>
-                <span className="now">2</span>
-                <span>3</span>
-              </span>
-            }
-          >
-            Each page lists its steps in order at the top of the screen. The step you are reading is highlighted, and the
-            steps you have passed are ticked. Click a step to jump to it.
+          <Aid title="Inputs on the left, results on the right" demo={<span className="aid-cols"><span /><span /></span>}>
+            Each approach has two columns. On the left, the inputs are grouped into numbered steps that you open one at a
+            time. On the right, the results update as soon as you change an input.
           </Aid>
-          <Aid title="A bulb beside each part" demo={<span className="explain-btn"><BulbIcon /></span>}>
-            Click a bulb to read what a part shows, how it is worked out and how to read it. Switch Guides off at the top of
-            the page to hide all the bulbs, for example when you present to a room.
-          </Aid>
-          <Aid title="Guided tours" demo={<span className="aid-tour"><TourIcon /></span>}>
-            A guided tour points at each part of a page in turn and explains it. Start one from Guided tour at the top, from
-            Take the tour beside an approach above, or from Tour this page on any page.
+          <Aid title="Yellow values in each calculation" demo={<span className="io-pill demo">16 beds</span>}>
+            Each result has a breakdown that shows how it is worked out, with the real numbers. A yellow value is an input
+            you can change: click it, and the tool takes you to that input on the left.
           </Aid>
           <Aid
-            title="Inputs you can change"
+            title="Yellow and green inputs"
             demo={
               <span className="aid-badges">
-                <span className="badge preset">preset</span>
-                <span className="badge entered">edited</span>
+                <span className="aid-in preset">16</span>
+                <span className="aid-in edited">18</span>
               </span>
             }
           >
-            Every input starts at a preset value from a published source or a stated assumption. A value you change is
-            marked edited, and Reset brings back the presets. Your changes stay until you reload the page. Nothing you enter
-            leaves your computer.
+            Every input starts at a preset value in yellow, from a published source or a stated assumption. It turns green
+            when you change it, and Reset all brings back the presets. Your changes stay until you reload the page, and
+            nothing you enter leaves your computer.
+          </Aid>
+          <Aid title="Bulbs and guided tours" demo={<span className="explain-btn"><BulbIcon /></span>}>
+            Click a bulb beside a result to read what it shows. A guided tour walks you through an approach one part at a
+            time: start one from Guided tour at the top, or from Tour this page. Switch Guides off to hide the bulbs and the
+            “What to do” notes when you present.
           </Aid>
         </div>
       </section>
