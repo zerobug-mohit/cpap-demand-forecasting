@@ -18,7 +18,8 @@
   }
 }
 
-.io-grid { display: grid; grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.28fr); gap: 26px; align-items: start; }
+/* The Output column gets most of the width: it is where the results and calculations are read. */
+.io-grid { display: grid; grid-template-columns: minmax(340px, 0.7fr) minmax(0, 1.3fr); gap: 24px; align-items: start; }
 @media (max-width: 1000px) { .io-grid { grid-template-columns: 1fr; } }
 
 .io-colhead {
