@@ -154,15 +154,24 @@
 .io-links .io-link-btn { grid-column: 1 / -1; justify-self: start; }
 
 /* ---------------- output ---------------- */
-.io-sec { margin-bottom: 16px; }
-.io-sec-head { display: flex; align-items: center; gap: 10px; padding: 8px 2px; border-top: 2px solid var(--c-text); list-style: none; cursor: pointer; }
+/* A section: a navy title bar joined to a light panel that holds its content. Folded, only a white bar shows. */
+.io-sec { margin-bottom: 16px; border: 1px solid var(--c-text); background: var(--c-surface-alt); }
+.io-sec-head { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--c-text); list-style: none; cursor: pointer; transition: background-color 0.15s; }
 .io-sec-head::-webkit-details-marker { display: none; }
-.io-sec-head:focus-visible { outline: 2px solid var(--c-primary); outline-offset: 2px; }
-.io-sec-title { font-size: 1.06rem; font-weight: 800; letter-spacing: -0.01em; color: var(--c-text); }
-.io-sec-head:hover .io-sec-title { color: var(--c-primary); }
-.io-sec-note { margin-left: auto; font-size: 0.82rem; color: var(--c-text-muted); font-variant-numeric: lining-nums proportional-nums; }
-.io-sec-body { padding-top: 6px; }
+.io-sec-head:hover { background: #1d4c75; }
+.io-sec-title { font-size: 1rem; font-weight: 800; letter-spacing: -0.01em; color: #ffffff; }
+.io-sec-note { margin-left: auto; font-size: 0.84rem; font-weight: 600; color: #d4e3ec; font-variant-numeric: lining-nums proportional-nums; }
+.io-sec-head .io-caret { color: #ffffff; }
+.io-sec:not([open]) { background: var(--c-surface); }
+.io-sec:not([open]) > .io-sec-head { background: var(--c-surface); }
+.io-sec:not([open]) > .io-sec-head:hover { background: var(--marker); }
+.io-sec:not([open]) > .io-sec-head .io-sec-title, .io-sec:not([open]) > .io-sec-head .io-caret { color: var(--c-text); }
+.io-sec:not([open]) > .io-sec-head .io-sec-note { color: var(--c-text-muted); }
+.io-sec-body { padding: 14px; }
 .io-sec-body > .card:last-child { margin-bottom: 0; }
+/* Focus rings on the section bars show for keyboard users only (main.tsx sets html.kbd on Tab). */
+.io-sec-head:focus, .io-sec-head:focus-visible { outline: none; }
+html.kbd .io-sec-head:focus-visible { outline: 2px solid var(--marker); outline-offset: -3px; }
 
 .io-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
 .io-kpi { background: var(--c-surface); border: 1px solid var(--c-text); padding: 12px 14px; }
@@ -228,7 +237,7 @@ button.io-pill:focus-visible { outline: 2px solid var(--c-primary); outline-offs
 .aid-in.edited { background: var(--in-edited); border-color: var(--in-edited-line); }
 
 /* Figures in running text and the scenario cards read best with proportional digits (no gaps around commas and points). */
-.sim-mine, .fc-lines, .fc-calc, .fc-normv { font-variant-numeric: lining-nums proportional-nums; }
+.sim-mine, .sim-mine *, .fc-lines, .fc-lines *, .fc-calc, .fc-calc *, .fc-normv { font-variant-numeric: lining-nums proportional-nums; }
 
 /* A compact table inside an Output section (for example, the facility-based result by facility level). */
 .io-table { margin-top: 10px; overflow-x: auto; background: var(--c-surface); border: 1px solid var(--c-text); }
